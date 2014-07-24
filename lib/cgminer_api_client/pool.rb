@@ -13,6 +13,14 @@ module CgminerApiClient
       }
     end
 
+    def query(method, *params)
+      @miners.collect{|miner| miner.query(method, params) }
+    end
+
+    def method_missing(name, *args)
+      query(name, *args)
+    end
+
     def print_summary
       @total_ghs = 0
 
