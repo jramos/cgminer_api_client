@@ -6,9 +6,33 @@ A gem that allows sending API commands to a pool of cgminer instances.
 
 Clone this repository.
 
-## Usage
+## Configuration
+
+Copy ``config/miners.yml.example`` to ``config/miners.yml`` and update with the IP addresses (and optional ports) of your cgminer instances. E.g.
+
+    # connect to localhost on the default port (4028)
+    - host: 127.0.0.1
+    # connect to 192.168.1.1 on a non-standard port (1234)
+    - host: 192.168.1.1
+      port: 1234
+
+## Note
+
+Your cgminer instances must be configured to allow remote API access if connecting to anywhere but localhost (127.0.0.1). See the cgminer API-README for more information: https://github.com/ckolivas/cgminer/blob/master/API-README
+
+## CLI Usage
 
     $ bin/pool_summary
+
+## Gem Usage
+
+    require 'cgminer_api_client'
+    
+    pool = CgminerApiClient::Pool.new
+    puts pool.devices
+    puts pool.summary
+
+A complete list of available API commands can be found in the cgminer API documentation. https://github.com/ckolivas/cgminer/blob/master/API-README
 
 ## Contributing
 
