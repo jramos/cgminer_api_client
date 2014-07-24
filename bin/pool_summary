@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib/")
+
+require 'cgminer_api_client'
+
+pool = CgminerApiClient::Pool.new
+pool.print_summary
