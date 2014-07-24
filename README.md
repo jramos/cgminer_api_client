@@ -41,3 +41,9 @@ A complete list of available API commands can be found in the cgminer API docume
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
+
+## Donating
+
+If you find this gem useful, please consider donating.
+
+BTC: *****REMOVED*****
