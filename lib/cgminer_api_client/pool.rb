@@ -45,7 +45,7 @@ module CgminerApiClient
         end
       end
 
-      puts "\nTotal GH/s: #{@total_ghs} (#{(@total_ghs / @miners.count).round(1)} avg/miner)"
+      puts "\nTotal GH/s: #{@total_ghs.round(1)} (#{(@total_ghs / @miners.count).round(1)} avg/miner)"
     end
   end
 end
