@@ -37,14 +37,6 @@ module CgminerApiClient
       query(name, *args)
     end
 
-    def summary
-      query('summary')[:summary][0]
-    end
-
-    def devices
-      query('devs')[:devs]
-    end
-
     private
 
     def perform_request(request)

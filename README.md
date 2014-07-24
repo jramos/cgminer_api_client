@@ -55,8 +55,8 @@ Your cgminer instances must be configured to allow remote API access if connecti
     require 'cgminer_api_client'
     
     pool = CgminerApiClient::Pool.new
-    pool.devices  # run 'devs' on each miner and collect the results
-    pool.summary  # run 'summary' on each miner and collect the results
+    pool.devs     # run 'devs' on each miner in the pool
+    pool.summary  # run 'summary' on each miner in the pool
 
 Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 

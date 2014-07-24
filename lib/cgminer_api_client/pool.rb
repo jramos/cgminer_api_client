@@ -21,21 +21,13 @@ module CgminerApiClient
       query(name, *args)
     end
 
-    def summary
-      query('summary').collect{|summary| summary[:summary][0] }
-    end
-
-    def devices
-      query('devs').collect{|devs| devs[:devs] }
-    end
-
     def print_summary
       @total_ghs = 0
 
       @miners.each do |miner|
         if miner.available?
-          summary = miner.summary
-          devices = miner.devices
+          summary = miner.summary[:summary][0]
+          devices = miner.devs[:devs]
 
           @total_ghs += summary[:ghs_av]
 
