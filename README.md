@@ -18,7 +18,7 @@ Copy ``config/miners.yml.example`` to ``config/miners.yml`` and update with the 
 
 ## Note
 
-Your cgminer instances must be configured to allow remote API access if connecting to anywhere but localhost (127.0.0.1). See the cgminer API-README for more information: https://github.com/ckolivas/cgminer/blob/master/API-README
+Your cgminer instances must be configured to allow remote API access if connecting to anywhere but localhost (127.0.0.1). See the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README) for more information.
 
 ## CLI Usage
 
@@ -55,10 +55,10 @@ Your cgminer instances must be configured to allow remote API access if connecti
     require 'cgminer_api_client'
     
     pool = CgminerApiClient::Pool.new
-    puts pool.devices
-    puts pool.summary
+    pool.devices  # run 'devs' on each miner and collect the results
+    pool.summary  # run 'summary' on each miner and collect the results
 
-A complete list of available API commands can be found in the cgminer API documentation. https://github.com/ckolivas/cgminer/blob/master/API-README
+Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 
 ## Contributing
 

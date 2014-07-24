@@ -21,6 +21,14 @@ module CgminerApiClient
       query(name, *args)
     end
 
+    def summary
+      query('summary').collect{|summary| summary[:summary][0] }
+    end
+
+    def devices
+      query('devs').collect{|devs| devs[:devs] }
+    end
+
     def print_summary
       @total_ghs = 0
 
