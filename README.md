@@ -46,4 +46,4 @@ A complete list of available API commands can be found in the cgminer API docume
 
 If you find this gem useful, please consider donating.
 
-BTC: *****REMOVED*****
+BTC: ***REMOVED***
