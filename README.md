@@ -23,6 +23,32 @@ Your cgminer instances must be configured to allow remote API access if connecti
 ## CLI Usage
 
     $ bin/pool_summary
+    192.168.1.1:4028
+    	GH/s	178.53
+    	Devices	1
+    		Name	BMM
+    		Status	Alive
+    		Elapsed	261 min
+    		Temp	47.0 C
+    		Err	    0.1993%
+    192.168.1.2:4028
+    	GH/s	191.58
+    	Devices	1
+    		Name	BMM
+    		Status	Alive
+    		Elapsed	1394 min
+    		Temp	48.0 C
+    		Err	    0.0009%
+    192.168.1.3:4028
+    	GH/s	191.55
+    	Devices	1
+    		Name	BMM
+    		Status	Alive
+    		Elapsed	1391 min
+    		Temp	48.0 C
+    		Err	    0.0714%
+    
+    Total GH/s: 561.66 (187.2 avg/miner)
 
 ## Gem Usage
 
