@@ -40,7 +40,7 @@ module CgminerApiClient
             puts "\t\tStatus\t#{device[:status]}"
             puts "\t\tElapsed\t#{device[:device_elapsed] / 60} min"
             puts "\t\tTemp\t#{device[:temperature]} C"
-            puts "\t\tErr\t#{device[:'device_hardware%']}%"
+            puts "\t\tErr\t#{device[:'device_hardware%']}%\n\n"
           end
         end
       end
