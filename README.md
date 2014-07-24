@@ -16,11 +16,40 @@ Copy ``config/miners.yml.example`` to ``config/miners.yml`` and update with the 
     - host: 192.168.1.1
       port: 1234
 
-## Note
+### Remote API Access
 
 Your cgminer instances must be configured to allow remote API access if connecting to anywhere but localhost (127.0.0.1). See the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README) for more information.
 
+#### AntMiner S1 Instructions
+On an [AntMiner S1](https://www.bitmaintech.com/productDetail.htm?pid=00020140107162747992Ce5uBuxW06D6), you would do the following to allow access from your local network (192.168.1.x).
+
+    $ ssh -l root <antminer-ip>
+    root@<antminer-ip>'s password: root
+    
+    BusyBox v1.19.4 (2013-12-25 11:50:48 CST) built-in shell (ash)
+    Enter 'help' for a list of built-in commands.
+    
+      _______                     ________        __
+     |       |.-----.-----.-----.|  |  |  |.----.|  |_
+     |   -   ||  _  |  -__|     ||  |  |  ||   _||   _|
+     |_______||   __|_____|__|__||________||__|  |____|
+              |__| W I R E L E S S   F R E E D O M
+     ...
+     
+    root@antMiner:~# vi /etc/config/cgminer
+
+Make the following change:
+
+    # option api_allow 'W:127.0.0.1'
+    option api_allow 'W:127.0.0.1,W:192.168.1/24'
+
+Restart cgminer:
+
+    /etc/init.d/cgminer restart
+
 ## CLI Usage
+
+There is currently one command-line tool for viewing the overall status of your pool.
 
     $ bin/pool_summary
     192.168.1.1:4028
