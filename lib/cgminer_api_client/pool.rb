@@ -23,15 +23,21 @@ module CgminerApiClient
 
           @total_ghs += summary[:ghs_av]
 
-          puts "#{miner.host} - #{summary[:ghs_av]} GH/s"
+          puts "#{miner.host}:#{miner.port}"
+          puts "\tGH/s\t#{summary[:ghs_av]}"
+          puts "\tDevices\t#{devices.count}"
 
           devices.each do |device|
-            puts "\t#{device[:status]}\t#{device[:device_elapsed] / 60} min\t#{device[:temperature]} C\t#{device[:'device_hardware%']}%"
+            puts "\t\tName\t#{device[:name]}"
+            puts "\t\tStatus\t#{device[:status]}"
+            puts "\t\tElapsed\t#{device[:device_elapsed] / 60} min"
+            puts "\t\tTemp\t#{device[:temperature]} C"
+            puts "\t\tErr\t#{device[:'device_hardware%']}%"
           end
         end
       end
 
-      puts "\nTotal GH/s: #{@total_ghs}"
+      puts "\nTotal GH/s: #{@total_ghs} (#{(@total_ghs / @miners.count).round(1)} avg/miner)"
     end
   end
 end
