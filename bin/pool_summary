@@ -36,5 +36,4 @@ module CgminerApiClient
   end
 end
 
-pool = CgminerApiClient::Pool.new
-pool.print_summary
+CgminerApiClient::Pool.new.print_summary
