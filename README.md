@@ -25,7 +25,7 @@ Copy ``config/miners.yml.example`` to ``config/miners.yml`` and update with the 
 
 ### Remote API Access
 
-Your cgminer instances must be configured to allow remote API access if connecting to anywhere but localhost (127.0.0.1). See the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README) for more information.
+Your cgminer instances must be configured to allow remote API access if connecting from anywhere but localhost (127.0.0.1). See the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README) for more information.
 
 #### AntMiner S1 Instructions
 On an [AntMiner S1](https://www.bitmaintech.com/productDetail.htm?pid=00020140107162747992Ce5uBuxW06D6), you would do the following to allow access from your local network (192.168.1.x).
