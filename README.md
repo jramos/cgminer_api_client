@@ -1,4 +1,4 @@
-# CgminerApiClient
+# CgminerApiClient [![Build Status](https://travis-ci.org/jramos/cgminer_api_client.png?branch=master)](https://travis-ci.org/jramos/cgminer_api_client)
 
 A gem that allows sending API commands to a pool of cgminer instances.
 
