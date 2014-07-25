@@ -1,21 +1,26 @@
 require 'spec_helper'
 
 describe CgminerApiClient::Pool do
-  let(:mock_remote_api_client) { instance_double('CgminerApiClient::Miner') }
-  let(:host)                   { '127.0.0.1' }
-  let(:port)                   { 1234 }
-  let(:mock_miner_from_yaml)   { double('miner_from_yaml', :[] => {'host' => host, 'port' => port} ) }
-  let(:instance)               { CgminerApiClient::Pool.new }
+  let(:mock_miner)           { instance_double('CgminerApiClient::Miner') }
+  let(:host)                 { '127.0.0.1' }
+  let(:port)                 { 1234 }
+  let(:mock_miner_from_yaml) { double('miner_from_yaml', :[] => {'host' => host, 'port' => port} ) }
+  let(:instance)             { CgminerApiClient::Pool.new }
 
   before do
-    allow(CgminerApiClient::Miner).to receive(:new).and_return(mock_remote_api_client)
+    allow(CgminerApiClient::Miner).to receive(:new).and_return(mock_miner)
   end
 
   context 'attributes' do
     context '@miners' do
+      before do
+        allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+        allow_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!).and_return(true)
+      end
+
       it 'should allow setting and getting' do
-        subject.miners = :foo
-        expect(subject.miners).to eq :foo
+        instance.miners = :foo
+        expect(instance.miners).to eq :foo
       end
     end
   end
@@ -39,37 +44,48 @@ describe CgminerApiClient::Pool do
       end
 
       it 'should not raise an error' do
+        allow_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!).and_return(true)
+
         expect {
           instance
         }.to_not raise_error()
+      end
+
+      it 'should load the miners' do
+        expect_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!)
+        instance
       end
     end
   end
 
   context '#query' do
     before do
+      allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+      allow_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!).and_return(true)
       allow(instance).to receive(:load_miners!).and_return(true)
-      instance.instance_variable_set(:@miners, [mock_remote_api_client])
+      instance.instance_variable_set(:@miners, [mock_miner])
     end
 
     it 'should run provided query on each miner' do
-      expect(mock_remote_api_client).to receive(:query).with(:foo, anything)
+      expect(mock_miner).to receive(:query).with(:foo, anything)
       instance.query(:foo)
     end
 
     it 'should pass parameters' do
-      expect(mock_remote_api_client).to receive(:query).with(:foo, [:parameters])
+      expect(mock_miner).to receive(:query).with(:foo, [:parameters])
       instance.query(:foo, :parameters)
     end
 
     it 'should return an array' do
-      allow(mock_remote_api_client).to receive(:query).with(:foo, anything)
+      allow(mock_miner).to receive(:query).with(:foo, anything)
       expect(instance.query(:foo)).to be_kind_of(Array)
     end
   end
 
   context '#method_missing' do
     before do
+      allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+      allow_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!).and_return(true)
       allow(instance).to receive(:query).and_return(true)
     end
 
@@ -86,6 +102,10 @@ describe CgminerApiClient::Pool do
 
   context 'private methods' do
     context '#load_miners!' do
+      before do
+        allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+      end
+
       it 'should parse the configuration file' do
         expect(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml]).at_least(:once)
         instance.send(:load_miners!)
@@ -99,16 +119,16 @@ describe CgminerApiClient::Pool do
 
       it 'should assign the remote instances to @miners' do
         allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-        allow(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port]).and_return(mock_remote_api_client)
+        allow(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port]).and_return(mock_miner)
         instance.send(:load_miners!)
-        expect(instance.miners).to eq [mock_remote_api_client]
+        expect(instance.miners).to eq [mock_miner]
       end
 
       context 'no port specified' do
         it 'should use the default cgminer port of 4028' do
           expect(mock_miner_from_yaml).to receive(:[]).with('port').and_return(nil)
           allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-          expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml['host'], 4028).and_return(mock_remote_api_client)
+          expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml['host'], 4028).and_return(mock_miner)
           instance.send(:load_miners!)
         end
       end
