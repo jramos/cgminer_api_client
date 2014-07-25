@@ -8,17 +8,21 @@ require 'cgminer_api_client'
 module CgminerApiClient
   class Pool
     def print_summary
-      @total_ghs = 0
+      @total_ghs_avg = 0
+      @total_ghs_5s  = 0
+      @total_error_rate = 0
 
       @miners.each do |miner|
         if miner.available?
           summary = miner.summary[:summary][0]
           devices = miner.devs[:devs]
 
-          @total_ghs += summary[:ghs_av]
+          @total_ghs_avg += summary[:ghs_av]
+          @total_ghs_5s  += summary[:ghs_5s]
 
           puts "#{miner.host}:#{miner.port}"
-          puts "\tGH/s\t#{summary[:ghs_av]}"
+          puts "\tGH/s(5s)\t#{summary[:ghs_5s]}"
+          puts "\tGH/s(avg)\t#{summary[:ghs_av]}"
           puts "\tDevices\t#{devices.count}"
 
           devices.each do |device|
@@ -27,11 +31,18 @@ module CgminerApiClient
             puts "\t\tElapsed\t#{device[:device_elapsed] / 60} min"
             puts "\t\tTemp\t#{device[:temperature]} C"
             puts "\t\tErr\t#{device[:'device_hardware%']}%\n\n"
+
+            @total_error_rate += device[:'device_hardware%']
           end
         end
       end
 
-      puts "\nTotal GH/s: #{@total_ghs.round(1)} (#{(@total_ghs / @miners.count).round(1)} avg/miner)"
+      puts "============================================="
+      puts "\nTotal GH/s"
+      puts "\t5s\t#{@total_ghs_5s.round(1)} (#{(@total_ghs_5s / @miners.count).round(1)} avg/miner)"
+      puts "\tAvg\t#{@total_ghs_avg.round(1)} (#{(@total_ghs_avg / @miners.count).round(1)} avg/miner)"
+      puts "\nError Rate"
+      puts "\tAvg\t#{(@total_error_rate / @miners.count).round(4)}% avg/miner"
     end
   end
 end

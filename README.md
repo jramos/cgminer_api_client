@@ -58,35 +58,45 @@ Restart cgminer:
 
 There is currently one command-line tool for viewing the overall status of your pool.
 
-    $ bin/pool_summary
+    $ bin/pool_summary 
     192.168.1.1:4028
-    	GH/s	178.53
+    	GH/s(5s)	186.02
+    	GH/s(avg)	192.15
     	Devices	1
     		Name	BMM
     		Status	Alive
-    		Elapsed	261 min
-    		Temp	47.0 C
-    		Err	    0.1993%
+    		Elapsed	13 min
+    		Temp	49.5 C
+    		Err	0.2187%
     
     192.168.1.2:4028
-    	GH/s	191.58
+    	GH/s(5s)	206.0
+    	GH/s(avg)	192.03
     	Devices	1
     		Name	BMM
     		Status	Alive
-    		Elapsed	1394 min
-    		Temp	48.0 C
-    		Err	    0.0009%
+    		Elapsed	13 min
+    		Temp	47.0 C
+    		Err	0.1658%
     
     192.168.1.3:4028
-    	GH/s	191.55
+    	GH/s(5s)	195.64
+    	GH/s(avg)	192.01
     	Devices	1
     		Name	BMM
     		Status	Alive
-    		Elapsed	1391 min
-    		Temp	48.0 C
-    		Err	    0.0714%
+    		Elapsed	80 min
+    		Temp	49.0 C
+    		Err	0.0018%
     
-    Total GH/s: 561.66 (187.2 avg/miner)
+    =============================================
+    
+    Total GH/s
+    	5s	587.7 (195.9 avg/miner)
+    	Avg	576.2 (192.1 avg/miner)
+    
+    Error Rate
+    	Avg	0.1288% avg/miner
 
 ## Gem Usage
 
