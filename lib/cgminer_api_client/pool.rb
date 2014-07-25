@@ -22,7 +22,7 @@ module CgminerApiClient
     def load_miners!
       miners_config = YAML.load_file('config/miners.yml')
       @miners = miners_config.collect{|miner|
-        CgminerApiClient::Remote.new(miner['host'], (miner['port'] || 4028))
+        CgminerApiClient::Miner.new(miner['host'], (miner['port'] || 4028))
       }
     end
   end

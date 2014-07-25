@@ -1,5 +1,5 @@
 module CgminerApiClient
-  class Remote
+  class Miner
     require 'socket'
     require 'json'
 

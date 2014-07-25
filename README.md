@@ -86,6 +86,11 @@ There is currently one command-line tool for viewing the overall status of your 
     pool = CgminerApiClient::Pool.new
     pool.devs     # run 'devs' on each miner in the pool
     pool.summary  # run 'summary' on each miner in the pool
+    
+    # run commands on individual miners
+    pool.miners.each do |miner|
+        miner.
+    end
 
 Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 

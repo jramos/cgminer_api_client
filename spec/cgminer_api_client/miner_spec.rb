@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe CgminerApiClient::Remote do
+describe CgminerApiClient::Miner do
   let(:host)     { '127.0.0.1' }
   let(:port)     { 4028 }
-  let(:instance) { CgminerApiClient::Remote.new(host, port) }
+  let(:instance) { CgminerApiClient::Miner.new(host, port) }
 
   context 'attributes' do
     context '@host' do
@@ -24,13 +24,13 @@ describe CgminerApiClient::Remote do
   context '#initialize' do
     it 'should raise an argument error with 0 arguments' do
       expect {
-        CgminerApiClient::Remote.new
+        CgminerApiClient::Miner.new
       }.to raise_error(ArgumentError)
     end
 
     it 'should raise an argument error with 1 argument' do
       expect {
-        CgminerApiClient::Remote.new(host)
+        CgminerApiClient::Miner.new(host)
       }.to raise_error(ArgumentError)
     end
 
