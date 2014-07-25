@@ -84,12 +84,16 @@ There is currently one command-line tool for viewing the overall status of your 
     require 'cgminer_api_client'
     
     pool = CgminerApiClient::Pool.new
-    pool.devs     # run 'devs' on each miner in the pool
-    pool.summary  # run 'summary' on each miner in the pool
+    
+    # run 'devs' on each miner in the pool; returns an array of response hashes
+    devices = pool.devs
+    
+    # run 'summary' on each miner in the pool; returns an array of response hashes
+    summaries = pool.summary
     
     # run commands on individual miners
     pool.miners.each do |miner|
-        miner.
+        miner.devs   # run 'devs' on this miner; returns a response hash
     end
 
 Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
