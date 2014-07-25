@@ -60,43 +60,45 @@ There is currently one command-line tool for viewing the overall status of your 
 
     $ bin/pool_summary 
     192.168.1.1:4028
-    	GH/s(5s)	186.02
-    	GH/s(avg)	192.15
+    	GH/s(5s)	186.19
+    	GH/s(avg)	191.88
     	Devices	1
     		Name	BMM
     		Status	Alive
-    		Elapsed	13 min
-    		Temp	49.5 C
-    		Err	0.2187%
+    		Elapsed	42 min
+    		Temp	50.0 C
+    		Err	0.2156%
     
     192.168.1.2:4028
-    	GH/s(5s)	206.0
-    	GH/s(avg)	192.03
+    	GH/s(5s)	191.95
+    	GH/s(avg)	192.34
     	Devices	1
     		Name	BMM
     		Status	Alive
-    		Elapsed	13 min
+    		Elapsed	41 min
     		Temp	47.0 C
-    		Err	0.1658%
+    		Err	0.1697%
     
     192.168.1.3:4028
-    	GH/s(5s)	195.64
-    	GH/s(avg)	192.01
+    	GH/s(5s)	195.82
+    	GH/s(avg)	191.41
     	Devices	1
     		Name	BMM
     		Status	Alive
-    		Elapsed	80 min
+    		Elapsed	109 min
     		Temp	49.0 C
-    		Err	0.0018%
+    		Err	0.0021%
     
     =============================================
     
     Total GH/s
-    	5s	587.7 (195.9 avg/miner)
-    	Avg	576.2 (192.1 avg/miner)
+    	5s	574.0 (191.3 avg/miner)
+    	Avg	575.6 (191.9 avg/miner)
     
     Error Rate
-    	Avg	0.1288% avg/miner
+    	Avg	0.1291%/miner
+    	GH/s(5s)	0.74
+    	GH/s(avg)	0.74
 
 ## Gem Usage
 
