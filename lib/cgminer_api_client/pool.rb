@@ -6,11 +6,7 @@ module CgminerApiClient
 
     def initialize
       raise 'Please create config/miners.yml' unless File.exist?('config/miners.yml')
-
-      miners_config = YAML.load_file('config/miners.yml')
-      @miners = miners_config.collect{|miner|
-        CgminerApiClient::Remote.new(miner['host'], (miner['port'] || 4028))
-      }
+      load_miners!
     end
 
     def query(method, *params)
@@ -19,6 +15,15 @@ module CgminerApiClient
 
     def method_missing(name, *args)
       query(name, *args)
+    end
+
+    private
+    
+    def load_miners!
+      miners_config = YAML.load_file('config/miners.yml')
+      @miners = miners_config.collect{|miner|
+        CgminerApiClient::Remote.new(miner['host'], (miner['port'] || 4028))
+      }
     end
   end
 end
