@@ -50,20 +50,115 @@ describe CgminerApiClient::Remote do
   end
 
   context '#available?' do
-    pending
+    context 'TCPSocket.open raises an error' do
+      before do
+        expect(TCPSocket).to receive(:open).and_raise(SocketError)
+      end
+
+      it 'should return false' do
+        expect(instance.available?).to eq false
+      end
+    end
+
+    context 'TCPSocket.open does not raise an error' do
+      let(:mock_socket) { instance_double('TCPSocket') }
+
+      before do
+        expect(TCPSocket).to receive(:open).and_return(mock_socket)
+      end
+
+      context 'socket #close raises an error' do
+        before do
+          expect(mock_socket).to receive(:close).and_raise(SocketError)
+        end
+
+        it 'should return false' do
+          expect(instance.available?).to eq false
+        end
+      end
+
+      context 'socket #close does not raise an error' do
+        before do
+          expect(mock_socket).to receive(:close).and_return(:foo)
+        end
+
+        it 'should return true' do
+          expect(instance.available?).to eq true
+        end
+      end
+    end
   end
 
   context '#query' do
-    pending
+    context 'no parameters' do
+      it 'should perform a command request' do
+        expect(instance).to receive(:perform_request).with({:command => :foo})
+        instance.query(:foo)
+      end
+    end
+
+    context 'parameters' do
+      it 'should perform a command request with parameters' do
+        expect(instance).to receive(:perform_request).with({:command => :foo, :parameter => 'bar,123,\\456'})
+        instance.query(:foo, :bar, :'123', :'\456')
+      end
+    end
+
+    it 'should return sanitized data' do
+      mock_data = double('data')
+      expect(instance).to receive(:perform_request).and_return(mock_data)
+      expect(instance).to receive(:sanitized).with(mock_data)
+      instance.query(:foo)
+    end
   end
 
   context '#method_missing' do
-    pending
+    before do
+      allow(instance).to receive(:query).and_return(true)
+    end
+
+    it 'should query the miner with the method name' do
+      expect(instance).to receive(:query).with(:foo).and_return(true)
+      instance.method_missing(:foo)
+    end
+
+    it 'should pass arguments' do
+      expect(instance).to receive(:query).with(:foo, [:arguments])
+      instance.method_missing(:foo, [:arguments])
+    end
   end
 
   context 'private methods' do
     context '#perform_request' do
-      pending
+      context 'TCPSocket cannot be opened' do
+        before do
+          expect(TCPSocket).to receive(:open).and_raise(SocketError)
+        end
+
+        it 'should raise an exception' do
+          expect {
+            instance.send(:perform_request, {})
+          }.to raise_error()
+        end
+      end
+
+      context 'TCPSocket can be opened' do
+        let(:mock_socket) { instance_double('TCPSocket', {
+          :write => true,
+          :read  => "{'json':true}",
+          :close => true
+        }) }
+
+        before do
+          expect(TCPSocket).to receive(:open).and_return(mock_socket)
+        end
+
+        it 'should parse the response as JSON and check the status' do
+          expect(JSON).to receive(:parse).with(mock_socket.read)
+          expect(instance).to receive(:check_status).and_return(true)
+          instance.send(:perform_request, {})
+        end
+      end
     end
 
     context '#check_status' do

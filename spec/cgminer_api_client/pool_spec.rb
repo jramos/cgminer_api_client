@@ -79,6 +79,7 @@ describe CgminerApiClient::Pool do
     end
 
     it 'should pass arguments' do
+      expect(instance).to receive(:query).with(:foo, [:arguments])
       instance.method_missing(:foo, [:arguments])
     end
   end
