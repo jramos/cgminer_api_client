@@ -2,7 +2,9 @@ require 'spec_helper'
 
 describe CgminerApiClient::Pool do
   let(:mock_remote_api_client) { instance_double('CgminerApiClient::Remote') }
-  let(:mock_miner_from_yaml)   { double('miner_from_yaml', :[] => {:host => '127.0.0.1', :port => 4028} ) }
+  let(:host)                   { '127.0.0.1' }
+  let(:port)                   { 1234 }
+  let(:mock_miner_from_yaml)   { double('miner_from_yaml', :[] => {'host' => host, 'port' => port} ) }
   let(:instance)               { CgminerApiClient::Pool.new }
 
   before do
@@ -99,6 +101,15 @@ describe CgminerApiClient::Pool do
         allow(CgminerApiClient::Remote).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port]).and_return(mock_remote_api_client)
         instance.send(:load_miners!)
         expect(instance.miners).to eq [mock_remote_api_client]
+      end
+
+      context 'no port specified' do
+        it 'should use the default cgminer port of 4028' do
+          expect(mock_miner_from_yaml).to receive(:[]).with('port').and_return(nil)
+          allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
+          expect(CgminerApiClient::Remote).to receive(:new).with(mock_miner_from_yaml['host'], 4028).and_return(mock_remote_api_client)
+          instance.send(:load_miners!)
+        end
       end
     end
   end

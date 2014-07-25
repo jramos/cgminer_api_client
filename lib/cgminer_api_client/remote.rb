@@ -5,20 +5,17 @@ module CgminerApiClient
 
     attr_accessor :host, :port
 
-    def available?
-      if @available.nil?
-        begin
-          TCPSocket.open(@host, @port).close
-          @available = true
-        rescue
-          @available = false
-        end
-      end
-      @available
-    end
-
     def initialize(host, port)
       @host, @port = host, port
+    end
+
+    def available?
+      begin
+        TCPSocket.open(@host, @port).close
+        true
+      rescue
+        false
+      end
     end
 
     def query(method, *params)
