@@ -92,11 +92,11 @@ There is currently one command-line tool for viewing the overall status of your 
     =============================================
     
     Total GH/s
-    	5s	574.0 (191.3 avg/miner)
-    	Avg	575.6 (191.9 avg/miner)
+    	5s	574.0 (191.3 / miner)
+    	Avg	575.6 (191.9 / miner)
     
     Error Rate
-    	Avg	0.1291%/miner
+    	Avg	0.1291% / miner
     	GH/s(5s)	0.74
     	GH/s(avg)	0.74
 

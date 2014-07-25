@@ -8,17 +8,19 @@ require 'cgminer_api_client'
 module CgminerApiClient
   class Pool
     def print_summary
-      @total_ghs_avg = 0
-      @total_ghs_5s  = 0
-      @total_error_rate = 0
+      @totals = {
+        :ghs_avg    => 0,
+        :ghs_5s     => 0,
+        :error_rate => 0
+      }
 
       @miners.each do |miner|
         if miner.available?
           summary = miner.summary[:summary][0]
           devices = miner.devs[:devs]
 
-          @total_ghs_avg += summary[:ghs_av]
-          @total_ghs_5s  += summary[:ghs_5s]
+          @totals[:ghs_avg] += summary[:ghs_av]
+          @totals[:ghs_5s]  += summary[:ghs_5s]
 
           puts "#{miner.host}:#{miner.port}"
           puts "\tGH/s(5s)\t#{summary[:ghs_5s]}"
@@ -32,19 +34,19 @@ module CgminerApiClient
             puts "\t\tTemp\t#{device[:temperature]} C"
             puts "\t\tErr\t#{device[:'device_hardware%']}%\n\n"
 
-            @total_error_rate += device[:'device_hardware%']
+            @totals[:error_rate] += device[:'device_hardware%']
           end
         end
       end
 
       puts "============================================="
       puts "\nTotal GH/s"
-      puts "\t5s\t#{@total_ghs_5s.round(1)} (#{(@total_ghs_5s / @miners.count).round(1)} avg/miner)"
-      puts "\tAvg\t#{@total_ghs_avg.round(1)} (#{(@total_ghs_avg / @miners.count).round(1)} avg/miner)"
+      puts "\t5s\t#{@totals[:ghs_5s].round(1)} (#{(@totals[:ghs_5s] / @miners.count).round(1)} / miner)"
+      puts "\tAvg\t#{@totals[:ghs_avg].round(1)} (#{(@totals[:ghs_avg] / @miners.count).round(1)} / miner)"
       puts "\nError Rate"
-      puts "\tAvg\t#{(@total_error_rate / @miners.count).round(4)}%/miner"
-      puts "\tGH/s(5s)\t#{((@total_error_rate / @miners.count) * @total_ghs_5s / 100).round(2)}"
-      puts "\tGH/s(avg)\t#{((@total_error_rate / @miners.count) * @total_ghs_avg / 100).round(2)}"
+      puts "\tAvg\t#{(@totals[:error_rate] / @miners.count).round(4)}% / miner"
+      puts "\tGH/s(5s)\t#{((@totals[:error_rate] / @miners.count) * @totals[:ghs_5s] / 100).round(2)}"
+      puts "\tGH/s(avg)\t#{((@totals[:error_rate] / @miners.count) * @totals[:ghs_avg] / 100).round(2)}"
     end
   end
 end
