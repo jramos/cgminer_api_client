@@ -60,6 +60,7 @@ There is currently one command-line tool for viewing the overall status of your 
     		Elapsed	261 min
     		Temp	47.0 C
     		Err	    0.1993%
+    
     192.168.1.2:4028
     	GH/s	191.58
     	Devices	1
@@ -68,6 +69,7 @@ There is currently one command-line tool for viewing the overall status of your 
     		Elapsed	1394 min
     		Temp	48.0 C
     		Err	    0.0009%
+    
     192.168.1.3:4028
     	GH/s	191.55
     	Devices	1
@@ -92,7 +94,7 @@ There is currently one command-line tool for viewing the overall status of your 
     summaries = pool.summary
     
     # run commands on individual miners
-    pool.miners.each do |miner|
+    pool.miners.collect do |miner|
         miner.devs   # run 'devs' on this miner; returns a response hash
     end
 
