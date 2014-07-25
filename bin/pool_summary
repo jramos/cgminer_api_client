@@ -42,7 +42,9 @@ module CgminerApiClient
       puts "\t5s\t#{@total_ghs_5s.round(1)} (#{(@total_ghs_5s / @miners.count).round(1)} avg/miner)"
       puts "\tAvg\t#{@total_ghs_avg.round(1)} (#{(@total_ghs_avg / @miners.count).round(1)} avg/miner)"
       puts "\nError Rate"
-      puts "\tAvg\t#{(@total_error_rate / @miners.count).round(4)}% avg/miner"
+      puts "\tAvg\t#{(@total_error_rate / @miners.count).round(4)}%/miner"
+      puts "\tGH/s(5s)\t#{((@total_error_rate / @miners.count) * @total_ghs_5s / 100).round(2)}"
+      puts "\tGH/s(avg)\t#{((@total_error_rate / @miners.count) * @total_ghs_avg / 100).round(2)}"
     end
   end
 end
