@@ -111,3 +111,7 @@ Any commands not explictly defined are implemented using ``method_missing``. A c
 If you find this gem useful, please consider donating.
 
 BTC: ***REMOVED***
+
+## License
+
+Code released under [the MIT license](LICENSE.txt).
