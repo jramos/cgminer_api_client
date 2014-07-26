@@ -162,11 +162,60 @@ describe CgminerApiClient::Miner do
     end
 
     context '#check_status' do
-      pending
+      let(:mock_response) { {} }
+
+      context 'with successful status' do
+        before do
+          mock_response['STATUS'] = [{'STATUS' => 'S'}]
+        end
+
+        it 'should not log a message or raise an error' do
+          expect(instance).to receive(:puts).never
+          expect(instance).to receive(:raise).never
+          instance.send(:check_status, mock_response)
+        end
+      end
+
+      context 'with info status' do
+        before do
+          mock_response['STATUS'] = [{'STATUS' => 'I'}]
+        end
+
+        it 'should log a message' do
+          expect(instance).to receive(:puts)
+          instance.send(:check_status, mock_response)
+        end
+      end
+
+      context 'with warning status' do
+        before do
+          mock_response['STATUS'] = [{'STATUS' => 'W'}]
+        end
+
+        it 'should log a message' do
+          expect(instance).to receive(:puts)
+          instance.send(:check_status, mock_response)
+        end
+      end
+
+      context 'with error' do
+        before do
+          mock_response['STATUS'] = [{'STATUS' => 'E'}]
+        end
+
+        it 'should raise an exception' do
+          expect(instance).to receive(:raise)
+          instance.send(:check_status, mock_response)
+        end
+      end
     end
 
     context '#sanitized' do
-      pending
+      let(:mock_data) { {'Ugly Key' => :foo} }
+
+      it 'should produce sensible output' do
+        expect(instance.send(:sanitized, mock_data)).to eq ({:ugly_key => :foo})
+      end
     end
   end
 end
