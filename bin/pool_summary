@@ -4,14 +4,26 @@ $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib/")
 
 require 'cgminer_api_client'
 
+# helpers
+class Array
+  def sum
+    inject(0.0) { |result, el| result + el }
+  end
+
+  def mean
+    sum / size
+  end
+end
+
 # reopen CgminerApiClient::MinerPool and add a summary method
 module CgminerApiClient
   class MinerPool
     def print_summary
-      @totals = {
-        :ghs_avg    => 0,
-        :ghs_5s     => 0,
-        :error_rate => 0
+      @aggregator = {
+        :ghs_avg     => [],
+        :ghs_5s      => [],
+        :error_rate  => [],
+        :temperature => []
       }
 
       @miners.each do |miner|
@@ -19,8 +31,8 @@ module CgminerApiClient
           summary = miner.summary[:summary][0]
           devices = miner.devs[:devs]
 
-          @totals[:ghs_avg] += summary[:ghs_av]
-          @totals[:ghs_5s]  += summary[:ghs_5s]
+          @aggregator[:ghs_avg] << summary[:ghs_av]
+          @aggregator[:ghs_5s]  << summary[:ghs_5s]
 
           puts "#{miner.host}:#{miner.port}"
           puts "\tGH/s(5s)\t#{summary[:ghs_5s]}"
@@ -34,19 +46,24 @@ module CgminerApiClient
             puts "\t\tTemp\t#{device[:temperature]} C"
             puts "\t\tErr\t#{device[:'device_hardware%']}%\n\n"
 
-            @totals[:error_rate] += device[:'device_hardware%']
+            @aggregator[:temperature] << device[:temperature]
+            @aggregator[:error_rate]  << device[:'device_hardware%']
           end
         end
       end
 
       puts "============================================="
       puts "\nTotal GH/s"
-      puts "\t5s\t#{@totals[:ghs_5s].round(1)} (#{(@totals[:ghs_5s] / @miners.count).round(1)} / miner)"
-      puts "\tAvg\t#{@totals[:ghs_avg].round(1)} (#{(@totals[:ghs_avg] / @miners.count).round(1)} / miner)"
+      puts "\t5s\t#{@aggregator[:ghs_5s].sum.round(1)} (#{(@aggregator[:ghs_5s].mean).round(1)} / miner)"
+      puts "\tAvg\t#{@aggregator[:ghs_avg].sum.round(1)} (#{(@aggregator[:ghs_avg].mean).round(1)} / miner)"
       puts "\nError Rate"
-      puts "\tAvg\t#{(@totals[:error_rate] / @miners.count).round(4)}% / miner"
-      puts "\tGH/s(5s)\t#{((@totals[:error_rate] / @miners.count) * @totals[:ghs_5s] / 100).round(2)}"
-      puts "\tGH/s(avg)\t#{((@totals[:error_rate] / @miners.count) * @totals[:ghs_avg] / 100).round(2)}"
+      puts "\tAvg\t#{(@aggregator[:error_rate].mean).round(4)}% / miner"
+      puts "\tGH/s(5s)\t#{((@aggregator[:error_rate].mean) * @aggregator[:ghs_5s].sum / 100).round(2)}"
+      puts "\tGH/s(avg)\t#{((@aggregator[:error_rate].mean) * @aggregator[:ghs_avg].sum / 100).round(2)}"
+      puts "\nTemperature"
+      puts "\tMin\t#{@aggregator[:temperature].min.round(1)} C"
+      puts "\tAvg\t#{@aggregator[:temperature].mean.round(1)} C"
+      puts "\tMax\t#{@aggregator[:temperature].max.round(1)} C"
     end
   end
 end
