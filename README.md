@@ -58,7 +58,7 @@ Restart cgminer:
 
 There is currently one command-line tool for viewing the overall status of your pool.
 
-    $ bin/pool_summary 
+    $ bin/cgminer_pool_summary 
     192.168.1.1:4028
     	GH/s(5s)	186.19
     	GH/s(avg)	191.88
