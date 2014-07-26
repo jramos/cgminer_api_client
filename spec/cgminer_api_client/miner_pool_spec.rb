@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe CgminerApiClient::Pool do
+describe CgminerApiClient::MinerPool do
   let(:mock_miner)           { instance_double('CgminerApiClient::Miner') }
   let(:host)                 { '127.0.0.1' }
   let(:port)                 { 1234 }
   let(:mock_miner_from_yaml) { double('miner_from_yaml', :[] => {'host' => host, 'port' => port} ) }
-  let(:instance)             { CgminerApiClient::Pool.new }
+  let(:instance)             { CgminerApiClient::MinerPool.new }
 
   before do
     allow(CgminerApiClient::Miner).to receive(:new).and_return(mock_miner)
@@ -15,7 +15,7 @@ describe CgminerApiClient::Pool do
     context '@miners' do
       before do
         allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
-        allow_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!).and_return(true)
+        allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
       end
 
       it 'should allow setting and getting' do
@@ -44,7 +44,7 @@ describe CgminerApiClient::Pool do
       end
 
       it 'should not raise an error' do
-        allow_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!).and_return(true)
+        allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
 
         expect {
           instance
@@ -52,7 +52,7 @@ describe CgminerApiClient::Pool do
       end
 
       it 'should load the miners' do
-        expect_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!)
+        expect_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!)
         instance
       end
     end
@@ -61,7 +61,7 @@ describe CgminerApiClient::Pool do
   context '#query' do
     before do
       allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
-      allow_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!).and_return(true)
+      allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
       allow(instance).to receive(:load_miners!).and_return(true)
       instance.instance_variable_set(:@miners, [mock_miner])
     end
@@ -85,7 +85,7 @@ describe CgminerApiClient::Pool do
   context '#method_missing' do
     before do
       allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
-      allow_any_instance_of(CgminerApiClient::Pool).to receive(:load_miners!).and_return(true)
+      allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
       allow(instance).to receive(:query).and_return(true)
     end
 

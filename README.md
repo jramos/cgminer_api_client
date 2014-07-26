@@ -104,7 +104,7 @@ There is currently one command-line tool for viewing the overall status of your 
 
     require 'cgminer_api_client'
     
-    pool = CgminerApiClient::Pool.new
+    pool = CgminerApiClient::MinerPool.new
     
     # run 'devs' on each miner in the pool; returns an array of response hashes
     devices = pool.devs

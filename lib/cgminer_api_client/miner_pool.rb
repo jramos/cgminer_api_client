@@ -1,5 +1,5 @@
 module CgminerApiClient
-  class Pool
+  class MinerPool
     require 'yaml'
 
     attr_accessor :miners

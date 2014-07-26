@@ -4,9 +4,9 @@ $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib/")
 
 require 'cgminer_api_client'
 
-# reopen CgminerApiClient::Pool and add a summary method
+# reopen CgminerApiClient::MinerPool and add a summary method
 module CgminerApiClient
-  class Pool
+  class MinerPool
     def print_summary
       @totals = {
         :ghs_avg    => 0,
@@ -51,4 +51,4 @@ module CgminerApiClient
   end
 end
 
-CgminerApiClient::Pool.new.print_summary
+CgminerApiClient::MinerPool.new.print_summary
