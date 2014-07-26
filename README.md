@@ -99,6 +99,11 @@ There is currently one command-line tool for viewing the overall status of your 
     	Avg	0.1291% / miner
     	GH/s(5s)	0.74
     	GH/s(avg)	0.74
+    
+    Temperature
+    	Min	47.0 C
+    	Avg	48.7 C
+    	Max	50.0 C
 
 ## Gem Usage
 
