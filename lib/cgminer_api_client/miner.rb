@@ -31,7 +31,8 @@ module CgminerApiClient
       end
 
       data = perform_request(request)
-      return sanitized(data)
+      data = sanitized(data)
+      return data[method]
     end
 
     def method_missing(name, *args)
