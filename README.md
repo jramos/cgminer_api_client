@@ -122,6 +122,27 @@ There is currently one command-line tool for viewing the overall status of your 
         miner.devs   # run 'devs' on this miner; returns a response hash
     end
 
+### Commands
+
+The following miner and pool commands are currently available:
+
+* asc
+* asccount
+* check
+* coin
+* config
+* devdetails
+* devs
+* pga
+* pgacount
+* pools
+* privileged?
+* notify
+* stats
+* summary
+* usbstats
+* version
+
 Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 
 ## Contributing
