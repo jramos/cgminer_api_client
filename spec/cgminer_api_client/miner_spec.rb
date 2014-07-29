@@ -92,14 +92,14 @@ describe CgminerApiClient::Miner do
   context '#query' do
     context 'no parameters' do
       it 'should perform a command request' do
-        expect(instance).to receive(:perform_request).with({:command => :foo})
+        expect(instance).to receive(:perform_request).with({:command => :foo}).and_return({'foo' => []})
         instance.query(:foo)
       end
     end
 
     context 'parameters' do
       it 'should perform a command request with parameters' do
-        expect(instance).to receive(:perform_request).with({:command => :foo, :parameter => 'bar,123,\\456'})
+        expect(instance).to receive(:perform_request).with({:command => :foo, :parameter => 'bar,123,\\456'}).and_return({'foo' => []})
         instance.query(:foo, :bar, :'123', :'\456')
       end
     end
@@ -107,7 +107,7 @@ describe CgminerApiClient::Miner do
     it 'should return sanitized data' do
       mock_data = double('data')
       expect(instance).to receive(:perform_request).and_return(mock_data)
-      expect(instance).to receive(:sanitized).with(mock_data)
+      expect(instance).to receive(:sanitized).with(mock_data).and_return({'foo' => []})
       instance.query(:foo)
     end
   end
