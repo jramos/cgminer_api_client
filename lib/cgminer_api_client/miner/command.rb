@@ -1,6 +1,18 @@
 module CgminerApiClient
   class Miner
     module Command
+      def asc(number)
+        query(:asc, number)
+      end
+
+      def asccount
+        query(:asccount)
+      end
+
+      def check(command)
+        query(:check, command)[0]
+      end
+
       def coin
         query(:coin)[0]
       end
@@ -17,12 +29,25 @@ module CgminerApiClient
         query(:devs)
       end
 
+      def pga(number)
+        query(:pga, number)
+      end
+
+      def pgacount
+        query(:pgacount)
+      end
+
       def pools
         query(:pools)
       end
 
+      def privileged?
+        check_privileged = check('privileged')
+        check_privileged[:exists] == 'Y' && check_privileged[:access] == 'Y'
+      end
+
       def notify
-        query(:notify)[0]
+        query(:notify)
       end
 
       def stats
