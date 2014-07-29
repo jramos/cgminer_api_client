@@ -30,8 +30,8 @@ module CgminerApiClient
         request[:parameter] = params.join(',')
       end
 
-      data = perform_request(request)
-      data = sanitized(data)
+      response = perform_request(request)
+      data = sanitized(response)
       return data[method]
     end
 
