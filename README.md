@@ -54,6 +54,46 @@ Restart cgminer:
 
     /etc/init.d/cgminer restart
 
+## Gem Usage
+
+    require 'cgminer_api_client'
+    
+    pool = CgminerApiClient::MinerPool.new
+    
+    # run 'devs' on each miner in the pool; returns an array of response hashes
+    devices = pool.devs
+    
+    # run 'summary' on each miner in the pool; returns an array of response hashes
+    summaries = pool.summary
+    
+    # run commands on individual miners
+    pool.miners.collect do |miner|
+        miner.devs   # run 'devs' on this miner; returns a response hash
+    end
+
+### Commands
+
+The following miner and pool commands are currently available:
+
+* asc(num)
+* asccount
+* check(command)
+* coin
+* config
+* devdetails
+* devs
+* pga(num)
+* pgacount
+* pools
+* privileged?
+* notify
+* stats
+* summary
+* usbstats
+* version
+
+Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
+
 ## CLI Usage
 
 There is currently one command-line tool for viewing the overall status of your pool.
@@ -104,46 +144,6 @@ There is currently one command-line tool for viewing the overall status of your 
     	Min	47.0 C
     	Avg	48.7 C
     	Max	50.0 C
-
-## Gem Usage
-
-    require 'cgminer_api_client'
-    
-    pool = CgminerApiClient::MinerPool.new
-    
-    # run 'devs' on each miner in the pool; returns an array of response hashes
-    devices = pool.devs
-    
-    # run 'summary' on each miner in the pool; returns an array of response hashes
-    summaries = pool.summary
-    
-    # run commands on individual miners
-    pool.miners.collect do |miner|
-        miner.devs   # run 'devs' on this miner; returns a response hash
-    end
-
-### Commands
-
-The following miner and pool commands are currently available:
-
-* asc
-* asccount
-* check
-* coin
-* config
-* devdetails
-* devs
-* pga
-* pgacount
-* pools
-* privileged?
-* notify
-* stats
-* summary
-* usbstats
-* version
-
-Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 
 ## Contributing
 
