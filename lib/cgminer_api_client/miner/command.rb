@@ -2,43 +2,43 @@ module CgminerApiClient
   class Miner
     module Command
       def coin
-        query(:coin)
+        query(:coin)[:coin][0]
       end
 
       def config
-        query(:config)
+        query(:config)[:config][0]
       end
 
       def devdetails
-        query(:devdetails)
+        query(:devdetails)[:devdetails]
       end
 
       def devs
-        query(:devs)
+        query(:devs)[:devs]
       end
 
       def pools
-        query(:pools)
+        query(:pools)[:pools]
       end
 
       def notify
-        query(:notify)
+        query(:notify)[:notify][0]
       end
 
       def stats
-        query(:stats)
+        query(:stats)[:stats]
       end
 
       def summary
-        query(:summary)
+        query(:summary)[:summary][0]
       end
 
       def usbstats
-        query(:usbstats)
+        query(:usbstats)[:usbstats]
       end
 
       def version
-        query(:version)
+        query(:version)[:version][0]
       end
     end
   end

@@ -28,8 +28,8 @@ module CgminerApiClient
 
       @miners.each do |miner|
         if miner.available?
-          summary = miner.summary[:summary][0]
-          devices = miner.devs[:devs]
+          summary = miner.summary
+          devices = miner.devs
 
           @aggregator[:ghs_avg] << summary[:ghs_av]
           @aggregator[:ghs_5s]  << summary[:ghs_5s]
