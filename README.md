@@ -28,7 +28,7 @@ Add the following to your ``Gemfile``:
 
 ## Configuration
 
-Copy [``config/miners.yml.example``](https://github.com/jramos/cgminer_api_client/blob/master/config/miners.yml.example) to ``config/miners.yml`` and update with the IP addresses (and optional ports) of your cgminer instances. E.g.
+Copy [``config/miners.yml.example``](https://github.com/jramos/cgminer_api_client/blob/master/config/miners.yml.example) to ``config/miners.yml`` and update with the IP addresses (and optional ports) of your cgminer instances. E.g.:
 
     # connect to localhost on the default port (4028)
     - host: 127.0.0.1
@@ -42,7 +42,7 @@ Your cgminer instances must be configured to allow remote API access if connecti
 
 #### AntMiner Instructions
 
-On an [AntMiner](https://www.bitmaintech.com), you would do the following to allow access from any computer on your local network (192.168.1.x).
+On an [AntMiner](https://www.bitmaintech.com), you would do the following to allow access from any computer on your local network (192.168.1.x):
 
     $ ssh -l root <antminer-ip>
     root@<antminer-ip>'s password: root
@@ -100,7 +100,7 @@ Any commands not explictly defined are implemented using ``method_missing``. A c
 
 ## CLI Usage
 
-There is currently one command-line tool for viewing the overall status of your pool.
+There is currently one command-line tool for viewing the overall status of your pool, ``bin/cgminer_pool_summary``.
 
     $ bin/cgminer_pool_summary 
     192.168.1.1:4028
@@ -151,7 +151,7 @@ There is currently one command-line tool for viewing the overall status of your 
 
 ## Contributing
 
-1. Fork it ( https://github.com/jramos/cgminer\_api\_client/fork )
+1. Fork it ( [https://github.com/jramos/cgminer\_api\_client/fork](https://github.com/jramos/cgminer_api_client/fork) )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
