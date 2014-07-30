@@ -10,13 +10,25 @@ A gem that allows sending API commands to a pool of cgminer instances.
     * Socket
 * cgminer (3.12.0+)
 
-## Installation
+## Installation Options
 
-Clone this repository.
+### Bundler
+
+Add the following to your ``Gemfile``:
+
+    gem 'cgminer_api_client', '~> 0.0.1'
+
+### RubyGems
+
+    $ gem install cgminer_api_client
+
+### Manually
+
+    $ git clone git@github.com:jramos/cgminer_api_client.git
 
 ## Configuration
 
-Copy ``config/miners.yml.example`` to ``config/miners.yml`` and update with the IP addresses (and optional ports) of your cgminer instances. E.g.
+Copy [``config/miners.yml.example``](https://github.com/jramos/cgminer_api_client/blob/master/config/miners.yml.example) to ``config/miners.yml`` and update with the IP addresses (and optional ports) of your cgminer instances. E.g.
 
     # connect to localhost on the default port (4028)
     - host: 127.0.0.1
@@ -28,8 +40,9 @@ Copy ``config/miners.yml.example`` to ``config/miners.yml`` and update with the 
 
 Your cgminer instances must be configured to allow remote API access if connecting from anywhere but localhost (127.0.0.1). See the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README) for more information.
 
-#### AntMiner S1 Instructions
-On an [AntMiner S1](https://www.bitmaintech.com/productDetail.htm?pid=00020140107162747992Ce5uBuxW06D6), you would do the following to allow access from any computer on your local network (192.168.1.x).
+#### AntMiner Instructions
+
+On an [AntMiner](https://www.bitmaintech.com), you would do the following to allow access from any computer on your local network (192.168.1.x).
 
     $ ssh -l root <antminer-ip>
     root@<antminer-ip>'s password: root
@@ -43,7 +56,7 @@ Make the following change:
 
 Restart cgminer:
 
-    /etc/init.d/cgminer restart
+    $ /etc/init.d/cgminer restart
 
 ## Gem Usage
 
@@ -138,7 +151,7 @@ There is currently one command-line tool for viewing the overall status of your 
 
 ## Contributing
 
-1. Fork it ( https://github.com/jramos/cgminer_api_client/fork )
+1. Fork it ( https://github.com/jramos/cgminer\_api\_client/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
