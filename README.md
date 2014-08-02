@@ -40,14 +40,11 @@ Copy [``config/miners.yml.example``](https://github.com/jramos/cgminer_api_clien
 
 Your cgminer instances must be configured to allow remote API access if connecting from anywhere but localhost (127.0.0.1). See the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README) for more information.
 
-#### AntMiner Instructions
+#### Linux Instructions
 
-On an [AntMiner](https://www.bitmaintech.com), you would do the following to allow access from any computer on your local network (192.168.1.x):
+Under Linux, you would do the following to allow access from any computer on your local network (192.168.1.x):
 
-    $ ssh -l root <antminer-ip>
-    root@<antminer-ip>'s password: root
-    ...
-    root@antMiner:~# vi /etc/config/cgminer
+    $ vi /etc/config/cgminer
 
 Make the following change:
 
