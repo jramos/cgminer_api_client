@@ -146,6 +146,10 @@ There is currently one command-line tool for viewing the overall status of your 
     	Avg	48.7 C
     	Max	50.0 C
 
+## GUI
+
+* [https://github.com/jramos/cgminer_manager](https://github.com/jramos/cgminer_manager)
+
 ## Contributing
 
 1. Fork it ( [https://github.com/jramos/cgminer\_api\_client/fork](https://github.com/jramos/cgminer_api_client/fork) )
