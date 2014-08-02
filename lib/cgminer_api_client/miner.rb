@@ -1,11 +1,11 @@
-require 'cgminer_api_client/miner/command'
+require 'cgminer_api_client/miner/commands'
 
 module CgminerApiClient
   class Miner
     require 'socket'
     require 'json'
 
-    include Miner::Command
+    include Miner::Commands
 
     attr_accessor :host, :port
 
@@ -23,7 +23,7 @@ module CgminerApiClient
     end
 
     def query(method, *params)
-      request = {command: method}
+      request = {command: method.to_sym}
 
       unless params.length == 0
         params = params.map { |p| p.to_s.gsub('\\', '\\\\').gsub(',', '\,') }

@@ -1,6 +1,6 @@
 module CgminerApiClient
   class Miner
-    module Command
+    module Commands
       def asc(number)
         query(:asc, number)
       end

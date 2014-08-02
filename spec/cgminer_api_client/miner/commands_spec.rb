@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CgminerApiClient::Miner::Command do
+describe CgminerApiClient::Miner::Commands do
   let(:host)     { '127.0.0.1' }
   let(:port)     { 4028 }
   let(:instance) { CgminerApiClient::Miner.new(host, port) }
