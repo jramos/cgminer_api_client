@@ -42,9 +42,13 @@ module CgminerApiClient
           query(:pools)
         end
 
-        def privileged?
-          check_privileged = check('privileged')
-          check_privileged[:exists] == 'Y' && check_privileged[:access] == 'Y'
+        def privileged
+          begin
+            query(:privileged)
+            true
+          rescue
+            false
+          end
         end
 
         def notify

@@ -97,7 +97,7 @@ The following read-only miner and pool commands are currently available:
 * pga(num)
 * pgacount
 * pools
-* privileged?
+* privileged
 * notify
 * stats
 * summary
@@ -118,7 +118,7 @@ The following privileged miner and pool commands are currently available:
 * addpool(url, user, pass)
 * disablepool(number)
 * enablepool(number)
-* poolpriority(id_order)
+* poolpriority(*id_order)
 * poolquota(number, value)
 * removepool(number)
 * switchpool(number)

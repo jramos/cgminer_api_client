@@ -93,43 +93,8 @@ describe CgminerApiClient::Miner::Commands do
     end
   end
 
-  context '#privileged?' do
-    it 'should use the check command' do
-      expect(instance).to receive(:check).with('privileged').and_return({})
-      instance.privileged?
-    end
-    
-    context 'command does not exist' do
-      before do
-        expect(instance).to receive(:check).with('privileged').and_return({:exists => 'N'})
-      end
-
-      it 'should return false' do
-        expect(instance.privileged?).to eq false
-      end
-    end
-    
-    context 'command exists' do
-      context 'access is N' do
-        before do
-          expect(instance).to receive(:check).with('privileged').and_return({:exists => 'Y', :access => 'N'})
-        end
-
-        it 'should return false' do
-          expect(instance.privileged?).to eq false
-        end
-      end
-      
-      context 'access is Y' do
-        before do
-          expect(instance).to receive(:check).with('privileged').and_return({:exists => 'Y', :access => 'Y'})
-        end
-
-        it 'should return true' do
-          expect(instance.privileged?).to eq true
-        end
-      end
-    end
+  context '#privileged' do
+    pending
   end
 
   context '#notify' do
