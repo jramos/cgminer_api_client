@@ -69,6 +69,47 @@ module CgminerApiClient
       end
 
       module Privileged
+        module Pool
+          def addpool(url, user, pass)
+            query(:addpool, url, user, pass) unless access_denied?
+          end
+
+          def disablepool(number)
+            query(:disablepool, number) unless access_denied?
+          end
+
+          def enablepool(number)
+            query(:enablepool, number) unless access_denied?
+          end
+
+          def poolpriority(*id_order)
+            query(:poolpriority, *id_order) unless access_denied?
+          end
+
+          def poolquota(number, value)
+            query(:poolquota, number, value) unless access_denied?
+          end
+
+          def removepool(number)
+            query(:removepool, number) unless access_denied?
+          end
+
+          def switchpool
+            query(:switchpool, number) unless access_denied?
+          end
+        end
+
+        private
+
+        def access_denied?
+          if !privileged?
+            raise 'access denied'
+          else
+            return false
+          end
+        end
+
+        include Miner::Commands::Privileged::Pool
       end
 
       include Miner::Commands::ReadOnly
