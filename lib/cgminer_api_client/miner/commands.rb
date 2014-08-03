@@ -69,6 +69,16 @@ module CgminerApiClient
       end
 
       module Privileged
+        module General
+          def quit
+            query(:quit) unless access_denied?
+          end
+
+          def restart
+            query(:restart) unless access_denied?
+          end
+        end
+
         module Pool
           def addpool(url, user, pass)
             query(:addpool, url, user, pass) unless access_denied?
@@ -109,6 +119,7 @@ module CgminerApiClient
           end
         end
 
+        include Miner::Commands::Privileged::General
         include Miner::Commands::Privileged::Pool
       end
 
