@@ -83,7 +83,7 @@ Restart cgminer:
 
 ### Commands
 
-#### Read Only
+#### Read-Only
 
 The following read-only miner and pool commands are currently available:
 
@@ -123,7 +123,7 @@ The following privileged miner and pool commands are currently available:
 * removepool(number)
 * switchpool(number)
 
-Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
+Any cgminer API commands not explictly defined above are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 
 ## CLI Usage
 
