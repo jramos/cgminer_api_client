@@ -104,7 +104,7 @@ module CgminerApiClient
             query(:removepool, number) unless access_denied?
           end
 
-          def switchpool
+          def switchpool(number)
             query(:switchpool, number) unless access_denied?
           end
         end

@@ -83,7 +83,9 @@ Restart cgminer:
 
 ### Commands
 
-The following miner and pool commands are currently available:
+#### Read Only
+
+The following read-only miner and pool commands are currently available:
 
 * asc(num)
 * asccount
@@ -101,6 +103,25 @@ The following miner and pool commands are currently available:
 * summary
 * usbstats
 * version
+
+#### Privileged
+
+The following privileged miner and pool commands are currently available:
+
+##### General
+
+* quit
+* restart
+
+##### Pool
+
+* addpool(url, user, pass)
+* disablepool(number)
+* enablepool(number)
+* poolpriority(id_order)
+* poolquota(number, value)
+* removepool(number)
+* switchpool(number)
 
 Any commands not explictly defined are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 
