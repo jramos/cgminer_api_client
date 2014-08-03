@@ -5,7 +5,8 @@ module CgminerApiClient
     require 'socket'
     require 'json'
 
-    include Miner::Commands
+    include Miner::Commands::ReadOnly
+    include Miner::Commands::Priviledged
 
     attr_accessor :host, :port
 
