@@ -116,7 +116,7 @@ module CgminerApiClient
         private
 
         def access_denied?
-          if !privileged?
+          if !privileged
             raise 'access_denied'
           else
             return false
