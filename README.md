@@ -49,7 +49,16 @@ Under Linux, you would do the following to allow access from any computer on you
 Make the following change:
 
     # option api_allow 'W:127.0.0.1'
-    option api_allow 'W:127.0.0.1,W:192.168.1/24'
+    option api_allow 'W:127.0.0.1,W:192.168.1.0/24'
+
+You also need to updated the init.d script to pass the api_allow option:
+
+    vi /etc/init.d/cgminer
+
+Make the following change:
+
+    #PARAMS="$AOPTIONS $POOL1 $POOL2 $POOL3 $_pb --api-listen --api-network"
+    PARAMS="$AOPTIONS $POOL1 $POOL2 $POOL3 $_pb --api-listen --api-network --api-allow $_aa"
 
 Restart cgminer:
 
