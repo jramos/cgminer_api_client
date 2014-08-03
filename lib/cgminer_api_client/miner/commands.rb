@@ -68,8 +68,11 @@ module CgminerApiClient
         end
       end
 
-      module Priviledged
+      module Privileged
       end
+
+      include Miner::Commands::ReadOnly
+      include Miner::Commands::Privileged
     end
   end
 end
