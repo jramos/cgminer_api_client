@@ -4,7 +4,7 @@ A gem that allows sending API commands to a pool of cgminer instances.
 
 ## Requirements
 
-* Ruby (1.9.3+)
+* Ruby (2.0.0+)
     * YAML
     * JSON
     * Socket
