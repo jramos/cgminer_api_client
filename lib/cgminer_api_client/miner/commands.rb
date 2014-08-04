@@ -73,6 +73,24 @@ module CgminerApiClient
       end
 
       module Privileged
+        module Asc
+          def ascdisable(number)
+            query(:ascdisable, number)
+          end
+
+          def ascenable(number)
+            query(:ascenable, number)
+          end
+
+          def ascidentify(number)
+            query(:ascidentify, number)
+          end
+
+          def ascset(number, option, value = nil)
+            value ? query(:ascset, number, option, value) : query(:ascset, number, option)
+          end
+        end
+
         module General
           def quit
             query(:quit) unless access_denied?
@@ -80,6 +98,24 @@ module CgminerApiClient
 
           def restart
             query(:restart) unless access_denied?
+          end
+        end
+
+        module Pga
+          def pgadisable(number)
+            query(:pgadisable, number)
+          end
+
+          def pgaenable(number)
+            query(:pgaenable, number)
+          end
+
+          def pgaidentify(number)
+            query(:pgaidentify, number)
+          end
+
+          def pgaset(number, option, value = nil)
+            value ? query(:pgaset, number, option, value) : query(:pgaset, number, option)
           end
         end
 
@@ -123,7 +159,9 @@ module CgminerApiClient
           end
         end
 
+        include Miner::Commands::Privileged::Asc
         include Miner::Commands::Privileged::General
+        include Miner::Commands::Privileged::Pga
         include Miner::Commands::Privileged::Pool
       end
 

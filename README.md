@@ -108,10 +108,24 @@ The following read-only miner and pool commands are currently available:
 
 The following privileged miner and pool commands are currently available:
 
+##### Asc
+
+* ascdisable(number)
+* ascenable(number)
+* ascidentify(number)
+* ascset(number, option, value = nil)
+
 ##### General
 
 * quit
 * restart
+
+##### Pga
+
+* pgadisable(number)
+* pgaenable(number)
+* pgaidentify(number)
+* pgaset(number, option, value = nil)
 
 ##### Pool
 

@@ -182,6 +182,28 @@ describe CgminerApiClient::Miner::Commands do
       end
     end
 
+    describe CgminerApiClient::Miner::Commands::Privileged::Asc do
+      context 'ascdisable' do
+        it 'should require one argument'
+        it 'should query the miner'
+      end
+
+      context 'ascenable' do
+        it 'should require one argument'
+        it 'should query the miner'
+      end
+
+      context 'ascidentify' do
+        it 'should require one argument'
+        it 'should query the miner'
+      end
+
+      context 'ascset' do
+        it 'should require 2-3 arguments'
+        it 'should query the miner'
+      end
+    end
+    
     describe CgminerApiClient::Miner::Commands::Privileged::General do
       before do
         allow(instance).to receive(:access_denied?).and_return(false)
@@ -199,6 +221,28 @@ describe CgminerApiClient::Miner::Commands do
           expect(instance).to receive(:query).with(:restart)
           instance.restart
         end
+      end
+    end
+
+    describe CgminerApiClient::Miner::Commands::Privileged::Pga do
+      context 'pgadisable' do
+        it 'should require one argument'
+        it 'should query the miner'
+      end
+
+      context 'pgaenable' do
+        it 'should require one argument'
+        it 'should query the miner'
+      end
+
+      context 'pgaidentify' do
+        it 'should require one argument'
+        it 'should query the miner'
+      end
+
+      context 'pgaset' do
+        it 'should require 2-3 arguments'
+        it 'should query the miner'
       end
     end
 
