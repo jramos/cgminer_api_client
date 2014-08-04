@@ -184,23 +184,60 @@ describe CgminerApiClient::Miner::Commands do
 
     describe CgminerApiClient::Miner::Commands::Privileged::Asc do
       context 'ascdisable' do
-        it 'should require one argument'
-        it 'should query the miner'
+        it 'should require one argument' do
+          expect {
+            instance.ascdisable
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:ascdisable, :number)
+          instance.ascdisable(:number)
+        end
       end
 
       context 'ascenable' do
-        it 'should require one argument'
-        it 'should query the miner'
+        it 'should require one argument' do
+          expect {
+            instance.ascenable
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:ascenable, :number)
+          instance.ascenable(:number)
+        end
       end
 
       context 'ascidentify' do
-        it 'should require one argument'
-        it 'should query the miner'
+        it 'should require one argument' do
+          expect {
+            instance.ascidentify
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:ascidentify, :number)
+          instance.ascidentify(:number)
+        end
       end
 
       context 'ascset' do
-        it 'should require 2-3 arguments'
-        it 'should query the miner'
+        it 'should require 2-3 arguments' do
+          expect {
+            instance.ascset
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 2..3)')
+        end
+
+        it 'should query the miner with 2 arguments' do
+          expect(instance).to receive(:query).with(:ascset, :number, :foo)
+          instance.ascset(:number, :foo)
+        end
+
+        it 'should query the miner with 3 arguments' do
+          expect(instance).to receive(:query).with(:ascset, :number, :foo, :bar)
+          instance.ascset(:number, :foo, :bar)
+        end
       end
     end
     
@@ -226,23 +263,60 @@ describe CgminerApiClient::Miner::Commands do
 
     describe CgminerApiClient::Miner::Commands::Privileged::Pga do
       context 'pgadisable' do
-        it 'should require one argument'
-        it 'should query the miner'
+        it 'should require one argument' do
+          expect {
+            instance.pgadisable
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:pgadisable, :number)
+          instance.pgadisable(:number)
+        end
       end
 
       context 'pgaenable' do
-        it 'should require one argument'
-        it 'should query the miner'
+        it 'should require one argument' do
+          expect {
+            instance.pgaenable
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:pgaenable, :number)
+          instance.pgaenable(:number)
+        end
       end
 
       context 'pgaidentify' do
-        it 'should require one argument'
-        it 'should query the miner'
+        it 'should require one argument' do
+          expect {
+            instance.pgaidentify
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:pgaidentify, :number)
+          instance.pgaidentify(:number)
+        end
       end
 
       context 'pgaset' do
-        it 'should require 2-3 arguments'
-        it 'should query the miner'
+        it 'should require 2-3 arguments' do
+          expect {
+            instance.pgaset
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 2..3)')
+        end
+
+        it 'should query the miner with 2 arguments' do
+          expect(instance).to receive(:query).with(:pgaset, :number, :foo)
+          instance.pgaset(:number, :foo)
+        end
+
+        it 'should query the miner with 3 arguments' do
+          expect(instance).to receive(:query).with(:pgaset, :number, :foo, :bar)
+          instance.pgaset(:number, :foo, :bar)
+        end
       end
     end
 
