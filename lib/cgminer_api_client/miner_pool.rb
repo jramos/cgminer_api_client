@@ -1,3 +1,5 @@
+require 'thread'
+
 module CgminerApiClient
   class MinerPool
     require 'yaml'
@@ -10,7 +12,11 @@ module CgminerApiClient
     end
 
     def query(method, *params)
-      @miners.collect{|miner| miner.query(method, params) }
+      threads = @miners.collect do |miner|
+        Thread.new { miner.query(method, params) }
+      end
+      threads.each { |thr| thr.join }
+      threads.collect(&:value).flatten
     end
 
     def method_missing(name, *args)

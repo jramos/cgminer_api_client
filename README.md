@@ -8,6 +8,7 @@ A gem that allows sending API commands to a pool of cgminer instances.
     * YAML
     * JSON
     * Socket
+    * Thread
 * cgminer (~> 3.12.0)
 
 ## Installation Options
@@ -16,7 +17,7 @@ A gem that allows sending API commands to a pool of cgminer instances.
 
 Add the following to your ``Gemfile``:
 
-    gem 'cgminer_api_client', '~> 0.0.5'
+    gem 'cgminer_api_client', '~> 0.1.0'
 
 ### RubyGems
 
