@@ -52,7 +52,7 @@ Make the following change:
     # option api_allow 'W:127.0.0.1'
     option api_allow 'W:127.0.0.1,W:192.168.1.0/24'
 
-You also need to updated the init.d script to pass the api_allow option:
+You also need to updated the init.d script to pass the ``api_allow`` option:
 
     vi /etc/init.d/cgminer
 
