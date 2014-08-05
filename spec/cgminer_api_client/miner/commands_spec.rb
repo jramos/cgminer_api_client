@@ -241,26 +241,6 @@ describe CgminerApiClient::Miner::Commands do
       end
     end
     
-    describe CgminerApiClient::Miner::Commands::Privileged::System do
-      before do
-        allow(instance).to receive(:access_denied?).and_return(false)
-      end
-
-      context 'quit' do
-        it 'should query the miner' do
-          expect(instance).to receive(:query).with(:quit)
-          instance.quit
-        end
-      end
-
-      context 'restart' do
-        it 'should query the miner' do
-          expect(instance).to receive(:query).with(:restart)
-          instance.restart
-        end
-      end
-    end
-
     describe CgminerApiClient::Miner::Commands::Privileged::Pga do
       context 'pgadisable' do
         it 'should require one argument' do
@@ -407,6 +387,26 @@ describe CgminerApiClient::Miner::Commands do
         it 'should query the miner with arguments' do
           expect(instance).to receive(:query).with(:switchpool, :pool_number)
           instance.switchpool(:pool_number)
+        end
+      end
+    end
+
+    describe CgminerApiClient::Miner::Commands::Privileged::System do
+      before do
+        allow(instance).to receive(:access_denied?).and_return(false)
+      end
+
+      context 'quit' do
+        it 'should query the miner' do
+          expect(instance).to receive(:query).with(:quit)
+          instance.quit
+        end
+      end
+
+      context 'restart' do
+        it 'should query the miner' do
+          expect(instance).to receive(:query).with(:restart)
+          instance.restart
         end
       end
     end
