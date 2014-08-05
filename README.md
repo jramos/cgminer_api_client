@@ -115,11 +115,6 @@ The following privileged miner and pool commands are currently available:
 * ascidentify(number)
 * ascset(number, option, value = nil)
 
-##### General
-
-* quit
-* restart
-
 ##### Pga
 
 * pgadisable(number)
@@ -136,6 +131,11 @@ The following privileged miner and pool commands are currently available:
 * poolquota(number, value)
 * removepool(number)
 * switchpool(number)
+
+##### System
+
+* quit
+* restart
 
 Any cgminer API commands not explictly defined above are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 

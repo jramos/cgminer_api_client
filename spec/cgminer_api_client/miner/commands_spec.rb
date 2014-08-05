@@ -241,7 +241,7 @@ describe CgminerApiClient::Miner::Commands do
       end
     end
     
-    describe CgminerApiClient::Miner::Commands::Privileged::General do
+    describe CgminerApiClient::Miner::Commands::Privileged::System do
       before do
         allow(instance).to receive(:access_denied?).and_return(false)
       end
