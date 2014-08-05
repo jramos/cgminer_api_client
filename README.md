@@ -87,14 +87,14 @@ Restart cgminer:
 
 The following read-only miner and pool commands are currently available:
 
-* asc(num)
+* asc(number)
 * asccount
 * check(command)
 * coin
 * config
 * devdetails
 * devs
-* pga(num)
+* pga(number)
 * pgacount
 * pools
 * privileged
@@ -134,10 +134,16 @@ The following privileged miner and pool commands are currently available:
 
 ##### System
 
+* debug(setting = 'D')
+* failover_only(value)
+* hotplug(seconds)
 * quit
 * restart
+* save(filename = nil)
+* setconfig(name, value)
+* zero(which = 'All', full_summary = false)
 
-Any cgminer API commands not explictly defined above are implemented using ``method_missing``. A complete list of available API commands can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
+Any cgminer API commands not explictly defined above are implemented using ``method_missing``. A complete list of available API commands and options can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 
 ## CLI Usage
 

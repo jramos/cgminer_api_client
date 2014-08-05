@@ -183,6 +183,10 @@ describe CgminerApiClient::Miner::Commands do
     end
 
     describe CgminerApiClient::Miner::Commands::Privileged::Asc do
+      before do
+        allow(instance).to receive(:access_denied?).and_return(false)
+      end
+
       context 'ascdisable' do
         it 'should require one argument' do
           expect {
@@ -242,6 +246,10 @@ describe CgminerApiClient::Miner::Commands do
     end
     
     describe CgminerApiClient::Miner::Commands::Privileged::Pga do
+      before do
+        allow(instance).to receive(:access_denied?).and_return(false)
+      end
+
       context 'pgadisable' do
         it 'should require one argument' do
           expect {
@@ -396,6 +404,44 @@ describe CgminerApiClient::Miner::Commands do
         allow(instance).to receive(:access_denied?).and_return(false)
       end
 
+      context 'debug' do
+        it 'should query the miner with defaults' do
+          expect(instance).to receive(:query).with(:debug, 'D')
+          instance.debug
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:debug, :setting)
+          instance.debug(:setting)
+        end
+      end
+
+      context 'failover_only' do
+        it 'should require one argument' do
+          expect {
+            instance.failover_only
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:'failover-only', :value)
+          instance.failover_only(:value)
+        end
+      end
+
+      context 'hotplug' do
+        it 'should require one argument' do
+          expect {
+            instance.hotplug
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:hotplug, :value)
+          instance.hotplug(:value)
+        end
+      end
+
       context 'quit' do
         it 'should query the miner' do
           expect(instance).to receive(:query).with(:quit)
@@ -407,6 +453,47 @@ describe CgminerApiClient::Miner::Commands do
         it 'should query the miner' do
           expect(instance).to receive(:query).with(:restart)
           instance.restart
+        end
+      end
+
+      context 'save' do
+        context 'without filename' do
+          it 'should query the miner' do
+            expect(instance).to receive(:query).with(:save)
+            instance.save
+          end
+        end
+
+        context 'with filename' do
+          it 'should query the miner with arguments' do
+            expect(instance).to receive(:query).with(:save, :filename)
+            instance.save(:filename)
+          end
+        end
+      end
+
+      context 'setconfig' do
+        it 'should require two arguments' do
+          expect {
+            instance.setconfig
+          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 2)')
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:setconfig, :name, :value)
+          instance.setconfig(:name, :value)
+        end
+      end
+
+      context 'zero' do
+        it 'should query the miner with defaults' do
+          expect(instance).to receive(:query).with(:zero, 'All', false)
+          instance.zero
+        end
+
+        it 'should query the miner with arguments' do
+          expect(instance).to receive(:query).with(:zero, :which, :full_summary)
+          instance.zero(:which, :full_summary)
         end
       end
     end
