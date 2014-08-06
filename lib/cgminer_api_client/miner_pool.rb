@@ -16,7 +16,7 @@ module CgminerApiClient
         Thread.new { miner.query(method, params) }
       end
       threads.each { |thr| thr.join }
-      threads.collect(&:value).flatten
+      threads.collect(&:value)
     end
 
     def method_missing(name, *args)
