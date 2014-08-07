@@ -13,11 +13,11 @@ A gem that allows sending API commands to a pool of cgminer instances.
 
 ## Installation Options
 
-### Bundler
+### Bundle5
 
 Add the following to your ``Gemfile``:
 
-    gem 'cgminer_api_client', '~> 0.1.4'
+    gem 'cgminer_api_client', '~> 0.1.5'
 
 ### RubyGems
 
