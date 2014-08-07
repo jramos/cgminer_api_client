@@ -1,3 +1,8 @@
+require 'json'
+require 'socket'
+require 'thread'
+require 'yaml'
+
 require "cgminer_api_client/miner"
 require "cgminer_api_client/miner/commands"
 require "cgminer_api_client/miner_pool"

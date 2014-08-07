@@ -1,9 +1,5 @@
-require 'thread'
-
 module CgminerApiClient
   class MinerPool
-    require 'yaml'
-
     attr_accessor :miners
 
     def initialize

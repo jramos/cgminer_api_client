@@ -2,9 +2,6 @@ require 'cgminer_api_client/miner/commands'
 
 module CgminerApiClient
   class Miner
-    require 'socket'
-    require 'json'
-
     include Miner::Commands
 
     attr_accessor :host, :port
