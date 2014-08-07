@@ -3,50 +3,47 @@ module CgminerApiClient
     module Commands
       module ReadOnly
         def asc(number)
-          @asc ||= {}
-          @asc[number] ||= query(:asc, number)
+          query(:asc, number)
         end
 
         def asccount
-          @asccount ||= query(:asccount)
+          query(:asccount)
         end
 
         def check(command)
-          @check ||= {}
-          @check[command] ||= query(:check, command)[0]
+          query(:check, command)[0]
         end
 
         def coin
-          @coin ||= query(:coin)[0]
+          query(:coin)[0]
         end
 
         def config
-          @config ||= query(:config)[0]
+          query(:config)[0]
         end
 
         def devdetails
-          @devdetails ||= query(:devdetails)
+          query(:devdetails)
         end
 
         def devs
-          @devs ||= query(:devs)
+          query(:devs)
         end
 
         def pga(number)
-          @pga = {}
-          @pga[number] ||= query(:pga, number)
+          query(:pga, number)
         end
 
         def pgacount
-          @pgacount ||= query(:pgacount)
+          query(:pgacount)
         end
 
         def pools
-          @pools ||= query(:pools)
+          query(:pools)
         end
 
         def privileged
-          @privileged ||= begin
+          begin
             query(:privileged)
             true
           rescue
@@ -55,23 +52,23 @@ module CgminerApiClient
         end
 
         def notify
-          @notify ||= query(:notify)
+          query(:notify)
         end
 
         def stats
-          @stats ||= query(:stats)
+          query(:stats)
         end
 
         def summary
-          @summary ||= query(:summary)[0]
+          query(:summary)[0]
         end
 
         def usbstats
-          @usbstats ||= query(:usbstats)
+          query(:usbstats)
         end
 
         def version
-          @version ||= query(:version)[0]
+          query(:version)[0]
         end
       end
 
