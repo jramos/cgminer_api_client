@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'cgminer_api_client'
 
 RSpec.configure do |config|
