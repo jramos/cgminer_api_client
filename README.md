@@ -13,7 +13,7 @@ A gem that allows sending API commands to a pool of cgminer instances.
 
 ## Installation Options
 
-### Bundle5
+### Bundler
 
 Add the following to your ``Gemfile``:
 

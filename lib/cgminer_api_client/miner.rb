@@ -53,7 +53,7 @@ module CgminerApiClient
 
       if request[:command].to_s.match('\+')
         data.each_pair do |command, response|
-          check_status(response.first) if response.try(:first)
+          check_status(response.first) if response.respond_to?(:first)
         end
       else
         check_status(data)

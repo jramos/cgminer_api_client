@@ -107,8 +107,15 @@ describe CgminerApiClient::Miner do
     it 'should return sanitized data' do
       mock_data = double('data')
       expect(instance).to receive(:perform_request).and_return(mock_data)
-      expect(instance).to receive(:sanitized).with(mock_data).and_return({'foo' => []})
-      instance.query(:foo)
+      expect(instance).to receive(:sanitized).with(mock_data).and_return({:foo => []})
+      expect(instance.query(:foo)).to eq []
+    end
+
+    it 'should return sanitized data for multiple commands' do
+      mock_data = double('data')
+      expect(instance).to receive(:perform_request).and_return(mock_data)
+      expect(instance).to receive(:sanitized).with(mock_data).and_return({:foo => [], :bar => []})
+      expect(instance.query('foo+bar')).to eq ({:foo => [], :bar => []})
     end
   end
 
@@ -153,10 +160,21 @@ describe CgminerApiClient::Miner do
           expect(TCPSocket).to receive(:open).and_return(mock_socket)
         end
 
-        it 'should parse the response as JSON and check the status' do
-          expect(JSON).to receive(:parse).with(mock_socket.read)
-          expect(instance).to receive(:check_status).and_return(true)
-          instance.send(:perform_request, {})
+        context 'single command' do
+          it 'should parse the response as JSON and check the status' do
+            expect(JSON).to receive(:parse).with(mock_socket.read)
+            expect(instance).to receive(:check_status).and_return(true)
+            instance.send(:perform_request, {})
+          end
+        end
+
+        context 'multiple commands' do
+          it 'should parse the response as JSON and check the status of each response element' do
+            expect(JSON).to receive(:parse).with(mock_socket.read).and_return({:foo => [{'STATUS' => 'ALL_GOOD'}], :bar => [{'STATUS' => 'NOT_SO_GOOD'}]})
+            expect(instance).to receive(:check_status).with({"STATUS" => 'ALL_GOOD'})
+            expect(instance).to receive(:check_status).with({"STATUS" => 'NOT_SO_GOOD'})
+            instance.send(:perform_request, {command: 'foo+bar'})
+          end
         end
       end
     end
