@@ -20,7 +20,7 @@ module CgminerApiClient
     end
 
     def query(method, *params)
-      request = {command: method.to_sym}
+      request = {command: method}
 
       unless params.length == 0
         params = params.map { |p| p.to_s.gsub('\\', '\\\\').gsub(',', '\,') }
@@ -29,7 +29,7 @@ module CgminerApiClient
 
       response = perform_request(request)
       data = sanitized(response)
-      return data[method]
+      method.to_s.match('\+') ? data : data[method.to_sym]
     end
 
     def method_missing(name, *args)
@@ -48,9 +48,17 @@ module CgminerApiClient
       s.write(request.to_json)
       data = s.read.strip.chars.map { |c| c.ord >= 32 ? c : "\\u#{'%04x' % c.ord}" }.join
       s.close
-    
+
       data = JSON.parse(data)
-      check_status(data)
+
+      if request[:command].to_s.match('\+')
+        data.each_pair do |command, response|
+          check_status(response.first) if response.try(:first)
+        end
+      else
+        check_status(data)
+      end
+
       return data
     end
 
@@ -73,7 +81,7 @@ module CgminerApiClient
 
     def sanitized(data)
       if data.is_a?(Hash)
-        data.inject({}) { |n, (k, v)| n[k.downcase.gsub(' ', '_').to_sym] = sanitized(v); n }
+        data.inject({}) { |n, (k, v)| n[k.to_s.downcase.gsub(' ', '_').to_sym] = sanitized(v); n }
       elsif data.is_a?(Array)
         data.map { |v| sanitized(v) }
       else
