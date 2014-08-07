@@ -34,7 +34,7 @@ describe CgminerApiClient::Miner::Commands do
       end
 
       it 'should query the miner' do
-        expect(instance).to receive(:check).with(:foo).and_return('foo' => [{}])
+        expect(instance).to receive(:query).with(:check, :foo).and_return('foo' => [{}])
         instance.check(:foo)
       end
     end
@@ -89,8 +89,8 @@ describe CgminerApiClient::Miner::Commands do
 
     context '#pools' do
       it 'should query the miner' do
-        expect(instance).to receive(:query).with(:pgacount).and_return('pgacount' => [{}])
-        instance.pgacount
+        expect(instance).to receive(:query).with(:pools).and_return('pools' => [{}])
+        instance.pools
       end
     end
 
