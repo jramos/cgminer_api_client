@@ -66,19 +66,40 @@ describe CgminerApiClient::MinerPool do
       instance.instance_variable_set(:@miners, [mock_miner])
     end
 
-    it 'should run provided query on each miner' do
-      expect(mock_miner).to receive(:query).with(:foo, anything)
-      instance.query(:foo)
+    context 'miner available' do
+      before do
+        allow(mock_miner).to receive(:available?).and_return(true)
+      end
+
+      it 'should run provided query on each miner' do
+        expect(mock_miner).to receive(:query).with(:foo, anything)
+        instance.query(:foo)
+      end
+
+      it 'should pass parameters' do
+        expect(mock_miner).to receive(:query).with(:foo, [:parameters])
+        instance.query(:foo, :parameters)
+      end
+
+      it 'should return an array' do
+        allow(mock_miner).to receive(:query).with(:foo, anything)
+        expect(instance.query(:foo)).to be_kind_of(Array)
+      end
     end
 
-    it 'should pass parameters' do
-      expect(mock_miner).to receive(:query).with(:foo, [:parameters])
-      instance.query(:foo, :parameters)
-    end
+    context 'miner unavailable' do
+      before do
+        allow(mock_miner).to receive(:available?).and_return(false)
+      end
 
-    it 'should return an array' do
-      allow(mock_miner).to receive(:query).with(:foo, anything)
-      expect(instance.query(:foo)).to be_kind_of(Array)
+      it 'should not query the miner' do
+        expect(mock_miner).to receive(:query).never
+        instance.query(:foo)
+      end
+
+      it 'should return nil' do
+        expect(instance.query(:foo)).to eq [nil]
+      end
     end
   end
 

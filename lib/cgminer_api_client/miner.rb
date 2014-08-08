@@ -20,16 +20,18 @@ module CgminerApiClient
     end
 
     def query(method, *params)
-      request = {command: method}
+      if available?
+        request = {command: method}
 
-      unless params.length == 0
-        params = params.map { |p| p.to_s.gsub('\\', '\\\\').gsub(',', '\,') }
-        request[:parameter] = params.join(',')
+        unless params.length == 0
+          params = params.map { |p| p.to_s.gsub('\\', '\\\\').gsub(',', '\,') }
+          request[:parameter] = params.join(',')
+        end
+
+        response = perform_request(request)
+        data = sanitized(response)
+        method.to_s.match('\+') ? data : data[method.to_sym]
       end
-
-      response = perform_request(request)
-      data = sanitized(response)
-      method.to_s.match('\+') ? data : data[method.to_sym]
     end
 
     def method_missing(name, *args)

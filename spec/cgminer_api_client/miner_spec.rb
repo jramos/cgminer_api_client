@@ -90,32 +90,53 @@ describe CgminerApiClient::Miner do
   end
 
   context '#query' do
-    context 'no parameters' do
-      it 'should perform a command request' do
-        expect(instance).to receive(:perform_request).with({:command => :foo}).and_return({'foo' => []})
+    context 'unavailable' do
+      before do
+        expect(instance).to receive(:available?).and_return(false)
+      end
+
+      it 'should not perform a command request' do
+        expect(instance).to receive(:perform_request).never
         instance.query(:foo)
       end
-    end
 
-    context 'parameters' do
-      it 'should perform a command request with parameters' do
-        expect(instance).to receive(:perform_request).with({:command => :foo, :parameter => 'bar,123,\\456'}).and_return({'foo' => []})
-        instance.query(:foo, :bar, :'123', :'\456')
+      it 'should return nil' do
+        expect(instance.query(:foo)).to eq nil
       end
     end
 
-    it 'should return sanitized data' do
-      mock_data = double('data')
-      expect(instance).to receive(:perform_request).and_return(mock_data)
-      expect(instance).to receive(:sanitized).with(mock_data).and_return({:foo => []})
-      expect(instance.query(:foo)).to eq []
-    end
+    context 'available' do
+      before do
+        expect(instance).to receive(:available?).and_return(true)
+      end
 
-    it 'should return sanitized data for multiple commands' do
-      mock_data = double('data')
-      expect(instance).to receive(:perform_request).and_return(mock_data)
-      expect(instance).to receive(:sanitized).with(mock_data).and_return({:foo => [], :bar => []})
-      expect(instance.query('foo+bar')).to eq ({:foo => [], :bar => []})
+      context 'no parameters' do
+        it 'should perform a command request' do
+          expect(instance).to receive(:perform_request).with({:command => :foo}).and_return({'foo' => []})
+          instance.query(:foo)
+        end
+      end
+
+      context 'parameters' do
+        it 'should perform a command request with parameters' do
+          expect(instance).to receive(:perform_request).with({:command => :foo, :parameter => 'bar,123,\\456'}).and_return({'foo' => []})
+          instance.query(:foo, :bar, :'123', :'\456')
+        end
+      end
+
+      it 'should return sanitized data' do
+        mock_data = double('data')
+        expect(instance).to receive(:perform_request).and_return(mock_data)
+        expect(instance).to receive(:sanitized).with(mock_data).and_return({:foo => []})
+        expect(instance.query(:foo)).to eq []
+      end
+
+      it 'should return sanitized data for multiple commands' do
+        mock_data = double('data')
+        expect(instance).to receive(:perform_request).and_return(mock_data)
+        expect(instance).to receive(:sanitized).with(mock_data).and_return({:foo => [], :bar => []})
+        expect(instance.query('foo+bar')).to eq ({:foo => [], :bar => []})
+      end
     end
   end
 
