@@ -12,7 +12,7 @@ module CgminerApiClient
 
     def available?
       begin
-        TCPSocket.open(@host, @port).close
+        open_socket(@host, @port).close
         true
       rescue
         false
@@ -40,9 +40,36 @@ module CgminerApiClient
 
     private
 
+    def open_socket(host, port, timeout = 5)
+      addr = Socket.getaddrinfo(host, nil)
+      sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
+
+      Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0).tap do |socket|
+        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+
+        begin
+          socket.connect_nonblock(sockaddr)
+        rescue IO::WaitWritable
+          if IO.select(nil, [socket], nil, timeout)
+            begin
+              socket.connect_nonblock(sockaddr)
+            rescue Errno::EISCONN
+              # the socket is connected
+            rescue
+              socket.close
+              raise
+            end
+          else
+            socket.close
+            raise "Connection timeout"
+          end
+        end
+      end
+    end
+
     def perform_request(request)
       begin
-        s = TCPSocket.open(@host, @port)
+        s = open_socket(@host, @port)
       rescue
         raise "Connection to #{@host}:#{@port} failed"
       end

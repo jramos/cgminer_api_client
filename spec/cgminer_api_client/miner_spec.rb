@@ -50,9 +50,9 @@ describe CgminerApiClient::Miner do
   end
 
   context '#available?' do
-    context 'TCPSocket.open raises an error' do
+    context 'open_socket raises an error' do
       before do
-        expect(TCPSocket).to receive(:open).and_raise(SocketError)
+        expect(instance).to receive(:open_socket).and_raise(SocketError)
       end
 
       it 'should return false' do
@@ -61,10 +61,10 @@ describe CgminerApiClient::Miner do
     end
 
     context 'TCPSocket.open does not raise an error' do
-      let(:mock_socket) { instance_double('TCPSocket') }
+      let(:mock_socket) { instance_double('Socket') }
 
       before do
-        expect(TCPSocket).to receive(:open).and_return(mock_socket)
+        expect(instance).to receive(:open_socket).and_return(mock_socket)
       end
 
       context 'socket #close raises an error' do
@@ -157,10 +157,14 @@ describe CgminerApiClient::Miner do
   end
 
   context 'private methods' do
+    context '#open_socket' do
+      pending
+    end
+
     context '#perform_request' do
-      context 'TCPSocket cannot be opened' do
+      context 'Socket cannot be opened' do
         before do
-          expect(TCPSocket).to receive(:open).and_raise(SocketError)
+          expect(instance).to receive(:open_socket).and_raise(SocketError)
         end
 
         it 'should raise an exception' do
@@ -170,15 +174,15 @@ describe CgminerApiClient::Miner do
         end
       end
 
-      context 'TCPSocket can be opened' do
-        let(:mock_socket) { instance_double('TCPSocket', {
+      context 'Socket can be opened' do
+        let(:mock_socket) { instance_double('Socket', {
           :write => true,
           :read  => "{'json':true}",
           :close => true
         }) }
 
         before do
-          expect(TCPSocket).to receive(:open).and_return(mock_socket)
+          expect(instance).to receive(:open_socket).and_return(mock_socket)
         end
 
         context 'single command' do
