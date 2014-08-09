@@ -152,80 +152,86 @@ There is currently one command-line tool for viewing the overall status of your 
 
     $ bin/cgminer_pool_summary 
     192.168.1.151:4028
-    	GH/s(5s)	191.24
-    	GH/s(avg)	200.96
+    	GH/s(5s)	199.12
+    	GH/s(avg)	200.98
+    	Devices	1
+    		Name	ANT
+    		Status	Alive
+    		Elapsed	330 min
+    		Temp	51.0 C / 123.8 F
+    		Rej	4.8539%
+    		Err	0.3026%
+    
+    192.168.1.152:4028
+    	GH/s(5s)	217.88
+    	GH/s(avg)	201.05
+    	Devices	1
+    		Name	ANT
+    		Status	Alive
+    		Elapsed	324 min
+    		Temp	48.5 C / 119.3 F
+    		Rej	3.5152%
+    		Err	0.315%
+    
+    192.168.1.153:4028
+    	GH/s(5s)	192.82
+    	GH/s(avg)	200.83
+    	Devices	1
+    		Name	ANT
+    		Status	Alive
+    		Elapsed	283 min
+    		Temp	50.5 C / 122.9 F
+    		Rej	3.3944%
+    		Err	0.2986%
+    
+    192.168.1.154:4028
+    	GH/s(5s)	196.22
+    	GH/s(avg)	200.13
+    	Devices	1
+    		Name	ANT
+    		Status	Alive
+    		Elapsed	322 min
+    		Temp	50.5 C / 122.9 F
+    		Rej	5.2205%
+    		Err	0.5668%
+    
+    192.168.1.155:4028
+    	GH/s(5s)	201.97
+    	GH/s(avg)	198.88
     	Devices	1
     		Name	ANT
     		Status	Alive
     		Elapsed	321 min
-    		Temp	51.0 C
-    		Err	0.3006%
-    
-    192.168.1.152:4028
-    	GH/s(5s)	186.47
-    	GH/s(avg)	201.08
-    	Devices	1
-    		Name	ANT
-    		Status	Alive
-    		Elapsed	315 min
-    		Temp	48.5 C
-    		Err	0.3129%
-    
-    192.168.1.153:4028
-    	GH/s(5s)	206.14
-    	GH/s(avg)	200.85
-    	Devices	1
-    		Name	ANT
-    		Status	Alive
-    		Elapsed	275 min
-    		Temp	51.0 C
-    		Err	0.2984%
-    
-    192.168.1.154:4028
-    	GH/s(5s)	184.67
-    	GH/s(avg)	200.19
-    	Devices	1
-    		Name	ANT
-    		Status	Alive
-    		Elapsed	313 min
-    		Temp	50.5 C
-    		Err	0.5673%
-    
-    192.168.1.155:4028
-    	GH/s(5s)	174.07
-    	GH/s(avg)	198.85
-    	Devices	1
-    		Name	ANT
-    		Status	Alive
-    		Elapsed	312 min
-    		Temp	48.0 C
-    		Err	1.2766%
+    		Temp	48.0 C / 118.4 F
+    		Rej	5.6044%
+    		Err	1.2791%
     
     192.168.1.156:4028
-    	GH/s(5s)	218.8
-    	GH/s(avg)	199.87
+    	GH/s(5s)	215.7
+    	GH/s(avg)	199.85
     	Devices	1
     		Name	ANT
     		Status	Alive
-    		Elapsed	311 min
-    		Temp	51.0 C
-    		Err	0.6057%
+    		Elapsed	320 min
+    		Temp	51.0 C / 123.8 F
+    		Rej	4.6996%
+    		Err	0.6069%
     
     =============================================
     
     Total GH/s
-    	5s	1161.4 (193.6 / miner)
-    	Avg	1201.8 (200.3 / miner)
+    	5s	1223.7 (204.0 / miner)
+    	Avg	1201.7 (200.3 / miner)
     
     Error Rate
-    	Avg	0.5603% / miner
-    	GH/s(5s)	6.51
-    	GH/s(avg)	6.73
+    	Avg	0.5615% / miner
+    	GH/s(5s)	6.87
+    	GH/s(avg)	6.75
     
     Temperature
-    	Min	48.0 C
-    	Avg	50.0 C
-    	Max	51.0 C
+    	Min	48.0 C / 118.4 F
+    	Avg	49.9 C / 121.9 F
+    	Max	51.0 C / 123.8 F
 
 ## GUI
 

@@ -18,6 +18,10 @@ end
 # reopen CgminerApiClient::MinerPool and add a summary method
 module CgminerApiClient
   class MinerPool
+    def to_ferinheight(centigrade)
+      (1.8 * centigrade.to_f + 32).round(1)
+    end
+
     def print_summary
       @aggregator = {
         :ghs_avg     => [],
@@ -43,7 +47,8 @@ module CgminerApiClient
             puts "\t\tName\t#{device[:name]}"
             puts "\t\tStatus\t#{device[:status]}"
             puts "\t\tElapsed\t#{device[:device_elapsed] / 60} min"
-            puts "\t\tTemp\t#{device[:temperature]} C"
+            puts "\t\tTemp\t#{device[:temperature]} C / #{to_ferinheight(device[:temperature])} F"
+            puts "\t\tRej\t#{device[:'device_rejected%']}%"
             puts "\t\tErr\t#{device[:'device_hardware%']}%\n\n"
 
             @aggregator[:temperature] << device[:temperature]
@@ -61,9 +66,9 @@ module CgminerApiClient
       puts "\tGH/s(5s)\t#{((@aggregator[:error_rate].mean) * @aggregator[:ghs_5s].sum / 100).round(2)}"
       puts "\tGH/s(avg)\t#{((@aggregator[:error_rate].mean) * @aggregator[:ghs_avg].sum / 100).round(2)}"
       puts "\nTemperature"
-      puts "\tMin\t#{@aggregator[:temperature].min.round(1)} C"
-      puts "\tAvg\t#{@aggregator[:temperature].mean.round(1)} C"
-      puts "\tMax\t#{@aggregator[:temperature].max.round(1)} C"
+      puts "\tMin\t#{@aggregator[:temperature].min.round(1)} C / #{to_ferinheight(@aggregator[:temperature].min)} F"
+      puts "\tAvg\t#{@aggregator[:temperature].mean.round(1)} C / #{to_ferinheight(@aggregator[:temperature].mean)} F"
+      puts "\tMax\t#{@aggregator[:temperature].max.round(1)} C / #{to_ferinheight(@aggregator[:temperature].max)} F"
     end
   end
 end
