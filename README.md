@@ -151,51 +151,81 @@ Any cgminer API commands not explictly defined above are implemented using ``met
 There is currently one command-line tool for viewing the overall status of your pool, ``bin/cgminer_pool_summary``.
 
     $ bin/cgminer_pool_summary 
-    192.168.1.1:4028
-    	GH/s(5s)	186.19
-    	GH/s(avg)	191.88
+    192.168.1.151:4028
+    	GH/s(5s)	191.24
+    	GH/s(avg)	200.96
     	Devices	1
-    		Name	BMM
+    		Name	ANT
     		Status	Alive
-    		Elapsed	42 min
-    		Temp	50.0 C
-    		Err	0.2156%
+    		Elapsed	321 min
+    		Temp	51.0 C
+    		Err	0.3006%
     
-    192.168.1.2:4028
-    	GH/s(5s)	191.95
-    	GH/s(avg)	192.34
+    192.168.1.152:4028
+    	GH/s(5s)	186.47
+    	GH/s(avg)	201.08
     	Devices	1
-    		Name	BMM
+    		Name	ANT
     		Status	Alive
-    		Elapsed	41 min
-    		Temp	47.0 C
-    		Err	0.1697%
+    		Elapsed	315 min
+    		Temp	48.5 C
+    		Err	0.3129%
     
-    192.168.1.3:4028
-    	GH/s(5s)	195.82
-    	GH/s(avg)	191.41
+    192.168.1.153:4028
+    	GH/s(5s)	206.14
+    	GH/s(avg)	200.85
     	Devices	1
-    		Name	BMM
+    		Name	ANT
     		Status	Alive
-    		Elapsed	109 min
-    		Temp	49.0 C
-    		Err	0.0021%
+    		Elapsed	275 min
+    		Temp	51.0 C
+    		Err	0.2984%
+    
+    192.168.1.154:4028
+    	GH/s(5s)	184.67
+    	GH/s(avg)	200.19
+    	Devices	1
+    		Name	ANT
+    		Status	Alive
+    		Elapsed	313 min
+    		Temp	50.5 C
+    		Err	0.5673%
+    
+    192.168.1.155:4028
+    	GH/s(5s)	174.07
+    	GH/s(avg)	198.85
+    	Devices	1
+    		Name	ANT
+    		Status	Alive
+    		Elapsed	312 min
+    		Temp	48.0 C
+    		Err	1.2766%
+    
+    192.168.1.156:4028
+    	GH/s(5s)	218.8
+    	GH/s(avg)	199.87
+    	Devices	1
+    		Name	ANT
+    		Status	Alive
+    		Elapsed	311 min
+    		Temp	51.0 C
+    		Err	0.6057%
     
     =============================================
     
     Total GH/s
-    	5s	574.0 (191.3 / miner)
-    	Avg	575.6 (191.9 / miner)
+    	5s	1161.4 (193.6 / miner)
+    	Avg	1201.8 (200.3 / miner)
     
     Error Rate
-    	Avg	0.1291% / miner
-    	GH/s(5s)	0.74
-    	GH/s(avg)	0.74
+    	Avg	0.5603% / miner
+    	GH/s(5s)	6.51
+    	GH/s(avg)	6.73
     
     Temperature
-    	Min	47.0 C
-    	Avg	48.7 C
-    	Max	50.0 C
+    	Min	48.0 C
+    	Avg	50.0 C
+    	Max	51.0 C
 
 ## GUI
 
