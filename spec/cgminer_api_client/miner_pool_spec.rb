@@ -121,6 +121,18 @@ describe CgminerApiClient::MinerPool do
     end
   end
 
+  context '#reload_miners!' do
+    before do
+      allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+      allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
+    end
+
+    it 'should call load_miners!' do
+      expect(instance).to receive(:load_miners!)
+      instance.reload_miners!
+    end
+  end
+
   context 'private methods' do
     context '#load_miners!' do
       before do

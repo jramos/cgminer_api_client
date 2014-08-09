@@ -19,6 +19,11 @@ module CgminerApiClient
       query(name, *args)
     end
 
+    def reload_miners!
+      @miners = nil
+      load_miners!
+    end
+
     private
     
     def load_miners!
