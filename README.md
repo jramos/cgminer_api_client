@@ -54,7 +54,7 @@ Make the following change:
 
 You also need to updated the init.d script to pass the ``--api_allow`` option:
 
-    vi /etc/init.d/cgminer
+    $ vi /etc/init.d/cgminer
 
 Make the following change:
 
