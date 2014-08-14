@@ -3,6 +3,7 @@
 $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib/")
 
 require 'cgminer_api_client'
+require 'pp'
 
 command = ARGV.last && ARGV.last.to_sym
 
@@ -11,4 +12,4 @@ unless command
   exit(0)
 end
 
-puts CgminerApiClient::MinerPool.new.send(:query, command)
+pp(CgminerApiClient::MinerPool.new.send(:query, command))
