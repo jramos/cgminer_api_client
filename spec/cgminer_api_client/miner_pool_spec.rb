@@ -72,17 +72,17 @@ describe CgminerApiClient::MinerPool do
       end
 
       it 'should run provided query on each miner' do
-        expect(mock_miner).to receive(:query).with(:foo, anything)
+        expect(mock_miner).to receive(:query).with(:foo)
         instance.query(:foo)
       end
 
       it 'should pass parameters' do
-        expect(mock_miner).to receive(:query).with(:foo, [:parameters])
+        expect(mock_miner).to receive(:query).with(:foo, *[:parameters])
         instance.query(:foo, :parameters)
       end
 
       it 'should return an array' do
-        allow(mock_miner).to receive(:query).with(:foo, anything)
+        allow(mock_miner).to receive(:query).with(:foo)
         expect(instance.query(:foo)).to be_kind_of(Array)
       end
     end
