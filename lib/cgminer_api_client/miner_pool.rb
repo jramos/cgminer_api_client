@@ -9,7 +9,14 @@ module CgminerApiClient
 
     def query(method, *params)
       threads = @miners.collect do |miner|
-        Thread.new { miner.query(method, *params) if miner.available? }
+        Thread.new do
+          begin
+            miner.query(method, *params)
+          rescue => e
+            $stderr.puts "#{e.class}: #{e}"
+            []
+          end
+        end
       end
       threads.each { |thr| thr.join }
       threads.collect(&:value)
