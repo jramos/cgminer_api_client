@@ -5,11 +5,17 @@ $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib/")
 require 'cgminer_api_client'
 require 'pp'
 
-command = ARGV.last && ARGV.last.to_sym
+command = ARGV.first && ARGV.first.to_sym
+ARGV.shift
 
 unless command
-  puts "USAGE: cgminer_api_client [options] command"
+  puts "USAGE: cgminer_api_client command (arguments)"
   exit(0)
 end
 
-pp(CgminerApiClient::MinerPool.new.send(:query, command))
+begin
+  miner_pool = CgminerApiClient::MinerPool.new
+  pp(ARGV.empty? ? miner_pool.query(command) : miner_pool.query(command, *ARGV))
+rescue => e
+  puts e.message
+end
