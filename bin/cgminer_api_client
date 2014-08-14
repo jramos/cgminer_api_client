@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib/")
+
+require 'cgminer_api_client'
+
+command = ARGV.last && ARGV.last.to_sym
+
+unless command
+  puts "USAGE: cgminer_api_client [options] command"
+  exit(0)
+end
+
+puts CgminerApiClient::MinerPool.new.send(:query, command)
