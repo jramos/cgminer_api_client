@@ -11,6 +11,10 @@ A gem that allows sending API commands to a pool of cgminer instances.
     * Thread
 * cgminer (~> 3.12.0)
 
+## GUI
+
+* [https://github.com/jramos/cgminer_manager](https://github.com/jramos/cgminer_manager)
+
 ## Installation Options
 
 ### Bundler
@@ -82,6 +86,12 @@ Restart cgminer:
         miner.devs   # run 'devs' on this miner; returns a response hash
     end
 
+## CLI Usage
+
+API commands can be sent to your miner pool from the command line.
+
+    $ cgminer_api_client <command> (<arguments>)
+
 ### Commands
 
 #### Read-Only
@@ -145,16 +155,6 @@ The following privileged miner and pool commands are currently available:
 * zero(which = 'All', full_summary = false)
 
 Any cgminer API commands not explictly defined above are implemented using ``method_missing``. A complete list of available API commands and options can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
-
-## CLI Usage
-
-API commands can be sent to your miner pool from the command line.
-
-    $ cgminer_api_client <command> (<arguments>)
-
-## GUI
-
-* [https://github.com/jramos/cgminer_manager](https://github.com/jramos/cgminer_manager)
 
 ## Contributing
 
