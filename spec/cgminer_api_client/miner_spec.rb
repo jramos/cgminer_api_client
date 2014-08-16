@@ -3,7 +3,8 @@ require 'spec_helper'
 describe CgminerApiClient::Miner do
   let(:host)     { '127.0.0.1' }
   let(:port)     { 4028 }
-  let(:instance) { CgminerApiClient::Miner.new(host, port) }
+  let(:timeout)  { 1 }
+  let(:instance) { CgminerApiClient::Miner.new(host, port, timeout) }
 
   context 'attributes' do
     context '@host' do
@@ -17,6 +18,13 @@ describe CgminerApiClient::Miner do
       it 'should allow setting and getting' do
         instance.port = :foo
         expect(instance.port).to eq :foo
+      end
+    end
+
+    context '@timeout' do
+      it 'should allow setting and getting' do
+        instance.timeout = :foo
+        expect(instance.timeout).to eq :foo
       end
     end
   end
@@ -36,7 +44,13 @@ describe CgminerApiClient::Miner do
 
     it 'should not raise an argument error with 2 arguments' do
       expect {
-        instance
+        CgminerApiClient::Miner.new(host, port)
+      }.to_not raise_error()
+    end
+
+    it 'should not raise an argument error with 3 arguments' do
+      expect {
+        CgminerApiClient::Miner.new(host, port, timeout)
       }.to_not raise_error()
     end
 
@@ -47,9 +61,15 @@ describe CgminerApiClient::Miner do
     it 'should set @port' do
       expect(instance.port).to eq port
     end
+
+    it 'should set @timeout' do
+      expect(instance.timeout).to eq timeout
+    end
   end
 
   context '#available?' do
+    let(:mock_socket) { instance_double('Socket') }
+
     context 'open_socket raises an error' do
       before do
         expect(instance).to receive(:open_socket).and_raise(SocketError)
@@ -60,9 +80,7 @@ describe CgminerApiClient::Miner do
       end
     end
 
-    context 'TCPSocket.open does not raise an error' do
-      let(:mock_socket) { instance_double('Socket') }
-
+    context 'open_socket does not raise an error' do
       before do
         expect(instance).to receive(:open_socket).and_return(mock_socket)
       end
@@ -86,6 +104,13 @@ describe CgminerApiClient::Miner do
           expect(instance.available?).to eq true
         end
       end
+    end
+
+    it 'should set an instance variable' do
+      expect(instance).to receive(:open_socket).and_return(mock_socket)
+      expect(mock_socket).to receive(:close).and_return(true)
+      instance.available?
+      expect(instance.instance_variable_get(:@available)).to eq true
     end
   end
 

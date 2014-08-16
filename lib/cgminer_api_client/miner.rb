@@ -4,15 +4,15 @@ module CgminerApiClient
   class Miner
     include Miner::Commands
 
-    attr_accessor :host, :port
+    attr_accessor :host, :port, :timeout
 
-    def initialize(host, port)
-      @host, @port = host, port
+    def initialize(host, port, timeout = 5)
+      @host, @port, @timeout = host, port, timeout
     end
 
     def available?
-      begin
-        open_socket(@host, @port).close
+      @available ||= begin
+        open_socket(@host, @port, @timeout).close
         true
       rescue
         false
@@ -69,7 +69,7 @@ module CgminerApiClient
 
     def perform_request(request)
       begin
-        s = open_socket(@host, @port)
+        s = open_socket(@host, @port, @timeout)
       rescue
         raise "Connection to #{@host}:#{@port} failed"
       end
