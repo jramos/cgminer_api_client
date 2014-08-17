@@ -3,7 +3,11 @@ module CgminerApiClient
     attr_accessor :miners
 
     def initialize
-      raise 'Please create config/miners.yml' unless File.exist?('config/miners.yml')
+      load_miners!
+    end
+
+    def reload_miners!
+      @miners = nil
       load_miners!
     end
 
@@ -19,6 +23,10 @@ module CgminerApiClient
       end
       threads.each { |thr| thr.join }
       threads.collect(&:value).compact
+    end
+
+    def unavailable_miners
+      @miners - available_miners
     end
 
     def query(method, *params)
@@ -40,14 +48,11 @@ module CgminerApiClient
       query(name, *args)
     end
 
-    def reload_miners!
-      @miners = nil
-      load_miners!
-    end
-
     private
     
     def load_miners!
+      raise 'Please create config/miners.yml' unless File.exist?('config/miners.yml')
+
       miners_config = YAML.load_file('config/miners.yml')
       @miners = miners_config.collect{|miner|
         CgminerApiClient::Miner.new(miner['host'], (miner['port'] || 4028), (miner['timeout'] || 5))
