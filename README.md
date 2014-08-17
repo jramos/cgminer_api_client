@@ -21,25 +21,33 @@ A gem that allows sending API commands to a pool of cgminer instances.
 
 Add the following to your ``Gemfile``:
 
+``` Ruby
     gem 'cgminer_api_client', '~> 0.2.0'
+```
 
 ### RubyGems
 
-    $ gem install cgminer_api_client
+``` Bash
+    gem install cgminer_api_client
+```
 
 ### Manually
 
-    $ git clone git@github.com:jramos/cgminer_api_client.git
+``` Bash
+    git clone git@github.com:jramos/cgminer_api_client.git
+```
 
 ## Configuration
 
 Copy [``config/miners.yml.example``](https://github.com/jramos/cgminer_api_client/blob/master/config/miners.yml.example) to ``config/miners.yml`` and update with the IP addresses (and optional ports) of your cgminer instances. E.g.:
 
+``` YAML
     # connect to localhost on the default port (4028)
     - host: 127.0.0.1
     # connect to 192.168.1.1 on a non-standard port (1234)
     - host: 192.168.1.1
       port: 1234
+```
 
 ### Remote API Access
 
