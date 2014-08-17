@@ -10,7 +10,9 @@ module CgminerApiClient
       @host, @port, @timeout = host, port, timeout
     end
 
-    def available?
+    def available?(force_reload = false)
+      @available = nil if force_reload
+
       @available ||= begin
         open_socket(@host, @port, @timeout).close
         true

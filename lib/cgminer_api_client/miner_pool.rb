@@ -11,11 +11,11 @@ module CgminerApiClient
       load_miners!
     end
 
-    def available_miners
+    def available_miners(force_reload = false)
       threads = @miners.collect do |miner|
         Thread.new do
           begin
-            miner if miner.available?
+            miner if miner.available?(force_reload)
           rescue
             nil
           end
