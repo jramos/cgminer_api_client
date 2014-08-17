@@ -25,8 +25,8 @@ module CgminerApiClient
       threads.collect(&:value).compact
     end
 
-    def unavailable_miners
-      @miners - available_miners
+    def unavailable_miners(force_reload = false)
+      @miners - available_miners(force_reload)
     end
 
     def query(method, *params)
