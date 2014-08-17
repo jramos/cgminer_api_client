@@ -59,7 +59,7 @@ Under Linux, you would do the following to allow access from any computer on you
 
 ``` Bash
 vi /etc/config/cgminer
-``` Bash
+```
 
 Make the following change:
 
