@@ -22,19 +22,19 @@ A gem that allows sending API commands to a pool of cgminer instances.
 Add the following to your ``Gemfile``:
 
 ``` Ruby
-    gem 'cgminer_api_client', '~> 0.2.0'
+gem 'cgminer_api_client', '~> 0.2.0'
 ```
 
 ### RubyGems
 
 ``` Bash
-    gem install cgminer_api_client
+gem install cgminer_api_client
 ```
 
 ### Manually
 
 ``` Bash
-    git clone git@github.com:jramos/cgminer_api_client.git
+git clone git@github.com:jramos/cgminer_api_client.git
 ```
 
 ## Configuration
@@ -42,11 +42,11 @@ Add the following to your ``Gemfile``:
 Copy [``config/miners.yml.example``](https://github.com/jramos/cgminer_api_client/blob/master/config/miners.yml.example) to ``config/miners.yml`` and update with the IP addresses (and optional ports) of your cgminer instances. E.g.:
 
 ``` YAML
-    # connect to localhost on the default port (4028)
-    - host: 127.0.0.1
-    # connect to 192.168.1.1 on a non-standard port (1234)
-    - host: 192.168.1.1
-      port: 1234
+# connect to localhost on the default port (4028)
+- host: 127.0.0.1
+# connect to 192.168.1.1 on a non-standard port (1234)
+- host: 192.168.1.1
+  port: 1234
 ```
 
 ### Remote API Access
@@ -57,7 +57,9 @@ Your cgminer instances must be configured to allow remote API access if connecti
 
 Under Linux, you would do the following to allow access from any computer on your local network (192.168.1.x):
 
-    $ vi /etc/config/cgminer
+``` Bash
+vi /etc/config/cgminer
+``` Bash
 
 Make the following change:
 
@@ -66,7 +68,9 @@ Make the following change:
 
 You also need to updated the init.d script to pass the ``--api_allow`` option:
 
-    $ vi /etc/init.d/cgminer
+``` Bash
+vi /etc/init.d/cgminer
+```
 
 Make the following change:
 
@@ -75,30 +79,36 @@ Make the following change:
 
 Restart cgminer:
 
-    $ /etc/init.d/cgminer restart
+``` Bash
+/etc/init.d/cgminer restart
+```
 
 ## Gem Usage
 
-    require 'cgminer_api_client'
-    
-    pool = CgminerApiClient::MinerPool.new
-    
-    # run 'devs' on each miner in the pool; returns an array of response hashes
-    devices = pool.devs
-    
-    # run 'summary' on each miner in the pool; returns an array of response hashes
-    summaries = pool.summary
-    
-    # run commands on individual miners
-    pool.miners.collect do |miner|
-        miner.devs   # run 'devs' on this miner; returns a response hash
-    end
+``` Ruby
+require 'cgminer_api_client'
+
+pool = CgminerApiClient::MinerPool.new
+
+# run 'devs' on each miner in the pool; returns an array of response hashes
+devices = pool.devs
+
+# run 'summary' on each miner in the pool; returns an array of response hashes
+summaries = pool.summary
+
+# run commands on individual miners
+pool.miners.collect do |miner|
+    miner.devs   # run 'devs' on this miner; returns a response hash
+end
+```
 
 ## CLI Usage
 
 API commands can be sent to your miner pool from the command line.
 
-    $ cgminer_api_client <command> (<arguments>)
+``` Bash
+cgminer_api_client <command> (<arguments>)
+```
 
 ### Commands
 
