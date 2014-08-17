@@ -7,6 +7,20 @@ module CgminerApiClient
       load_miners!
     end
 
+    def available_miners
+      threads = @miners.collect do |miner|
+        Thread.new do
+          begin
+            miner if miner.available?
+          rescue
+            nil
+          end
+        end
+      end
+      threads.each { |thr| thr.join }
+      threads.collect(&:value).compact
+    end
+
     def query(method, *params)
       threads = @miners.collect do |miner|
         Thread.new do
@@ -36,7 +50,7 @@ module CgminerApiClient
     def load_miners!
       miners_config = YAML.load_file('config/miners.yml')
       @miners = miners_config.collect{|miner|
-        CgminerApiClient::Miner.new(miner['host'], (miner['port'] || 4028))
+        CgminerApiClient::Miner.new(miner['host'], (miner['port'] || 4028), (miner['timeout'] || 5))
       }
     end
   end

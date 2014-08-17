@@ -4,7 +4,8 @@ describe CgminerApiClient::MinerPool do
   let(:mock_miner)           { instance_double('CgminerApiClient::Miner') }
   let(:host)                 { '127.0.0.1' }
   let(:port)                 { 1234 }
-  let(:mock_miner_from_yaml) { double('miner_from_yaml', :[] => {'host' => host, 'port' => port} ) }
+  let(:timeout)              { 10 }
+  let(:mock_miner_from_yaml) { double('miner_from_yaml', :[] => {'host' => host, 'port' => port, 'timeout' => timeout} ) }
   let(:instance)             { CgminerApiClient::MinerPool.new }
 
   before do
@@ -56,6 +57,11 @@ describe CgminerApiClient::MinerPool do
         instance
       end
     end
+  end
+
+  context '#available_miners' do
+    it 'should not include unavailable miners'
+    it 'should include available miners'
   end
 
   context '#query' do
@@ -125,13 +131,13 @@ describe CgminerApiClient::MinerPool do
 
       it 'should create new instances of CgminerApiClient::Miner' do
         allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-        expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port])
+        expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port], mock_miner_from_yaml[:timeout])
         instance.send(:load_miners!)
       end
 
       it 'should assign the remote instances to @miners' do
         allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-        allow(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port]).and_return(mock_miner)
+        allow(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port], mock_miner_from_yaml[:timeout]).and_return(mock_miner)
         instance.send(:load_miners!)
         expect(instance.miners).to eq [mock_miner]
       end
@@ -140,7 +146,16 @@ describe CgminerApiClient::MinerPool do
         it 'should use the default cgminer port of 4028' do
           expect(mock_miner_from_yaml).to receive(:[]).with('port').and_return(nil)
           allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-          expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml['host'], 4028).and_return(mock_miner)
+          expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml['host'], 4028, mock_miner_from_yaml['timeout']).and_return(mock_miner)
+          instance.send(:load_miners!)
+        end
+      end
+
+      context 'no timeout specified' do
+        it 'should use the default timeout of 5' do
+          expect(mock_miner_from_yaml).to receive(:[]).with('timeout').and_return(nil)
+          allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
+          expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml['host'], mock_miner_from_yaml['port'], 5).and_return(mock_miner)
           instance.send(:load_miners!)
         end
       end
