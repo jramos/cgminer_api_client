@@ -88,8 +88,8 @@ Restart cgminer:
     # run 'summary' on each miner in the pool; returns an array of response hashes
     summaries = pool.summary
     
-    # run commands on individual miners
-    pool.miners.collect do |miner|
+    # run commands on available miners
+    pool.available_miners.collect do |miner|
         miner.devs   # run 'devs' on this miner; returns a response hash
     end
 
