@@ -6,7 +6,7 @@ module CgminerApiClient
 
     attr_accessor :host, :port, :timeout
 
-    def initialize(host, port, timeout = 5)
+    def initialize(host, port, timeout = CgminerApiClient.default_timeout)
       @host, @port, @timeout = host, port, timeout
     end
 
@@ -42,7 +42,7 @@ module CgminerApiClient
 
     private
 
-    def open_socket(host, port, timeout = 5)
+    def open_socket(host, port, timeout = CgminerApiClient.default_timeout)
       addr = Socket.getaddrinfo(host, nil)
       sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
 
