@@ -88,6 +88,12 @@ Restart cgminer:
 ``` Ruby
 require 'cgminer_api_client'
 
+# change the default timeout and port for the miners
+CgminerApiClient.config do |config|
+    config.default_timeout = 3
+    config.default_port    = 4023
+end
+
 pool = CgminerApiClient::MinerPool.new
 
 # run 'devs' on each miner in the pool; returns an array of response hashes
