@@ -55,7 +55,7 @@ module CgminerApiClient
 
       miners_config = YAML.load_file('config/miners.yml')
       @miners = miners_config.collect{|miner|
-        CgminerApiClient::Miner.new(miner['host'], (miner['port'] || 4028), (miner['timeout'] || 5))
+        CgminerApiClient::Miner.new(miner['host'], (miner['port'] || CgminerApiClient.default_port), (miner['timeout'] || CgminerApiClient.default_timeout))
       }
     end
   end

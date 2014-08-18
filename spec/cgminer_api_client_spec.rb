@@ -3,8 +3,9 @@ require 'spec_helper'
 describe CgminerApiClient do
   subject { CgminerApiClient }
 
-  before do
+  around do
     subject.default_timeout = 5
+    subject.default_port = 4028
   end
 
   it 'should have a version constant' do
@@ -16,6 +17,13 @@ describe CgminerApiClient do
       it 'should allow setting and getting' do
         subject.default_timeout = :foo
         expect(subject.default_timeout).to eq :foo
+      end
+    end
+
+    context 'default_port' do
+      it 'should allow setting and getting' do
+        subject.default_port = :foo
+        expect(subject.default_port).to eq :foo
       end
     end
   end

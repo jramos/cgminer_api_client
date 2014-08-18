@@ -17,6 +17,14 @@ module CgminerApiClient
     @default_timeout = value
   end
 
+  def self.default_port
+    defined?(@default_port) ? @default_port : 4028
+  end
+
+  def self.default_port=(value)
+    @default_port = value
+  end
+
   def self.config
     yield self if block_given?
   end
