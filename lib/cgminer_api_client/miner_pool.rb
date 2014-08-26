@@ -11,6 +11,21 @@ module CgminerApiClient
       load_miners!
     end
 
+    def query(method, *params)
+      threads = @miners.collect do |miner|
+        Thread.new do
+          begin
+            miner.query(method, *params)
+          rescue => e
+            $stderr.puts "#{e.class}: #{e}"
+            []
+          end
+        end
+      end
+      threads.each { |thr| thr.join }
+      threads.collect(&:value)
+    end
+
     def available_miners(force_reload = false)
       threads = @miners.collect do |miner|
         Thread.new do
@@ -27,21 +42,6 @@ module CgminerApiClient
 
     def unavailable_miners(force_reload = false)
       @miners - available_miners(force_reload)
-    end
-
-    def query(method, *params)
-      threads = @miners.collect do |miner|
-        Thread.new do
-          begin
-            miner.query(method, *params)
-          rescue => e
-            $stderr.puts "#{e.class}: #{e}"
-            []
-          end
-        end
-      end
-      threads.each { |thr| thr.join }
-      threads.collect(&:value)
     end
 
     def method_missing(name, *args)
