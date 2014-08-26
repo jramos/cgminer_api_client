@@ -30,16 +30,16 @@ describe CgminerApiClient::Miner do
   end
 
   context '#initialize' do
-    it 'should raise an argument error with 0 arguments' do
+    it 'should not raise an argument error with 0 arguments' do
       expect {
         CgminerApiClient::Miner.new
-      }.to raise_error(ArgumentError)
+      }.to_not raise_error()
     end
 
-    it 'should raise an argument error with 1 argument' do
+    it 'should not raise an argument error with 1 arguments' do
       expect {
         CgminerApiClient::Miner.new(host)
-      }.to raise_error(ArgumentError)
+      }.to_not raise_error()
     end
 
     it 'should not raise an argument error with 2 arguments' do
@@ -52,6 +52,13 @@ describe CgminerApiClient::Miner do
       expect {
         CgminerApiClient::Miner.new(host, port, timeout)
       }.to_not raise_error()
+    end
+
+    it 'should use defaults' do
+      miner = CgminerApiClient::Miner.new
+      expect(miner.host).to eq CgminerApiClient.default_host
+      expect(miner.port).to eq CgminerApiClient.default_port
+      expect(miner.timeout).to eq CgminerApiClient.default_timeout
     end
 
     it 'should set @host' do

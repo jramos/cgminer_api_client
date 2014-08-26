@@ -128,24 +128,6 @@ describe CgminerApiClient::MinerPool do
           instance.send(:load_miners!)
           expect(instance.miners).to eq [mock_miner]
         end
-
-        context 'no port specified' do
-          it 'should use the default cgminer port of 4028' do
-            expect(mock_miner_from_yaml).to receive(:[]).with('port').and_return(nil)
-            allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-            expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml['host'], 4028, mock_miner_from_yaml['timeout']).and_return(mock_miner)
-            instance.send(:load_miners!)
-          end
-        end
-
-        context 'no timeout specified' do
-          it 'should use the default timeout of 5' do
-            expect(mock_miner_from_yaml).to receive(:[]).with('timeout').and_return(nil)
-            allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-            expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml['host'], mock_miner_from_yaml['port'], 5).and_return(mock_miner)
-            instance.send(:load_miners!)
-          end
-        end
       end
     end
   end

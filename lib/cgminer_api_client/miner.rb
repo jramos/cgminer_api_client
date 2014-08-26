@@ -1,15 +1,17 @@
-require 'cgminer_api_client/socket'
+require 'cgminer_api_client/socket_with_timeout'
 require 'cgminer_api_client/miner/commands'
 
 module CgminerApiClient
   class Miner
-    include Socket
+    include SocketWithTimeout
     include Miner::Commands
 
     attr_accessor :host, :port, :timeout
 
-    def initialize(host, port, timeout = CgminerApiClient.default_timeout)
-      @host, @port, @timeout = host, port, timeout
+    def initialize(host = nil, port = nil, timeout = nil)
+      @host    = host    ? host    : CgminerApiClient.default_host
+      @port    = port    ? port    : CgminerApiClient.default_port
+      @timeout = timeout ? timeout : CgminerApiClient.default_timeout
     end
 
     def query(method, *params)

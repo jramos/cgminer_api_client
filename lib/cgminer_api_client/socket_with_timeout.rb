@@ -1,8 +1,6 @@
 module CgminerApiClient
-  module Socket
-    private
-
-    def open_socket(host, port, timeout = CgminerApiClient.default_timeout)
+  module SocketWithTimeout
+    def open_socket(host, port, timeout)
       addr = Socket.getaddrinfo(host, nil)
       sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
 
