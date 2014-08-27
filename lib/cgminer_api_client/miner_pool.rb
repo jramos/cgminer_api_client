@@ -1,5 +1,7 @@
 module CgminerApiClient
   class MinerPool
+    include Miner::Commands
+
     attr_accessor :miners
 
     def initialize
