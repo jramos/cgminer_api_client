@@ -54,10 +54,10 @@ module CgminerApiClient
       end
 
       s.write(request.to_json)
-      data = s.read.strip.chars.map { |c| c.ord >= 32 ? c : "\\u#{'%04x' % c.ord}" }.join
+      response = s.read.strip.chars.map { |c| c.ord >= 32 ? c : "\\u#{'%04x' % c.ord}" }.join
       s.close
 
-      data = JSON.parse(data)
+      data = JSON.parse(response)
 
       if request[:command].to_s.match('\+')
         data.each_pair do |command, response|
