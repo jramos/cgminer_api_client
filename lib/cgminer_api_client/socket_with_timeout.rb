@@ -1,7 +1,7 @@
 module CgminerApiClient
   module SocketWithTimeout
     def open_socket(host, port, timeout)
-      addr = Socket.getaddrinfo(host, nil)
+      addr     = Socket.getaddrinfo(host, nil)
       sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
 
       Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0).tap do |socket|
