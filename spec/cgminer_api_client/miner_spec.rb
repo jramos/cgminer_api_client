@@ -188,11 +188,15 @@ describe CgminerApiClient::Miner do
     end
   end
 
-  context 'private methods' do
-    context '#open_socket' do
-      pending
+  context '#open_socket' do
+    it 'should open a socket' do
+      expect(Socket).to receive(:getaddrinfo).with(host, nil).and_call_original
+      expect_any_instance_of(Socket).to receive(:connect_nonblock)
+      instance.open_socket(host, port, timeout)
     end
+  end
 
+  context 'private methods' do
     context '#perform_request' do
       context 'Socket cannot be opened' do
         before do
