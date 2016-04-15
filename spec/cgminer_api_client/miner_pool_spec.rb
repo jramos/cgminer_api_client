@@ -34,15 +34,8 @@ describe CgminerApiClient::MinerPool do
   end
 
   context '#available_miners' do
-    it 'should include available miners' do
-      expect(mock_miner).to receive(:available?).and_return(true)
-      expect(subject.available_miners).to eq([mock_miner])
-    end
-
-    it 'should not include unavailable miners' do
-      expect(mock_miner).to receive(:available?).and_return(false)
-      expect(subject.available_miners).to eq([])
-    end
+    it 'should not include unavailable miners'
+    it 'should include available miners'
   end
 
   context '#query' do
