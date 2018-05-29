@@ -178,7 +178,7 @@ Any cgminer API commands not explictly defined above are implemented using ``met
 
 If you find this gem useful, please consider donating.
 
-BTC: ***REMOVED***
+BTC: ``***REMOVED***``
 
 ## License
 
