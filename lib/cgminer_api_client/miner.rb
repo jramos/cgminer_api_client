@@ -56,6 +56,9 @@ module CgminerApiClient
       s.write(request.to_json)
       response = s.read.strip.chars.map { |c| c.ord >= 32 ? c : "\\u#{'%04x' % c.ord}" }.join
       s.close
+	
+      response.gsub! '}{', '}, {'
+      response.gsub! '[,{', '[ {'
 
       data = JSON.parse(response)
 
