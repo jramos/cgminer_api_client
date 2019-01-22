@@ -244,7 +244,7 @@ describe CgminerApiClient::Miner::Commands do
         end
       end
     end
-    
+
     describe CgminerApiClient::Miner::Commands::Privileged::Pga do
       before do
         allow(instance).to receive(:access_denied?).and_return(false)

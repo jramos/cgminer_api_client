@@ -52,7 +52,7 @@ describe CgminerApiClient::MinerPool do
     end
 
     it 'should pass parameters' do
-      expect(mock_miner).to receive(:query).with(:foo, *[:parameters])
+      expect(mock_miner).to receive(:query).with(:foo, :parameters)
       instance.query(:foo, :parameters)
     end
 
@@ -100,8 +100,8 @@ describe CgminerApiClient::MinerPool do
         end
 
         it 'should raise an error' do
-          expect{ 
-            instance 
+          expect{
+            instance
           }.to raise_error(RuntimeError)
         end
       end
