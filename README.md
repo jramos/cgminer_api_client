@@ -4,22 +4,22 @@ A gem that allows sending API commands to a pool of cgminer instances.
 
 ## Requirements
 
-* Ruby (~> 2.0.0, ~> 2.1.0)
-    * YAML
-    * JSON
-    * Socket
-    * Thread
-* cgminer (~> 3.12.0)
+-   Ruby (~> 2.0.0, ~> 2.1.0)
+    -   YAML
+    -   JSON
+    -   Socket
+    -   Thread
+-   cgminer (~> 3.12.0)
 
 ## GUI
 
-* [https://github.com/jramos/cgminer_manager](https://github.com/jramos/cgminer_manager)
+-   <https://github.com/jramos/cgminer_manager>
 
 ## Installation Options
 
 ### Bundler
 
-Add the following to your ``Gemfile``:
+Add the following to your `Gemfile`:
 
     gem 'cgminer_api_client', '~> 0.2.3'
 
@@ -33,7 +33,7 @@ Add the following to your ``Gemfile``:
 
 ## Configuration
 
-Copy [``config/miners.yml.example``](https://github.com/jramos/cgminer_api_client/blob/master/config/miners.yml.example) to ``config/miners.yml`` and update with the IP addresses (and optional ports and timeouts) of your cgminer instances. E.g.:
+Copy [`config/miners.yml.example`](https://github.com/jramos/cgminer_api_client/blob/master/config/miners.yml.example) to `config/miners.yml` and update with the IP addresses (and optional ports and timeouts) of your cgminer instances. E.g.:
 
     # connect to localhost on the default port (4028) with the default timeout (5 seconds)
     - host: 127.0.0.1
@@ -57,7 +57,7 @@ Make the following change:
     # option api_allow 'W:127.0.0.1'
     option api_allow 'W:127.0.0.1,W:192.168.1.0/24'
 
-You also need to updated the init.d script to pass the ``--api_allow`` option:
+You also need to updated the init.d script to pass the `--api_allow` option:
 
     $ vi /etc/init.d/cgminer
 
@@ -108,22 +108,22 @@ API commands can be sent to your miner pool from the command line.
 
 The following read-only miner and pool commands are currently available:
 
-* asc(number)
-* asccount
-* check(command)
-* coin
-* config
-* devdetails
-* devs
-* pga(number)
-* pgacount
-* pools
-* privileged
-* notify
-* stats
-* summary
-* usbstats
-* version
+-   asc(number)
+-   asccount
+-   check(command)
+-   coin
+-   config
+-   devdetails
+-   devs
+-   pga(number)
+-   pgacount
+-   pools
+-   privileged
+-   notify
+-   stats
+-   summary
+-   usbstats
+-   version
 
 #### Privileged
 
@@ -131,54 +131,54 @@ The following privileged miner and pool commands are currently available:
 
 ##### Asc
 
-* ascdisable(number)
-* ascenable(number)
-* ascidentify(number)
-* ascset(number, option, value = nil)
+-   ascdisable(number)
+-   ascenable(number)
+-   ascidentify(number)
+-   ascset(number, option, value = nil)
 
 ##### Pga
 
-* pgadisable(number)
-* pgaenable(number)
-* pgaidentify(number)
-* pgaset(number, option, value = nil)
+-   pgadisable(number)
+-   pgaenable(number)
+-   pgaidentify(number)
+-   pgaset(number, option, value = nil)
 
 ##### Pool
 
-* addpool(url, user, pass)
-* disablepool(number)
-* enablepool(number)
-* poolpriority(*id_order)
-* poolquota(number, value)
-* removepool(number)
-* switchpool(number)
+-   addpool(url, user, pass)
+-   disablepool(number)
+-   enablepool(number)
+-   poolpriority(\*id_order)
+-   poolquota(number, value)
+-   removepool(number)
+-   switchpool(number)
 
 ##### System
 
-* debug(setting = 'D')
-* failover_only(value)
-* hotplug(seconds)
-* quit
-* restart
-* save(filename = nil)
-* setconfig(name, value)
-* zero(which = 'All', full_summary = false)
+-   debug(setting = 'D')
+-   failover_only(value)
+-   hotplug(seconds)
+-   quit
+-   restart
+-   save(filename = nil)
+-   setconfig(name, value)
+-   zero(which = 'All', full_summary = false)
 
-Any cgminer API commands not explictly defined above are implemented using ``method_missing``. A complete list of available API commands and options can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
+Any cgminer API commands not explictly defined above are implemented using `method_missing`. A complete list of available API commands and options can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
 
 ## Contributing
 
-1. Fork it ( [https://github.com/jramos/cgminer\_api\_client/fork](https://github.com/jramos/cgminer_api_client/fork) )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+1.  Fork it ( <https://github.com/jramos/cgminer_api_client/fork> )
+2.  Create your feature branch (`git checkout -b my-new-feature`)
+3.  Commit your changes (`git commit -am 'Add some feature'`)
+4.  Push to the branch (`git push origin my-new-feature`)
+5.  Create a new Pull Request
 
 ## Donating
 
 If you find this gem useful, please consider donating.
 
-BTC: ``***REMOVED***``
+BTC: `***REMOVED***`
 
 ## License
 

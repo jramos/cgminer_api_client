@@ -51,7 +51,7 @@ module CgminerApiClient
     end
 
     private
-    
+
     def load_miners!
       raise 'Please create config/miners.yml' unless File.exist?('config/miners.yml')
 

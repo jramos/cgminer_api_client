@@ -43,12 +43,12 @@ module CgminerApiClient
         end
 
         def privileged
-          begin
+
             query(:privileged)
             true
           rescue
             false
-          end
+
         end
 
         def notify

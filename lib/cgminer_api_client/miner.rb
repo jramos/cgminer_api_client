@@ -56,7 +56,7 @@ module CgminerApiClient
       s.write(request.to_json)
       response = s.read.strip.chars.map { |c| c.ord >= 32 ? c : "\\u#{'%04x' % c.ord}" }.join
       s.close
-	
+
       response.gsub! '}{', '}, {'
       response.gsub! '[,{', '[ {'
 
@@ -92,7 +92,7 @@ module CgminerApiClient
 
     def sanitized(data)
       if data.is_a?(Hash)
-        data.inject({}) { |n, (k, v)| n[k.to_s.downcase.gsub(' ', '_').to_sym] = sanitized(v); n }
+        data.inject({}) { |n, (k, v)| n[k.to_s.downcase.tr(' ', '_').to_sym] = sanitized(v); n }
       elsif data.is_a?(Array)
         data.map { |v| sanitized(v) }
       else
