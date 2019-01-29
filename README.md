@@ -1,4 +1,4 @@
-# CgminerApiClient [![Build Status](https://travis-ci.org/jramos/cgminer_api_client.png?branch=master)](https://travis-ci.org/jramos/cgminer_api_client)
+# CgminerApiClient [![Build Status](https://travis-ci.org/jramos/cgminer_api_client.png?branch=master)](https://travis-ci.org/jramos/cgminer_api_client) [![DepShield Badge](https://depshield.sonatype.org/badges/jramos/cgminer_api_client/depshield.svg)](https://depshield.github.io)
 
 A gem that allows sending API commands to a pool of cgminer instances.
 
@@ -79,20 +79,20 @@ Restart cgminer:
         config.default_port    = 4023
         config.default_timeout = 3
     end
-    
+
     pool = CgminerApiClient::MinerPool.new
-    
+
     # run 'devs' on each miner in the pool; returns an array of response hashes
     devices = pool.devs
-    
+
     # run 'summary' on each miner in the pool; returns an array of response hashes
     summaries = pool.summary
-    
+
     # run 'devs' on available miners; returns an array of response hashes
     pool.available_miners.collect do |miner|
         miner.devs
     end
-    
+
     # restart the pool
     pool.restart
 
