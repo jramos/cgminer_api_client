@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b59cb27aeae64f7c992f7072c5909788)](https://app.codacy.com/app/justin_28/cgminer_api_client?utm_source=github.com&utm_medium=referral&utm_content=jramos/cgminer_api_client&utm_campaign=Badge_Grade_Dashboard)
 # CgminerApiClient [![Build Status](https://travis-ci.org/jramos/cgminer_api_client.png?branch=master)](https://travis-ci.org/jramos/cgminer_api_client) [![DepShield Badge](https://depshield.sonatype.org/badges/jramos/cgminer_api_client/depshield.svg)](https://depshield.github.io)
 
 A gem that allows sending API commands to a pool of cgminer instances.
