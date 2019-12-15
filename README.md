@@ -21,7 +21,7 @@ A gem that allows sending API commands to a pool of cgminer instances.
 
 Add the following to your `Gemfile`:
 
-    gem 'cgminer_api_client', '~> 0.2.3'
+    gem 'cgminer_api_client', '~> 0.2.6'
 
 ### RubyGems
 
@@ -30,6 +30,9 @@ Add the following to your `Gemfile`:
 ### Manually
 
     $ git clone git@github.com:jramos/cgminer_api_client.git
+    $ cd cgminer_api_client
+    $ gem build cgminer_api_client.gemspec
+    $ gem install cgminer_api_client-0.2.6.gem
 
 ## Configuration
 
