@@ -202,7 +202,7 @@ describe CgminerApiClient::Miner do
         it 'should raise an exception' do
           expect {
             instance.send(:perform_request, {})
-          }.to raise_error()
+          }.to raise_error(RuntimeError, 'Connection to 127.0.0.1:4028 failed')
         end
       end
 

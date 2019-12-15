@@ -3,13 +3,14 @@ require 'spec_helper'
 describe CgminerApiClient do
   subject { CgminerApiClient }
 
-  around do
+  before do
     subject.default_timeout = 5
     subject.default_port = 4028
   end
 
-  it 'should have a version constant' do
-    subject::VERSION
+  it 'should have a version constant with major.minor.patch' do
+    expect(subject::VERSION).to_not be_empty
+    expect(subject::VERSION.split(/\./).length).to eq(3)
   end
 
   context 'module attributes' do

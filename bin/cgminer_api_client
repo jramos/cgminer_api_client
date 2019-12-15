@@ -5,11 +5,12 @@ $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib/")
 require 'cgminer_api_client'
 require 'pp'
 
-command = ARGV.first && ARGV.first.to_sym
-ARGV.shift
+command = ARGV.shift&.to_sym
+commands = CgminerApiClient::Miner::Commands.instance_methods
 
-unless command
+unless command and commands.include?(command)
   puts "USAGE: cgminer_api_client command (arguments)"
+  puts "commands: " + commands.sort.collect(&:to_s).join(', ')
   exit(0)
 end
 

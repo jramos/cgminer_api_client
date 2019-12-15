@@ -43,7 +43,6 @@ module CgminerApiClient
         end
 
         def privileged
-
             query(:privileged)
             true
           rescue

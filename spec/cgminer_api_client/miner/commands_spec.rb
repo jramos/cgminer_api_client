@@ -10,7 +10,7 @@ describe CgminerApiClient::Miner::Commands do
       it 'should require one argument' do
         expect {
           instance.asc
-        }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
       end
 
       it 'should query the miner' do
@@ -30,7 +30,7 @@ describe CgminerApiClient::Miner::Commands do
       it 'should require one argument' do
         expect {
           instance.check
-        }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
       end
 
       it 'should query the miner' do
@@ -71,7 +71,7 @@ describe CgminerApiClient::Miner::Commands do
       it 'should require one argument' do
         expect {
           instance.pga
-        }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+        }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
       end
 
       it 'should query the miner' do
@@ -191,7 +191,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.ascdisable
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -204,7 +204,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.ascenable
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -217,7 +217,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.ascidentify
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -230,7 +230,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require 2-3 arguments' do
           expect {
             instance.ascset
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 2..3)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2..3)')
         end
 
         it 'should query the miner with 2 arguments' do
@@ -254,7 +254,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.pgadisable
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -267,7 +267,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.pgaenable
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -280,7 +280,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.pgaidentify
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -293,7 +293,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require 2-3 arguments' do
           expect {
             instance.pgaset
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 2..3)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2..3)')
         end
 
         it 'should query the miner with 2 arguments' do
@@ -317,7 +317,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require three arguments' do
           expect {
             instance.addpool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 3)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 3)')
         end
 
         it 'should query the miner with arguments' do
@@ -330,7 +330,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.disablepool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -343,7 +343,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.enablepool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -363,7 +363,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require two arguments' do
           expect {
             instance.poolquota
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 2)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2)')
         end
 
         it 'should query the miner with arguments' do
@@ -376,7 +376,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.removepool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -389,7 +389,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.switchpool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -420,7 +420,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.failover_only
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -433,7 +433,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require one argument' do
           expect {
             instance.hotplug
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 1)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
         it 'should query the miner with arguments' do
@@ -476,7 +476,7 @@ describe CgminerApiClient::Miner::Commands do
         it 'should require two arguments' do
           expect {
             instance.setconfig
-          }.to raise_error(ArgumentError, 'wrong number of arguments (0 for 2)')
+          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2)')
         end
 
         it 'should query the miner with arguments' do
