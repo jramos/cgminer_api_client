@@ -1,27 +1,8 @@
 # CgminerApiClient [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b59cb27aeae64f7c992f7072c5909788)](https://app.codacy.com/app/justin_28/cgminer_api_client?utm_source=github.com&utm_medium=referral&utm_content=jramos/cgminer_api_client&utm_campaign=Badge_Grade_Dashboard) [![Build Status](https://travis-ci.org/jramos/cgminer_api_client.png?branch=master)](https://travis-ci.org/jramos/cgminer_api_client) [![DepShield Badge](https://depshield.sonatype.org/badges/jramos/cgminer_api_client/depshield.svg)](https://depshield.github.io)
 
-A gem that allows sending API commands to a pool of cgminer instances.
-
-## Requirements
-
--   Ruby (~> 2.0.0, ~> 2.1.0)
-    -   YAML
-    -   JSON
-    -   Socket
-    -   Thread
--   cgminer (~> 3.12.0)
-
-## GUI
-
--   <https://github.com/jramos/cgminer_manager>
+A gem that allows sending API commands to a pool of [cgminer](https://github.com/ckolivas/cgminer) instances.
 
 ## Installation Options
-
-### Bundler
-
-Add the following to your `Gemfile`:
-
-    gem 'cgminer_api_client', '~> 0.2.6'
 
 ### RubyGems
 
@@ -32,18 +13,18 @@ Add the following to your `Gemfile`:
     $ git clone git@github.com:jramos/cgminer_api_client.git
     $ cd cgminer_api_client
     $ gem build cgminer_api_client.gemspec
-    $ gem install cgminer_api_client-0.2.6.gem
+    $ gem install cgminer_api_client-<VERSION>.gem
 
 ## Configuration
 
 Copy [`config/miners.yml.example`](https://github.com/jramos/cgminer_api_client/blob/master/config/miners.yml.example) to `config/miners.yml` and update with the IP addresses (and optional ports and timeouts) of your cgminer instances. E.g.:
 
-    # connect to localhost on the default port (4028) with the default timeout (5 seconds)
+    # connect to localhost on default port (4028) with default timeout (5 seconds)
     - host: 127.0.0.1
-    # connect to 192.168.1.1 on a non-standard port (1234) with a custom timeout (1 second)
+    # connect to 192.168.1.1 on port (1234) with custom timeout (3 seconds)
     - host: 192.168.1.1
       port: 1234
-      timeout: 1
+      timeout: 3
 
 ### Remote API Access
 
