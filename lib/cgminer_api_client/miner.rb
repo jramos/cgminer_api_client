@@ -11,24 +11,24 @@ module CgminerApiClient
     attr_accessor :host, :port, :timeout
 
     def initialize(host = nil, port = nil, timeout = nil)
-      @host    = host    ? host    : CgminerApiClient.default_host
-      @port    = port    ? port    : CgminerApiClient.default_port
-      @timeout = timeout ? timeout : CgminerApiClient.default_timeout
+      @host    = host    || CgminerApiClient.default_host
+      @port    = port    || CgminerApiClient.default_port
+      @timeout = timeout || CgminerApiClient.default_timeout
     end
 
     def query(method, *params)
-      if available?
-        request = {command: method}
+      return unless available?
 
-        unless params.length == 0
-          params = params.map { |p| p.to_s.gsub('\\', '\\\\').gsub(',', '\,') }
-          request[:parameter] = params.join(',')
-        end
+      request = { command: method }
 
-        response = perform_request(request)
-        data = sanitized(response)
-        method.to_s.match?('\+') ? data : data[method.to_sym]
+      unless params.empty?
+        params = params.map { |p| p.to_s.gsub('\\', '\\\\').gsub(',', '\,') }
+        request[:parameter] = params.join(',')
       end
+
+      response = perform_request(request)
+      data = sanitized(response)
+      method.to_s.match?('\+') ? data : data[method.to_sym]
     end
 
     def available?(force_reload = false)
@@ -48,6 +48,7 @@ module CgminerApiClient
 
     def respond_to_missing?(name, include_private = false)
       return false if name.to_s.start_with?('to_', '_')
+
       super || true
     end
 
@@ -61,7 +62,7 @@ module CgminerApiClient
       end
 
       s.write(request.to_json)
-      response = s.read.strip.chars.map { |c| c.ord >= 32 ? c : "\\u#{'%04x' % c.ord}" }.join
+      response = s.read.strip.chars.map { |c| c.ord >= 32 ? c : format('\\u%04x', c.ord) }.join
       s.close
 
       response.gsub! '}{', '}, {'
@@ -70,36 +71,39 @@ module CgminerApiClient
       data = JSON.parse(response)
 
       if request[:command].to_s.match?('\+')
-        data.each_pair do |command, response|
+        data.each_pair do |_command, response|
           check_status(response.first) if response.respond_to?(:first)
         end
       else
         check_status(data)
       end
 
-      return data
+      data
     end
 
     def check_status(data)
-      status =   data['STATUS'][0]
+      status = data['STATUS'][0]
       sc     = status['STATUS']
       c      = status['Code']
       msg    = status['Msg']
 
       case sc
-        when 'S'
-        when 'I'
-          puts "Info from API [#{c}]: #{msg}"
-        when 'W'
-          puts "Warning from API [#{c}]: #{msg}"
-        else
-          raise "#{c}: #{msg}"
+      when 'S'
+        nil # success — no action
+      when 'I'
+        puts "Info from API [#{c}]: #{msg}"
+      when 'W'
+        puts "Warning from API [#{c}]: #{msg}"
+      else
+        raise "#{c}: #{msg}"
       end
     end
 
     def sanitized(data)
       if data.is_a?(Hash)
-        data.inject({}) { |n, (k, v)| n[k.to_s.downcase.tr(' ', '_').to_sym] = sanitized(v); n }
+        data.each_with_object({}) do |(k, v), n|
+          n[k.to_s.downcase.tr(' ', '_').to_sym] = sanitized(v)
+        end
       elsif data.is_a?(Array)
         data.map { |v| sanitized(v) }
       else

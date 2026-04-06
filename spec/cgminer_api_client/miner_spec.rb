@@ -10,73 +10,73 @@ describe CgminerApiClient::Miner do
 
   context 'attributes' do
     context '@host' do
-      it 'should allow setting and getting' do
+      it 'allows setting and getting' do
         instance.host = :foo
         expect(instance.host).to eq :foo
       end
     end
 
     context '@port' do
-      it 'should allow setting and getting' do
+      it 'allows setting and getting' do
         instance.port = :foo
         expect(instance.port).to eq :foo
       end
     end
 
     context '@timeout' do
-      it 'should allow setting and getting' do
+      it 'allows setting and getting' do
         instance.timeout = :foo
         expect(instance.timeout).to eq :foo
       end
     end
   end
 
-  context '#initialize' do
-    it 'should not raise an argument error with 0 arguments' do
-      expect {
+  describe '#initialize' do
+    it 'does not raise an argument error with 0 arguments' do
+      expect do
         CgminerApiClient::Miner.new
-      }.to_not raise_error()
+      end.not_to raise_error
     end
 
-    it 'should not raise an argument error with 1 arguments' do
-      expect {
+    it 'does not raise an argument error with 1 arguments' do
+      expect do
         CgminerApiClient::Miner.new(host)
-      }.to_not raise_error()
+      end.not_to raise_error
     end
 
-    it 'should not raise an argument error with 2 arguments' do
-      expect {
+    it 'does not raise an argument error with 2 arguments' do
+      expect do
         CgminerApiClient::Miner.new(host, port)
-      }.to_not raise_error()
+      end.not_to raise_error
     end
 
-    it 'should not raise an argument error with 3 arguments' do
-      expect {
+    it 'does not raise an argument error with 3 arguments' do
+      expect do
         CgminerApiClient::Miner.new(host, port, timeout)
-      }.to_not raise_error()
+      end.not_to raise_error
     end
 
-    it 'should use defaults' do
+    it 'uses defaults' do
       miner = CgminerApiClient::Miner.new
       expect(miner.host).to eq CgminerApiClient.default_host
       expect(miner.port).to eq CgminerApiClient.default_port
       expect(miner.timeout).to eq CgminerApiClient.default_timeout
     end
 
-    it 'should set @host' do
+    it 'sets @host' do
       expect(instance.host).to eq host
     end
 
-    it 'should set @port' do
+    it 'sets @port' do
       expect(instance.port).to eq port
     end
 
-    it 'should set @timeout' do
+    it 'sets @timeout' do
       expect(instance.timeout).to eq timeout
     end
   end
 
-  context '#available?' do
+  describe '#available?' do
     let(:mock_socket) { instance_double('Socket') }
 
     context 'open_socket raises an error' do
@@ -84,7 +84,7 @@ describe CgminerApiClient::Miner do
         expect(instance).to receive(:open_socket).and_raise(SocketError)
       end
 
-      it 'should return false' do
+      it 'returns false' do
         expect(instance.available?).to eq false
       end
     end
@@ -99,7 +99,7 @@ describe CgminerApiClient::Miner do
           expect(mock_socket).to receive(:close).and_raise(SocketError)
         end
 
-        it 'should return false' do
+        it 'returns false' do
           expect(instance.available?).to eq false
         end
       end
@@ -109,13 +109,13 @@ describe CgminerApiClient::Miner do
           expect(mock_socket).to receive(:close).and_return(:foo)
         end
 
-        it 'should return true' do
+        it 'returns true' do
           expect(instance.available?).to eq true
         end
       end
     end
 
-    it 'should set an instance variable' do
+    it 'sets an instance variable' do
       expect(instance).to receive(:open_socket).and_return(mock_socket)
       expect(mock_socket).to receive(:close).and_return(true)
       instance.available?
@@ -123,18 +123,18 @@ describe CgminerApiClient::Miner do
     end
   end
 
-  context '#query' do
+  describe '#query' do
     context 'unavailable' do
       before do
         expect(instance).to receive(:available?).and_return(false)
       end
 
-      it 'should not perform a command request' do
-        expect(instance).to receive(:perform_request).never
+      it 'does not perform a command request' do
+        expect(instance).not_to receive(:perform_request)
         instance.query(:foo)
       end
 
-      it 'should return nil' do
+      it 'returns nil' do
         expect(instance.query(:foo)).to eq nil
       end
     end
@@ -145,100 +145,103 @@ describe CgminerApiClient::Miner do
       end
 
       context 'no parameters' do
-        it 'should perform a command request' do
-          expect(instance).to receive(:perform_request).with({:command => :foo}).and_return({'foo' => []})
+        it 'performs a command request' do
+          expect(instance).to receive(:perform_request).with({ command: :foo }).and_return({ 'foo' => [] })
           instance.query(:foo)
         end
       end
 
       context 'parameters' do
-        it 'should perform a command request with parameters' do
-          expect(instance).to receive(:perform_request).with({:command => :foo, :parameter => 'bar,123,\\456'}).and_return({'foo' => []})
-          instance.query(:foo, :bar, :'123', :'\456')
+        it 'performs a command request with parameters' do
+          expect(instance).to receive(:perform_request).with({ command: :foo,
+                                                               parameter: 'bar,123,\\456' }).and_return({ 'foo' => [] })
+          instance.query(:foo, :bar, :'123', :'\\456')
         end
       end
 
-      it 'should return sanitized data' do
+      it 'returns sanitized data' do
         mock_data = double('data')
         expect(instance).to receive(:perform_request).and_return(mock_data)
-        expect(instance).to receive(:sanitized).with(mock_data).and_return({:foo => []})
+        expect(instance).to receive(:sanitized).with(mock_data).and_return({ foo: [] })
         expect(instance.query(:foo)).to eq []
       end
 
-      it 'should return sanitized data for multiple commands' do
+      it 'returns sanitized data for multiple commands' do
         mock_data = double('data')
         expect(instance).to receive(:perform_request).and_return(mock_data)
-        expect(instance).to receive(:sanitized).with(mock_data).and_return({:foo => [], :bar => []})
-        expect(instance.query('foo+bar')).to eq ({:foo => [], :bar => []})
+        expect(instance).to receive(:sanitized).with(mock_data).and_return({ foo: [], bar: [] })
+        expect(instance.query('foo+bar')).to eq({ foo: [], bar: [] })
       end
     end
   end
 
-  context '#method_missing' do
+  describe '#method_missing' do
     before do
       allow(instance).to receive(:query).and_return(true)
     end
 
-    it 'should query the miner with the method name' do
+    it 'queries the miner with the method name' do
       expect(instance).to receive(:query).with(:foo).and_return(true)
       instance.method_missing(:foo)
     end
 
-    it 'should pass arguments' do
+    it 'passes arguments' do
       expect(instance).to receive(:query).with(:foo, [:arguments])
       instance.method_missing(:foo, [:arguments])
     end
   end
 
-  context '#respond_to_missing?' do
-    it 'should return true for arbitrary cgminer command names' do
+  describe '#respond_to_missing?' do
+    it 'returns true for arbitrary cgminer command names' do
       expect(instance.respond_to?(:devs)).to be true
       expect(instance.respond_to?(:summary)).to be true
       expect(instance.respond_to?(:any_arbitrary_command)).to be true
     end
 
-    it 'should return false for to_* conversion methods' do
+    it 'returns false for to_* conversion methods' do
       expect(instance.respond_to?(:to_ary)).to be false
       expect(instance.respond_to?(:to_str)).to be false
       expect(instance.respond_to?(:to_int)).to be false
     end
 
-    it 'should return false for underscore-prefixed names' do
+    it 'returns false for underscore-prefixed names' do
       expect(instance.respond_to?(:_internal)).to be false
     end
   end
 
   context 'private methods' do
-    context '#open_socket' do
+    describe '#open_socket' do
       pending
     end
 
-    context '#perform_request' do
+    describe '#perform_request' do
       context 'Socket cannot be opened' do
         before do
           expect(instance).to receive(:open_socket).and_raise(SocketError)
         end
 
-        it 'should raise an exception' do
-          expect {
+        it 'raises an exception' do
+          expect do
             instance.send(:perform_request, {})
-          }.to raise_error(RuntimeError, 'Connection to 127.0.0.1:4028 failed')
+          end.to raise_error(RuntimeError, 'Connection to 127.0.0.1:4028 failed')
         end
       end
 
       context 'Socket can be opened' do
-        let(:mock_socket) { instance_double('Socket', {
-          :write => true,
-          :read  => "{'json':true}",
-          :close => true
-        }) }
+        let(:mock_socket) do
+          instance_double('Socket', {
+                            write: true,
+                            read: "{'json':true}",
+                            close: true
+                          })
+        end
 
         before do
           expect(instance).to receive(:open_socket).and_return(mock_socket)
         end
 
         context 'single command' do
-          it 'should parse the response as JSON and check the status' do
+          it 'parses the response as JSON and check the status' do
             expect(JSON).to receive(:parse).with(mock_socket.read)
             expect(instance).to receive(:check_status).and_return(true)
             instance.send(:perform_request, {})
@@ -246,37 +249,38 @@ describe CgminerApiClient::Miner do
         end
 
         context 'multiple commands' do
-          it 'should parse the response as JSON and check the status of each response element' do
-            expect(JSON).to receive(:parse).with(mock_socket.read).and_return({:foo => [{'STATUS' => 'ALL_GOOD'}], :bar => [{'STATUS' => 'NOT_SO_GOOD'}]})
-            expect(instance).to receive(:check_status).with({"STATUS" => 'ALL_GOOD'})
-            expect(instance).to receive(:check_status).with({"STATUS" => 'NOT_SO_GOOD'})
-            instance.send(:perform_request, {command: 'foo+bar'})
+          it 'parses the response as JSON and check the status of each response element' do
+            expect(JSON).to receive(:parse).with(mock_socket.read).and_return({ foo: [{ 'STATUS' => 'ALL_GOOD' }],
+                                                                                bar: [{ 'STATUS' => 'NOT_SO_GOOD' }] })
+            expect(instance).to receive(:check_status).with({ "STATUS" => 'ALL_GOOD' })
+            expect(instance).to receive(:check_status).with({ "STATUS" => 'NOT_SO_GOOD' })
+            instance.send(:perform_request, { command: 'foo+bar' })
           end
         end
       end
     end
 
-    context '#check_status' do
+    describe '#check_status' do
       let(:mock_response) { {} }
 
       context 'with successful status' do
         before do
-          mock_response['STATUS'] = [{'STATUS' => 'S'}]
+          mock_response['STATUS'] = [{ 'STATUS' => 'S' }]
         end
 
-        it 'should not log a message or raise an error' do
-          expect(instance).to receive(:puts).never
-          expect(instance).to receive(:raise).never
+        it 'does not log a message or raise an error' do
+          expect(instance).not_to receive(:puts)
+          expect(instance).not_to receive(:raise)
           instance.send(:check_status, mock_response)
         end
       end
 
       context 'with info status' do
         before do
-          mock_response['STATUS'] = [{'STATUS' => 'I'}]
+          mock_response['STATUS'] = [{ 'STATUS' => 'I' }]
         end
 
-        it 'should log a message' do
+        it 'logs a message' do
           expect(instance).to receive(:puts)
           instance.send(:check_status, mock_response)
         end
@@ -284,10 +288,10 @@ describe CgminerApiClient::Miner do
 
       context 'with warning status' do
         before do
-          mock_response['STATUS'] = [{'STATUS' => 'W'}]
+          mock_response['STATUS'] = [{ 'STATUS' => 'W' }]
         end
 
-        it 'should log a message' do
+        it 'logs a message' do
           expect(instance).to receive(:puts)
           instance.send(:check_status, mock_response)
         end
@@ -295,21 +299,21 @@ describe CgminerApiClient::Miner do
 
       context 'with error' do
         before do
-          mock_response['STATUS'] = [{'STATUS' => 'E'}]
+          mock_response['STATUS'] = [{ 'STATUS' => 'E' }]
         end
 
-        it 'should raise an exception' do
+        it 'raises an exception' do
           expect(instance).to receive(:raise)
           instance.send(:check_status, mock_response)
         end
       end
     end
 
-    context '#sanitized' do
-      let(:mock_data) { {'Ugly Key' => :foo} }
+    describe '#sanitized' do
+      let(:mock_data) { { 'Ugly Key' => :foo } }
 
-      it 'should produce sensible output' do
-        expect(instance.send(:sanitized, mock_data)).to eq ({:ugly_key => :foo})
+      it 'produces sensible output' do
+        expect(instance.send(:sanitized, mock_data)).to eq({ ugly_key: :foo })
       end
     end
   end

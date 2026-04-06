@@ -18,29 +18,25 @@ module CgminerApiClient
     def query(method, *params)
       threads = @miners.collect do |miner|
         Thread.new do
-          begin
-            miner.query(method, *params)
-          rescue StandardError => e
-            $stderr.puts "#{e.class}: #{e}"
-            []
-          end
+          miner.query(method, *params)
+        rescue StandardError => e
+          warn "#{e.class}: #{e}"
+          []
         end
       end
-      threads.each { |thr| thr.join }
+      threads.each(&:join)
       threads.collect(&:value)
     end
 
     def available_miners(force_reload = false)
       threads = @miners.collect do |miner|
         Thread.new do
-          begin
-            miner if miner.available?(force_reload)
-          rescue StandardError
-            nil
-          end
+          miner if miner.available?(force_reload)
+        rescue StandardError
+          nil
         end
       end
-      threads.each { |thr| thr.join }
+      threads.each(&:join)
       threads.collect(&:value).compact
     end
 
@@ -54,6 +50,7 @@ module CgminerApiClient
 
     def respond_to_missing?(name, include_private = false)
       return false if name.to_s.start_with?('to_', '_')
+
       super || true
     end
 
@@ -63,13 +60,13 @@ module CgminerApiClient
       raise 'Please create config/miners.yml' unless File.exist?('config/miners.yml')
 
       miners_config = YAML.safe_load_file('config/miners.yml')
-      @miners = miners_config.collect{|miner|
+      @miners = miners_config.collect do |miner|
         CgminerApiClient::Miner.new(
           miner['host'],
           miner['port'],
           miner['timeout']
         )
-      }
+      end
     end
   end
 end

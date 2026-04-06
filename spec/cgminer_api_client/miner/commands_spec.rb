@@ -8,96 +8,96 @@ describe CgminerApiClient::Miner::Commands do
   let(:instance) { CgminerApiClient::Miner.new(host, port) }
 
   describe CgminerApiClient::Miner::Commands::ReadOnly do
-    context '#asc' do
-      it 'should require one argument' do
-        expect {
+    describe '#asc' do
+      it 'requires one argument' do
+        expect do
           instance.asc
-        }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+        end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
       end
 
-      it 'should query the miner' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:asc, 0).and_return('asc' => {})
         instance.asc(0)
       end
     end
 
-    context '#asccount' do
-      it 'should query the miner' do
+    describe '#asccount' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:asccount).and_return('asccount' => {})
         instance.asccount
       end
     end
 
-    context '#check' do
-      it 'should require one argument' do
-        expect {
+    describe '#check' do
+      it 'requires one argument' do
+        expect do
           instance.check
-        }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+        end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
       end
 
-      it 'should query the miner' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:check, :foo).and_return('foo' => [{}])
         instance.check(:foo)
       end
     end
 
-    context '#coin' do
-      it 'should query the miner' do
+    describe '#coin' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:coin).and_return('coin' => [{}])
         instance.coin
       end
     end
 
-    context '#config' do
-      it 'should query the miner' do
+    describe '#config' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:config).and_return('config' => [{}])
         instance.config
       end
     end
 
-    context '#devdetails' do
-      it 'should query the miner' do
+    describe '#devdetails' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:devdetails).and_return('devdetails' => [{}])
         instance.devdetails
       end
     end
 
-    context '#devs' do
-      it 'should query the miner' do
+    describe '#devs' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:devs).and_return('devs' => [{}])
         instance.devs
       end
     end
 
-    context '#pga' do
-      it 'should require one argument' do
-        expect {
+    describe '#pga' do
+      it 'requires one argument' do
+        expect do
           instance.pga
-        }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+        end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
       end
 
-      it 'should query the miner' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:pga, 0).and_return('pga' => [{}])
         instance.pga(0)
       end
     end
 
-    context '#pgacount' do
-      it 'should query the miner' do
+    describe '#pgacount' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:pgacount).and_return('pgacount' => [{}])
         instance.pgacount
       end
     end
 
-    context '#pools' do
-      it 'should query the miner' do
+    describe '#pools' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:pools).and_return('pools' => [{}])
         instance.pools
       end
     end
 
-    context '#privileged' do
-      it 'should query the miner' do
+    describe '#privileged' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:privileged).and_return(nil)
         instance.privileged
       end
@@ -107,7 +107,7 @@ describe CgminerApiClient::Miner::Commands do
           expect(instance).to receive(:query).with(:privileged).and_raise('something')
         end
 
-        it 'should return false' do
+        it 'returns false' do
           expect(instance.privileged).to eq false
         end
       end
@@ -117,42 +117,42 @@ describe CgminerApiClient::Miner::Commands do
           expect(instance).to receive(:query).with(:privileged).and_return(nil)
         end
 
-        it 'should return true' do
+        it 'returns true' do
           expect(instance.privileged).to eq true
         end
       end
     end
 
-    context '#notify' do
-      it 'should query the miner' do
+    describe '#notify' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:notify).and_return('notify' => [{}])
         instance.notify
       end
     end
 
-    context '#stats' do
-      it 'should query the miner' do
+    describe '#stats' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:stats).and_return('stats' => [{}])
         instance.stats
       end
     end
 
-    context '#summary' do
-      it 'should query the miner' do
+    describe '#summary' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:summary).and_return('summary' => [{}])
         instance.summary
       end
     end
 
-    context '#usbstats' do
-      it 'should query the miner' do
+    describe '#usbstats' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:usbstats).and_return('usbstats' => [{}])
         instance.usbstats
       end
     end
 
-    context '#version' do
-      it 'should query the miner' do
+    describe '#version' do
+      it 'queries the miner' do
         expect(instance).to receive(:query).with(:version).and_return('version' => [{}])
         instance.version
       end
@@ -166,10 +166,10 @@ describe CgminerApiClient::Miner::Commands do
           allow(instance).to receive(:privileged).and_return(false)
         end
 
-        it 'should raise an error' do
-          expect {
+        it 'raises an error' do
+          expect do
             instance.send(:access_denied?)
-          }.to raise_error('access_denied')
+          end.to raise_error('access_denied')
         end
       end
 
@@ -178,7 +178,7 @@ describe CgminerApiClient::Miner::Commands do
           allow(instance).to receive(:privileged).and_return(true)
         end
 
-        it 'should return false' do
+        it 'returns false' do
           expect(instance.send(:access_denied?)).to eq false
         end
       end
@@ -190,57 +190,57 @@ describe CgminerApiClient::Miner::Commands do
       end
 
       context 'ascdisable' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.ascdisable
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:ascdisable, :number)
           instance.ascdisable(:number)
         end
       end
 
       context 'ascenable' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.ascenable
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:ascenable, :number)
           instance.ascenable(:number)
         end
       end
 
       context 'ascidentify' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.ascidentify
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:ascidentify, :number)
           instance.ascidentify(:number)
         end
       end
 
       context 'ascset' do
-        it 'should require 2-3 arguments' do
-          expect {
+        it 'requires 2-3 arguments' do
+          expect do
             instance.ascset
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2..3)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2..3)')
         end
 
-        it 'should query the miner with 2 arguments' do
+        it 'queries the miner with 2 arguments' do
           expect(instance).to receive(:query).with(:ascset, :number, :foo)
           instance.ascset(:number, :foo)
         end
 
-        it 'should query the miner with 3 arguments' do
+        it 'queries the miner with 3 arguments' do
           expect(instance).to receive(:query).with(:ascset, :number, :foo, :bar)
           instance.ascset(:number, :foo, :bar)
         end
@@ -253,57 +253,57 @@ describe CgminerApiClient::Miner::Commands do
       end
 
       context 'pgadisable' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.pgadisable
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:pgadisable, :number)
           instance.pgadisable(:number)
         end
       end
 
       context 'pgaenable' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.pgaenable
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:pgaenable, :number)
           instance.pgaenable(:number)
         end
       end
 
       context 'pgaidentify' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.pgaidentify
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:pgaidentify, :number)
           instance.pgaidentify(:number)
         end
       end
 
       context 'pgaset' do
-        it 'should require 2-3 arguments' do
-          expect {
+        it 'requires 2-3 arguments' do
+          expect do
             instance.pgaset
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2..3)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2..3)')
         end
 
-        it 'should query the miner with 2 arguments' do
+        it 'queries the miner with 2 arguments' do
           expect(instance).to receive(:query).with(:pgaset, :number, :foo)
           instance.pgaset(:number, :foo)
         end
 
-        it 'should query the miner with 3 arguments' do
+        it 'queries the miner with 3 arguments' do
           expect(instance).to receive(:query).with(:pgaset, :number, :foo, :bar)
           instance.pgaset(:number, :foo, :bar)
         end
@@ -316,85 +316,85 @@ describe CgminerApiClient::Miner::Commands do
       end
 
       context 'addpool' do
-        it 'should require three arguments' do
-          expect {
+        it 'requires three arguments' do
+          expect do
             instance.addpool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 3)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 3)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:addpool, :url, :user, :pass)
           instance.addpool(:url, :user, :pass)
         end
       end
 
       context 'disablepool' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.disablepool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:disablepool, :pool_number)
           instance.disablepool(:pool_number)
         end
       end
 
       context 'enablepool' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.enablepool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:enablepool, :pool_number)
           instance.enablepool(:pool_number)
         end
       end
 
       context 'poolpriority' do
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:poolpriority, :pool_number_1, :pool_number_2, :pool_number_3)
           instance.poolpriority(:pool_number_1, :pool_number_2, :pool_number_3)
         end
       end
 
       context 'poolquota' do
-        it 'should require two arguments' do
-          expect {
+        it 'requires two arguments' do
+          expect do
             instance.poolquota
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:poolquota, :pool_number, :quota)
           instance.poolquota(:pool_number, :quota)
         end
       end
 
       context 'removepool' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.removepool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:removepool, :pool_number)
           instance.removepool(:pool_number)
         end
       end
 
       context 'switchpool' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.switchpool
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:switchpool, :pool_number)
           instance.switchpool(:pool_number)
         end
@@ -407,52 +407,52 @@ describe CgminerApiClient::Miner::Commands do
       end
 
       context 'debug' do
-        it 'should query the miner with defaults' do
+        it 'queries the miner with defaults' do
           expect(instance).to receive(:query).with(:debug, 'D')
           instance.debug
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:debug, :setting)
           instance.debug(:setting)
         end
       end
 
       context 'failover_only' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.failover_only
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:'failover-only', :value)
           instance.failover_only(:value)
         end
       end
 
       context 'hotplug' do
-        it 'should require one argument' do
-          expect {
+        it 'requires one argument' do
+          expect do
             instance.hotplug
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:hotplug, :value)
           instance.hotplug(:value)
         end
       end
 
       context 'quit' do
-        it 'should query the miner' do
+        it 'queries the miner' do
           expect(instance).to receive(:query).with(:quit)
           instance.quit
         end
       end
 
       context 'restart' do
-        it 'should query the miner' do
+        it 'queries the miner' do
           expect(instance).to receive(:query).with(:restart)
           instance.restart
         end
@@ -460,14 +460,14 @@ describe CgminerApiClient::Miner::Commands do
 
       context 'save' do
         context 'without filename' do
-          it 'should query the miner' do
+          it 'queries the miner' do
             expect(instance).to receive(:query).with(:save)
             instance.save
           end
         end
 
         context 'with filename' do
-          it 'should query the miner with arguments' do
+          it 'queries the miner with arguments' do
             expect(instance).to receive(:query).with(:save, :filename)
             instance.save(:filename)
           end
@@ -475,25 +475,25 @@ describe CgminerApiClient::Miner::Commands do
       end
 
       context 'setconfig' do
-        it 'should require two arguments' do
-          expect {
+        it 'requires two arguments' do
+          expect do
             instance.setconfig
-          }.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2)')
+          end.to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 2)')
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:setconfig, :name, :value)
           instance.setconfig(:name, :value)
         end
       end
 
       context 'zero' do
-        it 'should query the miner with defaults' do
+        it 'queries the miner with defaults' do
           expect(instance).to receive(:query).with(:zero, 'All', false)
           instance.zero
         end
 
-        it 'should query the miner with arguments' do
+        it 'queries the miner with arguments' do
           expect(instance).to receive(:query).with(:zero, :which, :full_summary)
           instance.zero(:which, :full_summary)
         end

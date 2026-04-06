@@ -7,8 +7,10 @@ describe CgminerApiClient::MinerPool do
   let(:host)                 { '127.0.0.1' }
   let(:port)                 { 1234 }
   let(:timeout)              { 10 }
-  let(:mock_miner_from_yaml) { double('miner_from_yaml', :[] => {'host' => host, 'port' => port, 'timeout' => timeout} ) }
-  let(:instance)             { CgminerApiClient::MinerPool.new }
+  let(:mock_miner_from_yaml) do
+    double('miner_from_yaml', :[] => { 'host' => host, 'port' => port, 'timeout' => timeout })
+  end
+  let(:instance) { CgminerApiClient::MinerPool.new }
 
   before do
     allow(CgminerApiClient::Miner).to receive(:new).and_return(mock_miner)
@@ -21,26 +23,26 @@ describe CgminerApiClient::MinerPool do
         allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
       end
 
-      it 'should allow setting and getting' do
+      it 'allows setting and getting' do
         instance.miners = :foo
         expect(instance.miners).to eq :foo
       end
     end
   end
 
-  context '#initialize' do
-    it 'should load_miners!' do
+  describe '#initialize' do
+    it 'loads miners' do
       expect_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!)
       instance
     end
   end
 
-  context '#available_miners' do
+  describe '#available_miners' do
     it 'should not include unavailable miners'
     it 'should include available miners'
   end
 
-  context '#query' do
+  describe '#query' do
     before do
       allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
       allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
@@ -48,86 +50,86 @@ describe CgminerApiClient::MinerPool do
       instance.instance_variable_set(:@miners, [mock_miner])
     end
 
-    it 'should run provided query on each miner' do
+    it 'runs provided query on each miner' do
       expect(mock_miner).to receive(:query).with(:foo)
       instance.query(:foo)
     end
 
-    it 'should pass parameters' do
+    it 'passes parameters' do
       expect(mock_miner).to receive(:query).with(:foo, :parameters)
       instance.query(:foo, :parameters)
     end
 
-    it 'should return an array' do
+    it 'returns an array' do
       allow(mock_miner).to receive(:query).with(:foo)
-      expect(instance.query(:foo)).to be_kind_of(Array)
+      expect(instance.query(:foo)).to be_a(Array)
     end
   end
 
-  context '#method_missing' do
+  describe '#method_missing' do
     before do
       allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
       allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
       allow(instance).to receive(:query).and_return(true)
     end
 
-    it 'should query each miner with the method name' do
+    it 'queries each miner with the method name' do
       expect(instance).to receive(:query).with(:foo).and_return(true)
       instance.method_missing(:foo)
     end
 
-    it 'should pass arguments' do
+    it 'passes arguments' do
       expect(instance).to receive(:query).with(:foo, [:arguments])
       instance.method_missing(:foo, [:arguments])
     end
   end
 
-  context '#respond_to_missing?' do
+  describe '#respond_to_missing?' do
     before do
       allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
       allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
     end
 
-    it 'should return true for arbitrary cgminer command names' do
+    it 'returns true for arbitrary cgminer command names' do
       expect(instance.respond_to?(:devs)).to be true
       expect(instance.respond_to?(:summary)).to be true
       expect(instance.respond_to?(:any_arbitrary_command)).to be true
     end
 
-    it 'should return false for to_* conversion methods' do
+    it 'returns false for to_* conversion methods' do
       expect(instance.respond_to?(:to_ary)).to be false
       expect(instance.respond_to?(:to_str)).to be false
       expect(instance.respond_to?(:to_int)).to be false
     end
 
-    it 'should return false for underscore-prefixed names' do
+    it 'returns false for underscore-prefixed names' do
       expect(instance.respond_to?(:_internal)).to be false
     end
   end
 
-  context '#reload_miners!' do
+  describe '#reload_miners!' do
     before do
       allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
       allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
     end
 
-    it 'should call load_miners!' do
+    it 'calls load_miners!' do
       expect(instance).to receive(:load_miners!)
       instance.reload_miners!
     end
   end
 
   context 'private methods' do
-    context '#load_miners!' do
+    describe '#load_miners!' do
       context 'without configuration file' do
         before do
           expect(File).to receive(:exist?).with('config/miners.yml').and_return(false)
         end
 
-        it 'should raise an error' do
-          expect{
+        it 'raises an error' do
+          expect do
             instance
-          }.to raise_error(RuntimeError)
+          end.to raise_error(RuntimeError)
         end
       end
 
@@ -136,20 +138,33 @@ describe CgminerApiClient::MinerPool do
           allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
         end
 
-        it 'should parse the configuration file' do
-          expect(YAML).to receive(:safe_load_file).with('config/miners.yml').and_return([mock_miner_from_yaml]).at_least(:once)
+        it 'parses the configuration file' do
+          expect(YAML).to receive(:safe_load_file)
+            .with('config/miners.yml')
+            .and_return([mock_miner_from_yaml])
+            .at_least(:once)
           instance.send(:load_miners!)
         end
 
-        it 'should create new instances of CgminerApiClient::Miner' do
-          allow(YAML).to receive(:safe_load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-          expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port], mock_miner_from_yaml[:timeout])
+        it 'creates new instances of CgminerApiClient::Miner' do
+          allow(YAML).to receive(:safe_load_file)
+            .with('config/miners.yml').and_return([mock_miner_from_yaml])
+          expect(CgminerApiClient::Miner).to receive(:new).with(
+            mock_miner_from_yaml[:host],
+            mock_miner_from_yaml[:port],
+            mock_miner_from_yaml[:timeout]
+          )
           instance.send(:load_miners!)
         end
 
-        it 'should assign the remote instances to @miners' do
-          allow(YAML).to receive(:safe_load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
-          allow(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port], mock_miner_from_yaml[:timeout]).and_return(mock_miner)
+        it 'assigns the remote instances to @miners' do
+          allow(YAML).to receive(:safe_load_file)
+            .with('config/miners.yml').and_return([mock_miner_from_yaml])
+          allow(CgminerApiClient::Miner).to receive(:new).with(
+            mock_miner_from_yaml[:host],
+            mock_miner_from_yaml[:port],
+            mock_miner_from_yaml[:timeout]
+          ).and_return(mock_miner)
           instance.send(:load_miners!)
           expect(instance.miners).to eq [mock_miner]
         end

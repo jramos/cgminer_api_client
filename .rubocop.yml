@@ -1,0 +1,116 @@
+plugins:
+  - rubocop-rake
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.1
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'vendor/**/*'
+    - 'coverage/**/*'
+    - 'tmp/**/*'
+
+# This gem has a small surface area; the default Metrics cops fight
+# the existing structure without offering value at this scale.
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
+Metrics/ClassLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+# String style is a matter of taste; the codebase mixes both.
+Style/StringLiterals:
+  Enabled: false
+Style/StringLiteralsInInterpolation:
+  Enabled: false
+
+# Documentation comments aren't worth the noise on a small gem.
+Style/Documentation:
+  Enabled: false
+
+# These public methods take a leading boolean (force_reload, full_summary)
+# that's part of the gem's documented API. Changing them to keyword args
+# would be a breaking change.
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+# `params2` etc. are fine here.
+Naming/VariableNumber:
+  Enabled: false
+
+# method_missing in this gem is intentional and well-paired with
+# respond_to_missing?.
+Style/MissingRespondToMissing:
+  Enabled: true
+Lint/MissingSuper:
+  Enabled: false
+
+# The existing spec suite uses idiomatic-for-its-time RSpec patterns
+# (implicit subject, "should" wording, anyInstanceOf, etc). Disable
+# the cops that would force a wholesale rewrite without adding value.
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/NestedGroups:
+  Max: 5
+RSpec/MessageSpies:
+  Enabled: false
+RSpec/StubbedMock:
+  Enabled: false
+RSpec/AnyInstance:
+  Enabled: false
+RSpec/VerifiedDoubles:
+  Enabled: false
+RSpec/InstanceVariable:
+  Enabled: false
+RSpec/NamedSubject:
+  Enabled: false
+RSpec/ContextWording:
+  Enabled: false
+RSpec/ExpectInHook:
+  Enabled: false
+RSpec/DescribedClass:
+  Enabled: false
+RSpec/IndexedLet:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+RSpec/RepeatedExample:
+  Enabled: false
+RSpec/RepeatedExampleGroupBody:
+  Enabled: false
+RSpec/RepeatedExampleGroupDescription:
+  Enabled: false
+RSpec/RepeatedDescription:
+  Enabled: false
+RSpec/PredicateMatcher:
+  Enabled: false
+RSpec/MessageChain:
+  Enabled: false
+RSpec/IdenticalEqualityAssertion:
+  Enabled: false
+RSpec/SubjectStub:
+  Enabled: false
+RSpec/LeakyConstantDeclaration:
+  Enabled: false
+RSpec/BeEq:
+  Enabled: false
+RSpec/VerifiedDoubleReference:
+  Enabled: false
+RSpec/PendingWithoutReason:
+  Enabled: false
+RSpec/ExpectChange:
+  Enabled: false

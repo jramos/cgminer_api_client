@@ -12,7 +12,7 @@ module CgminerApiClient
         begin
           socket.connect_nonblock(sockaddr)
         rescue IO::WaitWritable
-          if IO.select(nil, [socket], nil, timeout)
+          if socket.wait_writable(timeout)
             begin
               socket.connect_nonblock(sockaddr)
             rescue Errno::EISCONN

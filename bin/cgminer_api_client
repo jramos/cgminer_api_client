@@ -9,15 +9,15 @@ require 'pp'
 command = ARGV.shift&.to_sym
 commands = CgminerApiClient::Miner::Commands.instance_methods
 
-unless command and commands.include?(command)
+unless command && commands.include?(command)
   puts "USAGE: cgminer_api_client command (arguments)"
-  puts "commands: " + commands.sort.collect(&:to_s).join(', ')
+  puts "commands: #{commands.sort.join(', ')}"
   exit(0)
 end
 
 begin
   miner_pool = CgminerApiClient::MinerPool.new
   pp(ARGV.empty? ? miner_pool.query(command) : miner_pool.query(command, *ARGV))
-rescue => e
+rescue StandardError => e
   puts e.message
 end

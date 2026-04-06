@@ -87,9 +87,9 @@ module CgminerApiClient
           end
 
           def ascset(number, option, value = nil)
-            unless access_denied?
-              value ? query(:ascset, number, option, value) : query(:ascset, number, option)
-            end
+            return if access_denied?
+
+            value ? query(:ascset, number, option, value) : query(:ascset, number, option)
           end
         end
 
@@ -107,9 +107,9 @@ module CgminerApiClient
           end
 
           def pgaset(number, option, value = nil)
-            unless access_denied?
-              value ? query(:pgaset, number, option, value) : query(:pgaset, number, option)
-            end
+            return if access_denied?
+
+            value ? query(:pgaset, number, option, value) : query(:pgaset, number, option)
           end
         end
 
@@ -165,9 +165,9 @@ module CgminerApiClient
           end
 
           def save(filename = nil)
-            unless access_denied?
-              filename ? query(:save, filename) : query(:save)
-            end
+            return if access_denied?
+
+            filename ? query(:save, filename) : query(:save)
           end
 
           def setconfig(name, value)
@@ -182,11 +182,9 @@ module CgminerApiClient
         private
 
         def access_denied?
-          if !privileged
-            raise 'access_denied'
-          else
-            return false
-          end
+          raise 'access_denied' unless privileged
+
+          false
         end
 
         include Miner::Commands::Privileged::Asc
