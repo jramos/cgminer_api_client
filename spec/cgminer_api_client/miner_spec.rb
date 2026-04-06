@@ -188,6 +188,24 @@ describe CgminerApiClient::Miner do
     end
   end
 
+  context '#respond_to_missing?' do
+    it 'should return true for arbitrary cgminer command names' do
+      expect(instance.respond_to?(:devs)).to be true
+      expect(instance.respond_to?(:summary)).to be true
+      expect(instance.respond_to?(:any_arbitrary_command)).to be true
+    end
+
+    it 'should return false for to_* conversion methods' do
+      expect(instance.respond_to?(:to_ary)).to be false
+      expect(instance.respond_to?(:to_str)).to be false
+      expect(instance.respond_to?(:to_int)).to be false
+    end
+
+    it 'should return false for underscore-prefixed names' do
+      expect(instance.respond_to?(:_internal)).to be false
+    end
+  end
+
   context 'private methods' do
     context '#open_socket' do
       pending

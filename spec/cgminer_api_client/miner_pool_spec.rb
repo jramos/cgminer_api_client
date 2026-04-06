@@ -80,6 +80,29 @@ describe CgminerApiClient::MinerPool do
     end
   end
 
+  context '#respond_to_missing?' do
+    before do
+      allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+      allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
+    end
+
+    it 'should return true for arbitrary cgminer command names' do
+      expect(instance.respond_to?(:devs)).to be true
+      expect(instance.respond_to?(:summary)).to be true
+      expect(instance.respond_to?(:any_arbitrary_command)).to be true
+    end
+
+    it 'should return false for to_* conversion methods' do
+      expect(instance.respond_to?(:to_ary)).to be false
+      expect(instance.respond_to?(:to_str)).to be false
+      expect(instance.respond_to?(:to_int)).to be false
+    end
+
+    it 'should return false for underscore-prefixed names' do
+      expect(instance.respond_to?(:_internal)).to be false
+    end
+  end
+
   context '#reload_miners!' do
     before do
       allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)

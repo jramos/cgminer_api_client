@@ -44,6 +44,11 @@ module CgminerApiClient
       query(name, *args)
     end
 
+    def respond_to_missing?(name, include_private = false)
+      return false if name.to_s.start_with?('to_', '_')
+      super || true
+    end
+
     private
 
     def perform_request(request)
