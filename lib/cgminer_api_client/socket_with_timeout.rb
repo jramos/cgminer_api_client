@@ -17,7 +17,7 @@ module CgminerApiClient
               socket.connect_nonblock(sockaddr)
             rescue Errno::EISCONN
               # the socket is connected
-            rescue
+            rescue StandardError
               socket.close
               raise
             end

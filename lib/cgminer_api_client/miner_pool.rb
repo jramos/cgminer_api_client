@@ -20,7 +20,7 @@ module CgminerApiClient
         Thread.new do
           begin
             miner.query(method, *params)
-          rescue => e
+          rescue StandardError => e
             $stderr.puts "#{e.class}: #{e}"
             []
           end
@@ -35,7 +35,7 @@ module CgminerApiClient
         Thread.new do
           begin
             miner if miner.available?(force_reload)
-          rescue
+          rescue StandardError
             nil
           end
         end

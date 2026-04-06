@@ -27,7 +27,7 @@ module CgminerApiClient
 
         response = perform_request(request)
         data = sanitized(response)
-        method.to_s.match('\+') ? data : data[method.to_sym]
+        method.to_s.match?('\+') ? data : data[method.to_sym]
       end
     end
 
@@ -37,7 +37,7 @@ module CgminerApiClient
       @available ||= begin
         open_socket(@host, @port, @timeout).close
         true
-      rescue
+      rescue StandardError
         false
       end
     end
@@ -56,7 +56,7 @@ module CgminerApiClient
     def perform_request(request)
       begin
         s = open_socket(@host, @port, @timeout)
-      rescue
+      rescue StandardError
         raise "Connection to #{@host}:#{@port} failed"
       end
 
@@ -69,7 +69,7 @@ module CgminerApiClient
 
       data = JSON.parse(response)
 
-      if request[:command].to_s.match('\+')
+      if request[:command].to_s.match?('\+')
         data.each_pair do |command, response|
           check_status(response.first) if response.respond_to?(:first)
         end

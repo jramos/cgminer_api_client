@@ -45,11 +45,10 @@ module CgminerApiClient
         end
 
         def privileged
-            query(:privileged)
-            true
-          rescue
-            false
-
+          query(:privileged)
+          true
+        rescue StandardError
+          false
         end
 
         def notify

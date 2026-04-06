@@ -2,7 +2,6 @@
 
 require 'json'
 require 'socket'
-require 'thread'
 require 'yaml'
 
 require "cgminer_api_client/miner"
