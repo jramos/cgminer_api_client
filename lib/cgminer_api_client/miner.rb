@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'cgminer_api_client/socket_with_timeout'
 require 'cgminer_api_client/miner/commands'
 

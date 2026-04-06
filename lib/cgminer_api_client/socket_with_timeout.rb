@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CgminerApiClient
   module SocketWithTimeout
     def open_socket(host, port, timeout)
