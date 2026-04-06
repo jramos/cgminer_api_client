@@ -112,18 +112,18 @@ describe CgminerApiClient::MinerPool do
         end
 
         it 'should parse the configuration file' do
-          expect(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml]).at_least(:once)
+          expect(YAML).to receive(:safe_load_file).with('config/miners.yml').and_return([mock_miner_from_yaml]).at_least(:once)
           instance.send(:load_miners!)
         end
 
         it 'should create new instances of CgminerApiClient::Miner' do
-          allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
+          allow(YAML).to receive(:safe_load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
           expect(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port], mock_miner_from_yaml[:timeout])
           instance.send(:load_miners!)
         end
 
         it 'should assign the remote instances to @miners' do
-          allow(YAML).to receive(:load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
+          allow(YAML).to receive(:safe_load_file).with('config/miners.yml').and_return([mock_miner_from_yaml])
           allow(CgminerApiClient::Miner).to receive(:new).with(mock_miner_from_yaml[:host], mock_miner_from_yaml[:port], mock_miner_from_yaml[:timeout]).and_return(mock_miner)
           instance.send(:load_miners!)
           expect(instance.miners).to eq [mock_miner]

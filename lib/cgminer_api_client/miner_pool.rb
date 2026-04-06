@@ -55,7 +55,7 @@ module CgminerApiClient
     def load_miners!
       raise 'Please create config/miners.yml' unless File.exist?('config/miners.yml')
 
-      miners_config = YAML.load_file('config/miners.yml')
+      miners_config = YAML.safe_load_file('config/miners.yml')
       @miners = miners_config.collect{|miner|
         CgminerApiClient::Miner.new(
           miner['host'],
