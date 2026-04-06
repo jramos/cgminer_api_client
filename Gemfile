@@ -1,10 +1,14 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
 gemspec
 
 group :development do
-  gem 'pry' ,       '>= 0.12.0'
-  gem 'rake' ,      '>= 13.0.0'
-  gem 'rspec' ,     '>= 3.9'
-  gem 'simplecov' , '>= 0.17.0'
+  gem 'rake',      '>= 13.2'
+  gem 'rspec',     '>= 3.13'
+  gem 'rubocop',       '>= 1.60'
+  gem 'rubocop-rake',  '>= 0.6'
+  gem 'rubocop-rspec', '>= 2.27'
+  gem 'simplecov', '>= 0.22'
 end
