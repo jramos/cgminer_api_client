@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CgminerApiClient
-  VERSION = "0.2.6"
+  VERSION = "0.3.0"
 end

@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Spin up a fake cgminer for manual testing. Reuses the same
+# FakeCgminer class the integration specs use, so behavior is
+# identical to what tests verify.
+#
+# Usage:
+#   ./script/fake_cgminer            # listen on 127.0.0.1:4028
+#   ./script/fake_cgminer 5000       # listen on 127.0.0.1:5000
+#
+# Then in another terminal, point config/miners.yml at that
+# host/port and run the CLI:
+#
+#   cp config/miners.yml.example config/miners.yml
+#   bundle exec bin/cgminer_api_client summary
+#
+# This file lives in script/ rather than bin/ deliberately: the
+# gemspec packages bin/* but not script/*, so this stays a
+# developer tool and is not shipped to gem consumers.
+
+$stdout.sync = true
+$LOAD_PATH.unshift File.expand_path('../spec/support', __dir__)
+require 'json'
+require 'socket'
+require 'cgminer_fixtures'
+require 'fake_cgminer'
+
+port = (ARGV[0] || 4028).to_i
+server = FakeCgminer.new(port: port).start
+
+puts "fake cgminer listening on 127.0.0.1:#{server.port}"
+puts "commands available: #{CgminerFixtures::DEFAULT.keys.sort.join(', ')}"
+puts 'press Ctrl-C to stop'
+
+trap('INT') do
+  server.stop
+  exit 0
+end
+
+sleep

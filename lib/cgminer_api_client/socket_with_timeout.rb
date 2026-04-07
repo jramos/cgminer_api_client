@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CgminerApiClient
   module SocketWithTimeout
     def open_socket(host, port, timeout)
@@ -10,18 +12,22 @@ module CgminerApiClient
         begin
           socket.connect_nonblock(sockaddr)
         rescue IO::WaitWritable
-          if IO.select(nil, [socket], nil, timeout)
+          if socket.wait_writable(timeout)
             begin
               socket.connect_nonblock(sockaddr)
             rescue Errno::EISCONN
-              # the socket is connected
-            rescue
+              # On Linux, the second connect_nonblock on a now-writable
+              # socket reports EISCONN to mean "the connection completed
+              # while we were waiting." Treat as success. On other
+              # platforms the second call returns 0 cleanly and this
+              # branch never fires.
+            rescue StandardError
               socket.close
               raise
             end
           else
             socket.close
-            raise "Connection timeout"
+            raise CgminerApiClient::TimeoutError, "Connection to #{host}:#{port} timed out after #{timeout}s"
           end
         end
       end

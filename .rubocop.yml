@@ -1,0 +1,131 @@
+plugins:
+  - rubocop-rake
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.2
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - 'vendor/**/*'
+    - 'coverage/**/*'
+    - 'tmp/**/*'
+
+# This gem has a small surface area; the default Metrics cops fight
+# the existing structure without offering value at this scale.
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
+Metrics/ClassLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+# String style is a matter of taste; the codebase mixes both.
+Style/StringLiterals:
+  Enabled: false
+Style/StringLiteralsInInterpolation:
+  Enabled: false
+
+# Documentation comments aren't worth the noise on a small gem.
+Style/Documentation:
+  Enabled: false
+
+# The Privileged::System commands `zero(which, full_summary)` and
+# `debug(setting)` take leading booleans as part of the cgminer API
+# surface. Changing them to keyword args would be a breaking change.
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+# Numeric suffixes on local variables (e.g. params2) are not in this
+# codebase today, but the cop is disabled defensively for the symbol
+# `:'123'` style used in specs.
+Naming/VariableNumber:
+  Enabled: false
+
+# `case sc / when 'S'` deliberately has an empty body — `S` (Success)
+# is a no-op while `I`/`W`/`E`/`F` get explicit handling. Adding `nil`
+# placates the linter but obscures intent.
+Lint/EmptyWhen:
+  Enabled: false
+
+# Miner and MinerPool define method_missing to forward arbitrary
+# names as cgminer commands. They also define respond_to_missing?
+# (returning false for to_*/_* internal probes, true otherwise) so
+# introspection works. They intentionally do not call super because
+# they are pure proxies; Lint/MissingSuper is disabled to allow that.
+Lint/MissingSuper:
+  Enabled: false
+
+# --- RSpec cops -----------------------------------------------------
+# Style cops disabled because the existing suite uses idiomatic-for-
+# its-time patterns (implicit subject, allow_any_instance_of, string
+# instance_double references, etc). Re-enabling these would force a
+# wholesale rewrite without adding value.
+RSpec/AnyInstance:
+  Enabled: false
+RSpec/BeEq:
+  Enabled: false
+RSpec/ContextWording:
+  Enabled: false
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/integration/**/*'
+RSpec/DescribedClass:
+  Enabled: false
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/ExpectChange:
+  Enabled: false
+RSpec/ExpectInHook:
+  Enabled: false
+RSpec/IndexedLet:
+  Enabled: false
+RSpec/InstanceVariable:
+  Enabled: false
+RSpec/MessageChain:
+  Enabled: false
+RSpec/MessageSpies:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+RSpec/NamedSubject:
+  Enabled: false
+RSpec/PendingWithoutReason:
+  Enabled: false
+RSpec/PredicateMatcher:
+  Enabled: false
+RSpec/StubbedMock:
+  Enabled: false
+RSpec/SubjectStub:
+  Enabled: false
+RSpec/VerifiedDoubleReference:
+  Enabled: false
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+# Allow up to 6 levels of nesting for the open_socket spec tree.
+RSpec/NestedGroups:
+  Max: 6
+
+# Note: the following correctness cops are intentionally LEFT ENABLED.
+# They catch real bugs (duplicate examples, identical-equality
+# assertions, leaky constants) and the current suite passes them
+# clean. Do not disable without a specific reason.
+#   - RSpec/RepeatedExample
+#   - RSpec/RepeatedExampleGroupBody
+#   - RSpec/RepeatedExampleGroupDescription
+#   - RSpec/RepeatedDescription
+#   - RSpec/IdenticalEqualityAssertion
+#   - RSpec/LeakyConstantDeclaration

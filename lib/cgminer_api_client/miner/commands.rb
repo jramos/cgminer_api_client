@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CgminerApiClient
   class Miner
     module Commands
@@ -43,11 +45,14 @@ module CgminerApiClient
         end
 
         def privileged
-            query(:privileged)
-            true
-          rescue
-            false
-
+          query(:privileged)
+          true
+        rescue CgminerApiClient::ApiError
+          # The miner answered and rejected: not privileged.
+          false
+          # ConnectionError and any other StandardError propagate so
+          # callers don't misinterpret a transient network blip as
+          # "access denied".
         end
 
         def notify
@@ -86,9 +91,9 @@ module CgminerApiClient
           end
 
           def ascset(number, option, value = nil)
-            unless access_denied?
-              value ? query(:ascset, number, option, value) : query(:ascset, number, option)
-            end
+            return if access_denied?
+
+            value ? query(:ascset, number, option, value) : query(:ascset, number, option)
           end
         end
 
@@ -106,9 +111,9 @@ module CgminerApiClient
           end
 
           def pgaset(number, option, value = nil)
-            unless access_denied?
-              value ? query(:pgaset, number, option, value) : query(:pgaset, number, option)
-            end
+            return if access_denied?
+
+            value ? query(:pgaset, number, option, value) : query(:pgaset, number, option)
           end
         end
 
@@ -164,9 +169,9 @@ module CgminerApiClient
           end
 
           def save(filename = nil)
-            unless access_denied?
-              filename ? query(:save, filename) : query(:save)
-            end
+            return if access_denied?
+
+            filename ? query(:save, filename) : query(:save)
           end
 
           def setconfig(name, value)
@@ -181,11 +186,9 @@ module CgminerApiClient
         private
 
         def access_denied?
-          if !privileged
-            raise 'access_denied'
-          else
-            return false
-          end
+          raise 'access_denied' unless privileged
+
+          false
         end
 
         include Miner::Commands::Privileged::Asc
