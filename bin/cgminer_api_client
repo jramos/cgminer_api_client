@@ -10,14 +10,32 @@ command = ARGV.shift&.to_sym
 commands = CgminerApiClient::Miner::Commands.instance_methods
 
 unless command && commands.include?(command)
-  puts "USAGE: cgminer_api_client command (arguments)"
-  puts "commands: #{commands.sort.join(', ')}"
-  exit(0)
+  warn 'USAGE: cgminer_api_client command (arguments)'
+  warn "commands: #{commands.sort.join(', ')}"
+  warn ''
+  warn 'Set DEBUG=1 to see full backtraces on errors.'
+  exit 64 # EX_USAGE
 end
 
 begin
-  miner_pool = CgminerApiClient::MinerPool.new
-  pp(ARGV.empty? ? miner_pool.query(command) : miner_pool.query(command, *ARGV))
+  pool = CgminerApiClient::MinerPool.new
+  result = ARGV.empty? ? pool.query(command) : pool.query(command, *ARGV)
+
+  result.each do |r|
+    if r.ok?
+      puts "#{r.miner.host}:#{r.miner.port}:"
+      pp r.value
+    else
+      warn "#{r.miner.host}:#{r.miner.port}: #{r.error.class}: #{r.error.message}"
+    end
+  end
+
+  # Exit 0 if at least one miner succeeded; 1 only if every miner
+  # failed. Matches how fleet-oriented CLIs (ping, ssh -o) typically
+  # behave — partial failures don't trigger alerts.
+  exit(result.any_succeeded? ? 0 : 1)
 rescue StandardError => e
-  puts e.message
+  warn "cgminer_api_client: #{e.class}: #{e.message}"
+  warn e.full_message(highlight: false) if ENV['DEBUG']
+  exit 1
 end
