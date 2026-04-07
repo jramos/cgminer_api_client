@@ -20,7 +20,7 @@ module CgminerApiClient
         Thread.new do
           miner.query(method, *params)
         rescue StandardError => e
-          warn "#{e.class}: #{e}"
+          warn "[#{miner.host}:#{miner.port}] #{e.class}: #{e.message}"
           []
         end
       end

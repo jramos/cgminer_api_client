@@ -116,9 +116,9 @@ describe CgminerApiClient::MinerPool do
       expect(instance.query(:foo)).to be_a(Array)
     end
 
-    it 'returns [] for a miner whose query raises and emits a warning' do
+    it 'returns [] for a miner whose query raises and warns with host:port context' do
       allow(mock_miner).to receive(:query).with(:foo).and_raise(StandardError, 'boom')
-      expect(instance).to receive(:warn).with(a_string_matching(/StandardError.*boom/))
+      expect(instance).to receive(:warn).with("[#{host}:#{port}] StandardError: boom")
       expect(instance.query(:foo)).to eq([[]])
     end
 
