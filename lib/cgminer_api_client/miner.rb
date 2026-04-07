@@ -22,7 +22,13 @@ module CgminerApiClient
       request = { command: method }
 
       unless params.empty?
-        params = params.map { |p| p.to_s.gsub('\\', '\\\\').gsub(',', '\,') }
+        # cgminer uses comma to separate parameters, so any literal commas in
+        # parameter values must be backslash-escaped, and any literal
+        # backslashes must themselves be doubled. The block form of gsub is
+        # used so the replacement string isn't interpreted (in gsub's
+        # replacement-string syntax, '\\' means a single literal backslash,
+        # which makes the obvious gsub('\\', '\\\\') a silent no-op).
+        params = params.map { |p| p.to_s.gsub('\\') { '\\\\' }.gsub(',') { '\\,' } }
         request[:parameter] = params.join(',')
       end
 

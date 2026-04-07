@@ -152,10 +152,35 @@ describe CgminerApiClient::Miner do
       end
 
       context 'parameters' do
-        it 'performs a command request with parameters' do
-          expect(instance).to receive(:perform_request).with({ command: :foo,
-                                                               parameter: 'bar,123,\\456' }).and_return({ 'foo' => [] })
-          instance.query(:foo, :bar, :'123', :'\\456')
+        it 'joins plain parameters with commas' do
+          expect(instance).to receive(:perform_request)
+            .with({ command: :foo, parameter: 'bar,123' })
+            .and_return({ 'foo' => [] })
+          instance.query(:foo, :bar, 123)
+        end
+
+        it 'escapes literal backslashes by doubling them' do
+          # Input: a single literal backslash. Expected output: two literal
+          # backslashes. In single-quoted Ruby source `'\\\\'` is two `\`.
+          expect(instance).to receive(:perform_request)
+            .with({ command: :foo, parameter: 'a\\\\b' })
+            .and_return({ 'foo' => [] })
+          instance.query(:foo, "a\\b")
+        end
+
+        it 'escapes literal commas with a leading backslash' do
+          expect(instance).to receive(:perform_request)
+            .with({ command: :foo, parameter: 'a\\,b' })
+            .and_return({ 'foo' => [] })
+          instance.query(:foo, 'a,b')
+        end
+
+        it 'escapes both backslashes and commas in the same parameter' do
+          # Input: a\b,c → output: a\\b\,c
+          expect(instance).to receive(:perform_request)
+            .with({ command: :foo, parameter: 'a\\\\b\\,c' })
+            .and_return({ 'foo' => [] })
+          instance.query(:foo, "a\\b,c")
         end
       end
 
