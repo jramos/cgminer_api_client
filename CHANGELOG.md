@@ -34,11 +34,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.ruby-version` file pinning local development to 4.0.2 (the gem
   itself supports 3.1+; the pin is only for contributors).
 - `CHANGELOG.md` (this file).
-- 23 new specs covering previously-untested branches: the entire
+- 23 new unit specs covering previously-untested branches: the entire
   `SocketWithTimeout#open_socket` method, `MinerPool#available_miners`
   / `#unavailable_miners`, the `MinerPool#query` thread-rescue
   branch, the control-character escape path in `Miner#perform_request`,
   and a broadened `respond_to_missing?` cross-check.
+- End-to-end integration test suite at `spec/integration/`. Nine
+  tests exercise the complete request → TCP socket → response →
+  parse → result path against a `FakeCgminer` server running in a
+  background thread on an ephemeral port. Covers the happy paths,
+  the multi-command path, the control-byte escape path, the
+  parameter-escape wire assertion, unknown-command → `ApiError`,
+  rejected privileged → `false`, and closed-port →
+  `ConnectionError`. Runs as part of `bundle exec rake` on every
+  CI matrix Ruby version.
+- `script/fake_cgminer` for manual sandbox testing. Starts the same
+  fake cgminer server on a fixed port (default 4028) in the
+  foreground, so you can run the CLI against it without hardware:
+  `./script/fake_cgminer &` then
+  `bundle exec bin/cgminer_api_client summary`. Intentionally lives
+  in `script/` rather than `bin/` so it isn't packaged with the gem.
 
 ### Changed
 - `Miner#perform_request` now raises `ConnectionError` (was a plain
