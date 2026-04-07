@@ -65,7 +65,7 @@ RSpec/MultipleExpectations:
 RSpec/ExampleLength:
   Enabled: false
 RSpec/NestedGroups:
-  Max: 5
+  Max: 6
 RSpec/MessageSpies:
   Enabled: false
 RSpec/StubbedMock:

@@ -198,20 +198,127 @@ describe CgminerApiClient::Miner do
       expect(instance.respond_to?(:any_arbitrary_command)).to be true
     end
 
-    it 'returns false for to_* conversion methods' do
-      expect(instance.respond_to?(:to_ary)).to be false
-      expect(instance.respond_to?(:to_str)).to be false
-      expect(instance.respond_to?(:to_int)).to be false
+    it 'returns false for all implicit conversion methods' do
+      %i[to_ary to_str to_int to_hash to_a to_proc to_io to_path to_regexp].each do |m|
+        expect(instance.respond_to?(m)).to be(false), "expected respond_to?(#{m.inspect}) to be false"
+      end
     end
 
     it 'returns false for underscore-prefixed names' do
       expect(instance.respond_to?(:_internal)).to be false
     end
+
+    it 'allows Method objects to be obtained for dynamic commands' do
+      expect { instance.method(:any_arbitrary_command) }.not_to raise_error
+    end
   end
 
   context 'private methods' do
     describe '#open_socket' do
-      pending
+      let(:sockaddr) { 'packed_sockaddr' }
+      let(:socket) { instance_double(Socket, setsockopt: nil, close: nil) }
+
+      before do
+        allow(Socket).to receive(:getaddrinfo).with(host, nil)
+                                              .and_return([['AF_INET', nil, host, host]])
+        allow(Socket).to receive(:pack_sockaddr_in).with(port, host).and_return(sockaddr)
+        allow(Socket).to receive(:new).and_return(socket)
+      end
+
+      context 'when connect_nonblock succeeds immediately' do
+        before do
+          allow(socket).to receive(:connect_nonblock).with(sockaddr)
+        end
+
+        it 'returns the connected socket' do
+          expect(instance.send(:open_socket, host, port, timeout)).to be(socket)
+        end
+
+        it 'sets TCP_NODELAY' do
+          expect(socket).to receive(:setsockopt).with(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+          instance.send(:open_socket, host, port, timeout)
+        end
+
+        it 'does not call wait_writable' do
+          expect(socket).not_to receive(:wait_writable)
+          instance.send(:open_socket, host, port, timeout)
+        end
+      end
+
+      context 'when the first connect_nonblock raises IO::WaitWritable' do
+        before do
+          # First call raises, second call's behavior is set by sub-contexts.
+          @connect_calls = 0
+          allow(socket).to receive(:connect_nonblock) do |addr|
+            @connect_calls += 1
+            raise IO::EAGAINWaitWritable if @connect_calls == 1
+
+            @second_connect_result&.call(addr)
+          end
+        end
+
+        context 'and wait_writable returns the socket (writable in time)' do
+          before do
+            allow(socket).to receive(:wait_writable).with(timeout).and_return(socket)
+          end
+
+          context 'and the second connect_nonblock succeeds' do
+            before do
+              @second_connect_result = ->(_addr) { 0 }
+            end
+
+            it 'returns the connected socket' do
+              expect(instance.send(:open_socket, host, port, timeout)).to be(socket)
+            end
+
+            it 'does not close the socket' do
+              expect(socket).not_to receive(:close)
+              instance.send(:open_socket, host, port, timeout)
+            end
+          end
+
+          context 'and the second connect_nonblock raises Errno::EISCONN' do
+            before do
+              @second_connect_result = ->(_addr) { raise Errno::EISCONN }
+            end
+
+            it 'returns the connected socket (treats EISCONN as success)' do
+              expect(instance.send(:open_socket, host, port, timeout)).to be(socket)
+            end
+
+            it 'does not close the socket' do
+              expect(socket).not_to receive(:close)
+              instance.send(:open_socket, host, port, timeout)
+            end
+          end
+
+          context 'and the second connect_nonblock raises a real error' do
+            before do
+              @second_connect_result = ->(_addr) { raise Errno::ECONNREFUSED }
+            end
+
+            it 'closes the socket and re-raises the original error' do
+              expect(socket).to receive(:close)
+              expect do
+                instance.send(:open_socket, host, port, timeout)
+              end.to raise_error(Errno::ECONNREFUSED)
+            end
+          end
+        end
+
+        context 'and wait_writable returns nil (timeout)' do
+          before do
+            allow(socket).to receive(:wait_writable).with(timeout).and_return(nil)
+          end
+
+          it 'closes the socket and raises "Connection timeout"' do
+            expect(socket).to receive(:close)
+            expect do
+              instance.send(:open_socket, host, port, timeout)
+            end.to raise_error(RuntimeError, 'Connection timeout')
+          end
+        end
+      end
     end
 
     describe '#perform_request' do
@@ -255,6 +362,18 @@ describe CgminerApiClient::Miner do
             expect(instance).to receive(:check_status).with({ "STATUS" => 'ALL_GOOD' })
             expect(instance).to receive(:check_status).with({ "STATUS" => 'NOT_SO_GOOD' })
             instance.send(:perform_request, { command: 'foo+bar' })
+          end
+        end
+
+        context 'with control characters in the response' do
+          let(:mock_socket) do
+            instance_double(Socket, write: true, read: "{\"x\":\"a\x01b\x1fc\"}", close: true)
+          end
+
+          it 'escapes non-printable bytes as \\uXXXX before parsing' do
+            expect(JSON).to receive(:parse).with('{"x":"a\\u0001b\\u001fc"}').and_return({})
+            expect(instance).to receive(:check_status).and_return(true)
+            instance.send(:perform_request, {})
           end
         end
       end
