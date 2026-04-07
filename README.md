@@ -6,7 +6,7 @@ A gem that allows sending API commands to a pool of [cgminer](https://github.com
 
 ## Requirements
 
-Ruby 3.1 or higher.
+Ruby 3.2 or higher.
 
 ## Installation Options
 
@@ -62,29 +62,74 @@ Restart cgminer:
 
 ## Gem Usage
 
-    require 'cgminer_api_client'
+```ruby
+require 'cgminer_api_client'
 
-    # change the default timeout and port for the miners
-    CgminerApiClient.config do |config|
-        config.default_port    = 4023
-        config.default_timeout = 3
-    end
+# Change the defaults for any miners whose config doesn't set them.
+CgminerApiClient.config do |config|
+  config.default_port    = 4028
+  config.default_timeout = 3
+end
 
-    pool = CgminerApiClient::MinerPool.new
+pool = CgminerApiClient::MinerPool.new
+```
 
-    # run 'devs' on each miner in the pool; returns an array of response hashes
-    devices = pool.devs
+### Pool queries return a `PoolResult`
 
-    # run 'summary' on each miner in the pool; returns an array of response hashes
-    summaries = pool.summary
+Every pool query returns a `PoolResult` — an `Enumerable` wrapper
+around one `MinerResult` per miner, in pool order. Each
+`MinerResult` is either a success (carrying a parsed value) or a
+failure (carrying the exception). Callers choose how much detail
+they care about.
 
-    # run 'devs' on available miners; returns an array of response hashes
-    pool.available_miners.collect do |miner|
-        miner.devs
-    end
+```ruby
+# Just give me the data, ignore failures:
+pool.summary.values.each do |s|
+  puts "hashrate: #{s[:mhs_av]}"
+end
 
-    # restart the pool
-    pool.restart
+# Handle successes and failures explicitly:
+pool.summary.each do |result|
+  if result.ok?
+    puts "#{result.miner.host}: #{result.value[:mhs_av]}"
+  else
+    warn "#{result.miner.host}: #{result.error.message}"
+  end
+end
+
+# Quick checks:
+pool.summary.all_successful?   # true if every miner responded
+pool.summary.any_failed?       # true if any miner failed
+pool.summary.errors            # [<ConnectionError>, ...]
+pool.summary['10.0.0.5:4028']  # lookup by host:port string
+```
+
+### Single-miner access
+
+If you want to talk to one specific miner without the pool
+wrapping, use `Miner` directly. Unreachable miners raise
+`CgminerApiClient::ConnectionError`:
+
+```ruby
+miner = CgminerApiClient::Miner.new('10.0.0.5', 4028)
+begin
+  puts miner.summary[:mhs_av]
+rescue CgminerApiClient::ConnectionError => e
+  warn "miner unreachable: #{e.message}"
+end
+```
+
+### Privileged commands
+
+Commands like `restart`, `quit`, `save`, `addpool`, `removepool`,
+`ascset`, etc. require privileged API access on the cgminer side.
+They propagate `CgminerApiClient::ApiError` on rejection and
+`CgminerApiClient::ConnectionError` on network failure — two
+distinct conditions, unlike in 0.2.x where they were conflated.
+
+```ruby
+pool.restart      # PoolResult of per-miner outcomes
+```
 
 ## CLI Usage
 
