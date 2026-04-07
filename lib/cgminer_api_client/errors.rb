@@ -11,6 +11,11 @@ module CgminerApiClient
   # miner" apart from "the miner spoke to me and refused."
   class ConnectionError < Error; end
 
+  # Raised specifically for connect-timeout failures, as a subclass
+  # of ConnectionError. Lets callers distinguish "the miner took too
+  # long to answer the SYN" from other connection-layer problems.
+  class TimeoutError < ConnectionError; end
+
   # Raised when the miner returned a response whose STATUS field
   # indicates an error (cgminer status code 'E' or 'F'). The message
   # contains the cgminer code and message verbatim.

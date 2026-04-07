@@ -27,7 +27,7 @@ module CgminerApiClient
             end
           else
             socket.close
-            raise "Connection timeout"
+            raise CgminerApiClient::TimeoutError, "Connection to #{host}:#{port} timed out after #{timeout}s"
           end
         end
       end

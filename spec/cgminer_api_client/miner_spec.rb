@@ -336,11 +336,11 @@ describe CgminerApiClient::Miner do
             allow(socket).to receive(:wait_writable).with(timeout).and_return(nil)
           end
 
-          it 'closes the socket and raises "Connection timeout"' do
+          it 'closes the socket and raises TimeoutError' do
             expect(socket).to receive(:close)
             expect do
               instance.send(:open_socket, host, port, timeout)
-            end.to raise_error(RuntimeError, 'Connection timeout')
+            end.to raise_error(CgminerApiClient::TimeoutError, /timed out after #{timeout}s/)
           end
         end
       end

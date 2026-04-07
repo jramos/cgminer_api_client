@@ -44,8 +44,8 @@ module CgminerApiClient
       @miners - available_miners(force_reload)
     end
 
-    def method_missing(name, *args)
-      query(name, *args)
+    def method_missing(name, *)
+      query(name, *)
     end
 
     # See Miner#respond_to_missing? for the rationale.

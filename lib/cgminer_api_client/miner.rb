@@ -48,8 +48,8 @@ module CgminerApiClient
       end
     end
 
-    def method_missing(name, *args)
-      query(name, *args)
+    def method_missing(name, *)
+      query(name, *)
     end
 
     # method_missing forwards everything to query as a cgminer command,

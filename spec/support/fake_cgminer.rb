@@ -57,8 +57,8 @@ class FakeCgminer
 
   # Bracket a block with start/stop. Cleans up even if the block
   # raises. Yields the port the server is listening on.
-  def self.with(**opts)
-    server = new(**opts).start
+  def self.with(**)
+    server = new(**).start
     begin
       yield server.port
     ensure
