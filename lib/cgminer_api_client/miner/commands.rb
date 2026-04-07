@@ -47,8 +47,12 @@ module CgminerApiClient
         def privileged
           query(:privileged)
           true
-        rescue StandardError
+        rescue CgminerApiClient::ApiError
+          # The miner answered and rejected: not privileged.
           false
+          # ConnectionError and any other StandardError propagate so
+          # callers don't misinterpret a transient network blip as
+          # "access denied".
         end
 
         def notify

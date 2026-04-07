@@ -4,11 +4,10 @@ require 'json'
 require 'socket'
 require 'yaml'
 
-require "cgminer_api_client/miner"
-require "cgminer_api_client/miner/commands"
-require "cgminer_api_client/miner_pool"
-require "cgminer_api_client/socket_with_timeout"
-require "cgminer_api_client/version"
+require 'cgminer_api_client/errors'
+require 'cgminer_api_client/miner'
+require 'cgminer_api_client/miner_pool'
+require 'cgminer_api_client/version'
 
 module CgminerApiClient
   def self.default_host

@@ -352,10 +352,13 @@ describe CgminerApiClient::Miner do
           expect(instance).to receive(:open_socket).and_raise(SocketError)
         end
 
-        it 'raises an exception' do
+        it 'raises ConnectionError including the host, port, and original error' do
           expect do
             instance.send(:perform_request, {})
-          end.to raise_error(RuntimeError, 'Connection to 127.0.0.1:4028 failed')
+          end.to raise_error(
+            CgminerApiClient::ConnectionError,
+            'Connection to 127.0.0.1:4028 failed: SocketError: SocketError'
+          )
         end
       end
 
@@ -441,14 +444,27 @@ describe CgminerApiClient::Miner do
         end
       end
 
-      context 'with error' do
+      context 'with error status' do
         before do
-          mock_response['STATUS'] = [{ 'STATUS' => 'E' }]
+          mock_response['STATUS'] = [{ 'STATUS' => 'E', 'Code' => 45, 'Msg' => 'Access denied' }]
         end
 
-        it 'raises an exception' do
-          expect(instance).to receive(:raise)
-          instance.send(:check_status, mock_response)
+        it 'raises ApiError with the cgminer code and message' do
+          expect do
+            instance.send(:check_status, mock_response)
+          end.to raise_error(CgminerApiClient::ApiError, '45: Access denied')
+        end
+      end
+
+      context 'with fatal status' do
+        before do
+          mock_response['STATUS'] = [{ 'STATUS' => 'F', 'Code' => 23, 'Msg' => 'Bad command' }]
+        end
+
+        it 'raises ApiError' do
+          expect do
+            instance.send(:check_status, mock_response)
+          end.to raise_error(CgminerApiClient::ApiError, '23: Bad command')
         end
       end
     end

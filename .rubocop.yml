@@ -46,8 +46,16 @@ Style/Documentation:
 Style/OptionalBooleanParameter:
   Enabled: false
 
-# `params2` etc. are fine here.
+# Numeric suffixes on local variables (e.g. params2) are not in this
+# codebase today, but the cop is disabled defensively for the symbol
+# `:'123'` style used in specs.
 Naming/VariableNumber:
+  Enabled: false
+
+# `case sc / when 'S'` deliberately has an empty body — `S` (Success)
+# is a no-op while `I`/`W`/`E`/`F` get explicit handling. Adding `nil`
+# placates the linter but obscures intent.
+Lint/EmptyWhen:
   Enabled: false
 
 # method_missing in this gem is intentional and well-paired with

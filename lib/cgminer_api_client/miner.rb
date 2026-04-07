@@ -63,8 +63,8 @@ module CgminerApiClient
     def perform_request(request)
       begin
         s = open_socket(@host, @port, @timeout)
-      rescue StandardError
-        raise "Connection to #{@host}:#{@port} failed"
+      rescue StandardError => e
+        raise ConnectionError, "Connection to #{@host}:#{@port} failed: #{e.class}: #{e.message}"
       end
 
       s.write(request.to_json)
@@ -93,15 +93,19 @@ module CgminerApiClient
       c      = status['Code']
       msg    = status['Msg']
 
+      # cgminer STATUS codes: S=Success (silent), I=Info, W=Warning,
+      # E=Error, F=Fatal. Errors and Fatals raise ApiError so callers
+      # can distinguish them from ConnectionError (transport-level
+      # failures).
       case sc
       when 'S'
-        nil # success — no action
+        # no-op: success needs no notification
       when 'I'
         puts "Info from API [#{c}]: #{msg}"
       when 'W'
         puts "Warning from API [#{c}]: #{msg}"
       else
-        raise "#{c}: #{msg}"
+        raise ApiError, "#{c}: #{msg}"
       end
     end
 

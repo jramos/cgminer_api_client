@@ -102,9 +102,10 @@ describe CgminerApiClient::Miner::Commands do
         instance.privileged
       end
 
-      context 'an exception' do
+      context 'when the miner answers and rejects (ApiError)' do
         before do
-          expect(instance).to receive(:query).with(:privileged).and_raise('something')
+          expect(instance).to receive(:query).with(:privileged)
+                                             .and_raise(CgminerApiClient::ApiError, 'access denied')
         end
 
         it 'returns false' do
@@ -112,7 +113,28 @@ describe CgminerApiClient::Miner::Commands do
         end
       end
 
-      context 'success' do
+      context 'when the miner cannot be reached (ConnectionError)' do
+        before do
+          expect(instance).to receive(:query).with(:privileged)
+                                             .and_raise(CgminerApiClient::ConnectionError, 'host unreachable')
+        end
+
+        it 'propagates the ConnectionError instead of mislabeling it as access-denied' do
+          expect { instance.privileged }.to raise_error(CgminerApiClient::ConnectionError)
+        end
+      end
+
+      context 'when query raises any other StandardError' do
+        before do
+          expect(instance).to receive(:query).with(:privileged).and_raise(StandardError, 'boom')
+        end
+
+        it 'propagates the error so bugs are not silently swallowed' do
+          expect { instance.privileged }.to raise_error(StandardError, 'boom')
+        end
+      end
+
+      context 'when the miner answers successfully' do
         before do
           expect(instance).to receive(:query).with(:privileged).and_return(nil)
         end
