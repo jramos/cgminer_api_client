@@ -20,16 +20,20 @@ require 'socket'
 #   end
 #
 # With a custom response map and a request-observer callback for
-# asserting on the raw bytes the server received:
+# asserting on the raw bytes the server received on the wire:
 #
-#   received = nil
-#   FakeCgminer.with(responses: { 'foo' => '...' }) do |port|
+#   received = []
+#   FakeCgminer.with(
+#     responses: { 'foo' => '...' },
+#     on_request: ->(bytes) { received << bytes }
+#   ) do |port|
 #     # tests...
-#   end.tap { |_| expect(received).to match(/\\\\,/) }
+#   end
+#   expect(received.first).to include('parameter')
 class FakeCgminer
   attr_reader :port
 
-  def initialize(responses: CgminerFixtures::DEFAULT, port: 0, &on_request)
+  def initialize(responses: CgminerFixtures::DEFAULT, port: 0, on_request: nil)
     @responses = responses
     @on_request = on_request
     @server = TCPServer.new('127.0.0.1', port)
@@ -49,8 +53,8 @@ class FakeCgminer
 
   # Bracket a block with start/stop. Cleans up even if the block
   # raises. Yields the port the server is listening on.
-  def self.with(...)
-    server = new(...).start
+  def self.with(**opts)
+    server = new(**opts).start
     begin
       yield server.port
     ensure
