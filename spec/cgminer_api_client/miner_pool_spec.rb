@@ -46,15 +46,9 @@ describe CgminerApiClient::MinerPool do
     end
 
     it 'includes only miners whose available? returns truthy' do
-      allow(available_miner).to receive(:available?).with(false).and_return(true)
-      allow(unavailable_miner).to receive(:available?).with(false).and_return(false)
+      allow(available_miner).to receive(:available?).and_return(true)
+      allow(unavailable_miner).to receive(:available?).and_return(false)
       expect(instance.available_miners).to eq([available_miner])
-    end
-
-    it 'forwards force_reload to Miner#available?' do
-      expect(available_miner).to receive(:available?).with(true).and_return(true)
-      expect(unavailable_miner).to receive(:available?).with(true).and_return(false)
-      instance.available_miners(true)
     end
 
     it 'returns an empty array if no miners are available' do
@@ -63,10 +57,16 @@ describe CgminerApiClient::MinerPool do
       expect(instance.available_miners).to eq([])
     end
 
-    it 'treats a raising available? as unavailable' do
-      allow(available_miner).to receive(:available?).and_raise(StandardError, 'boom')
+    it 'treats a network error raised from available? as unavailable (defensive rescue)' do
+      allow(available_miner).to receive(:available?).and_raise(Errno::ECONNREFUSED)
       allow(unavailable_miner).to receive(:available?).and_return(true)
       expect(instance.available_miners).to eq([unavailable_miner])
+    end
+
+    it 'lets non-network bugs from available? propagate (NoMethodError, ArgumentError, etc.)' do
+      allow(available_miner).to receive(:available?).and_raise(ArgumentError, 'boom')
+      allow(unavailable_miner).to receive(:available?).and_return(true)
+      expect { instance.available_miners }.to raise_error(ArgumentError, 'boom')
     end
   end
 

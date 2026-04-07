@@ -115,35 +115,56 @@ describe CgminerApiClient::Miner do
       end
     end
 
-    it 'sets an instance variable' do
-      expect(instance).to receive(:open_socket).and_return(mock_socket)
-      expect(mock_socket).to receive(:close).and_return(true)
+    it 'does not cache between calls' do
+      expect(instance).to receive(:open_socket).twice.and_return(mock_socket)
+      expect(mock_socket).to receive(:close).twice.and_return(true)
       instance.available?
-      expect(instance.instance_variable_get(:@available)).to eq true
+      instance.available?
+    end
+
+    context 'when the socket raises a TimeoutError' do
+      before do
+        expect(instance).to receive(:open_socket)
+          .and_raise(CgminerApiClient::TimeoutError, 'timed out')
+      end
+
+      it 'returns false' do
+        expect(instance.available?).to be(false)
+      end
+    end
+
+    context 'when the socket raises a SystemCallError (e.g. ECONNREFUSED)' do
+      before do
+        expect(instance).to receive(:open_socket).and_raise(Errno::ECONNREFUSED)
+      end
+
+      it 'returns false' do
+        expect(instance.available?).to be(false)
+      end
+    end
+
+    context 'when a non-network error escapes from open_socket' do
+      before do
+        expect(instance).to receive(:open_socket).and_raise(ArgumentError, 'bad port')
+      end
+
+      it 'propagates instead of silently returning false' do
+        expect { instance.available? }.to raise_error(ArgumentError, 'bad port')
+      end
     end
   end
 
   describe '#query' do
-    context 'unavailable' do
-      before do
-        expect(instance).to receive(:available?).and_return(false)
-      end
-
-      it 'does not perform a command request' do
-        expect(instance).not_to receive(:perform_request)
-        instance.query(:foo)
-      end
-
-      it 'returns nil' do
-        expect(instance.query(:foo)).to eq nil
+    context 'when perform_request raises ConnectionError' do
+      it 'propagates the error instead of returning nil' do
+        expect(instance).to receive(:perform_request)
+          .and_raise(CgminerApiClient::ConnectionError, 'unreachable')
+        expect { instance.query(:foo) }
+          .to raise_error(CgminerApiClient::ConnectionError, 'unreachable')
       end
     end
 
-    context 'available' do
-      before do
-        expect(instance).to receive(:available?).and_return(true)
-      end
-
+    context 'when perform_request succeeds' do
       context 'no parameters' do
         it 'performs a command request' do
           expect(instance).to receive(:perform_request).with({ command: :foo }).and_return({ 'foo' => [] })

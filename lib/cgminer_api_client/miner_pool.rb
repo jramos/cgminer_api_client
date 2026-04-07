@@ -52,20 +52,30 @@ module CgminerApiClient
       unwrap_first(query(:check, command))
     end
 
-    def available_miners(force_reload = false)
-      threads = @miners.collect do |miner|
+    def available_miners
+      threads = @miners.map do |miner|
         Thread.new do
-          miner if miner.available?(force_reload)
-        rescue StandardError
+          # Suppress Ruby's default "auto-print unhandled thread
+          # exceptions to stderr" behavior. Bugs that propagate
+          # here will be re-raised by Thread#value to the caller of
+          # #available_miners; we don't want them double-reported
+          # to stderr in the meantime.
+          Thread.current.report_on_exception = false
+          miner if miner.available?
+        rescue SocketError, SystemCallError, CgminerApiClient::TimeoutError
+          # Miner#available? already returns false for these; this
+          # rescue is defensive against a future refactor. Bugs
+          # (NoMethodError, ArgumentError) still propagate via
+          # Thread#value re-raising.
           nil
         end
       end
       threads.each(&:join)
-      threads.collect(&:value).compact
+      threads.map(&:value).compact
     end
 
-    def unavailable_miners(force_reload = false)
-      @miners - available_miners(force_reload)
+    def unavailable_miners
+      @miners - available_miners
     end
 
     def method_missing(name, *)

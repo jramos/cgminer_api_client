@@ -102,31 +102,15 @@ describe 'Miner integration with a fake cgminer server' do
       end
     end
 
-    it 'marks a miner as unavailable when the target port is closed' do
-      # Miner#query consults #available? first and returns nil
-      # (without ever calling perform_request) if the miner is
-      # unreachable. This is the real-socket version of the mocked
-      # unit tests for #available?.
+    it 'reports a closed port as unavailable and raises ConnectionError from #query' do
+      # Bind and immediately release to get a definitely-closed port.
       server = TCPServer.new('127.0.0.1', 0)
       closed_port = server.addr[1]
       server.close
 
       miner = miner_at(closed_port)
       expect(miner.available?).to be(false)
-      expect(miner.query(:summary)).to be_nil
-    end
-
-    it 'raises ConnectionError from #perform_request directly when the socket cannot be opened' do
-      # Bypasses #available? to verify the ConnectionError path
-      # end-to-end against a real closed socket. This locks in the
-      # post-modernization typed exception — previously this would
-      # have been a plain RuntimeError.
-      server = TCPServer.new('127.0.0.1', 0)
-      closed_port = server.addr[1]
-      server.close
-
-      miner = miner_at(closed_port)
-      expect { miner.send(:perform_request, { command: :summary }) }
+      expect { miner.query(:summary) }
         .to raise_error(CgminerApiClient::ConnectionError, /127\.0\.0\.1:#{closed_port}/)
     end
   end

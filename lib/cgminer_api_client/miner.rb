@@ -17,8 +17,6 @@ module CgminerApiClient
     end
 
     def query(method, *params)
-      return unless available?
-
       request = { command: method }
 
       unless params.empty?
@@ -37,15 +35,16 @@ module CgminerApiClient
       method.to_s.match?('\+') ? data : data[method.to_sym]
     end
 
-    def available?(force_reload = false)
-      @available = nil if force_reload
-
-      @available ||= begin
-        open_socket(@host, @port, @timeout).close
-        true
-      rescue StandardError
-        false
-      end
+    # Reachability probe. Opens a fresh socket every call — no
+    # caching. Returns true on a successful connect, false on
+    # transport-level failure (DNS, refused, unreachable, timeout).
+    # Bugs like ArgumentError or NoMethodError propagate instead
+    # of being silently swallowed.
+    def available?
+      open_socket(@host, @port, @timeout).close
+      true
+    rescue SocketError, SystemCallError, CgminerApiClient::TimeoutError
+      false
     end
 
     def method_missing(name, *)

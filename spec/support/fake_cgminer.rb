@@ -91,9 +91,12 @@ class FakeCgminer
   # Handles one client connection in isolation. Any per-connection
   # error (EOFError from an immediately-closed client, JSON parse
   # failures, write errors, etc.) is swallowed so the server keeps
-  # running for the next connection. Notably, Miner#available?
-  # opens a socket and immediately closes it to probe reachability;
-  # that produces an EOFError here which must NOT propagate.
+  # running for the next connection. This tolerance matters for
+  # Miner#available? — a caller that opens a socket and immediately
+  # closes it for a reachability probe produces an EOFError here,
+  # which must NOT propagate. (Note: Miner#query no longer invokes
+  # available? as a pre-flight since 0.3.0, but the probe pattern
+  # is still part of the public surface.)
   def handle_connection_safely(client)
     handle_request(client)
   rescue StandardError

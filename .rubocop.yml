@@ -40,9 +40,9 @@ Style/StringLiteralsInInterpolation:
 Style/Documentation:
   Enabled: false
 
-# These public methods take a leading boolean (force_reload, full_summary)
-# that's part of the gem's documented API. Changing them to keyword args
-# would be a breaking change.
+# The Privileged::System commands `zero(which, full_summary)` and
+# `debug(setting)` take leading booleans as part of the cgminer API
+# surface. Changing them to keyword args would be a breaking change.
 Style/OptionalBooleanParameter:
   Enabled: false
 
