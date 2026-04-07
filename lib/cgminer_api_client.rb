@@ -5,6 +5,8 @@ require 'socket'
 require 'yaml'
 
 require 'cgminer_api_client/errors'
+require 'cgminer_api_client/miner_result'
+require 'cgminer_api_client/pool_result'
 require 'cgminer_api_client/miner'
 require 'cgminer_api_client/miner_pool'
 require 'cgminer_api_client/version'
