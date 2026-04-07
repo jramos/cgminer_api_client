@@ -58,67 +58,71 @@ Naming/VariableNumber:
 Lint/EmptyWhen:
   Enabled: false
 
-# method_missing in this gem is intentional and well-paired with
-# respond_to_missing?.
-Style/MissingRespondToMissing:
-  Enabled: true
+# Miner and MinerPool define method_missing to forward arbitrary
+# names as cgminer commands. They also define respond_to_missing?
+# (returning false for to_*/_* internal probes, true otherwise) so
+# introspection works. They intentionally do not call super because
+# they are pure proxies; Lint/MissingSuper is disabled to allow that.
 Lint/MissingSuper:
   Enabled: false
 
-# The existing spec suite uses idiomatic-for-its-time RSpec patterns
-# (implicit subject, "should" wording, anyInstanceOf, etc). Disable
-# the cops that would force a wholesale rewrite without adding value.
-RSpec/MultipleExpectations:
-  Enabled: false
-RSpec/ExampleLength:
-  Enabled: false
-RSpec/NestedGroups:
-  Max: 6
-RSpec/MessageSpies:
-  Enabled: false
-RSpec/StubbedMock:
-  Enabled: false
+# --- RSpec cops -----------------------------------------------------
+# Style cops disabled because the existing suite uses idiomatic-for-
+# its-time patterns (implicit subject, allow_any_instance_of, string
+# instance_double references, etc). Re-enabling these would force a
+# wholesale rewrite without adding value.
 RSpec/AnyInstance:
-  Enabled: false
-RSpec/VerifiedDoubles:
-  Enabled: false
-RSpec/InstanceVariable:
-  Enabled: false
-RSpec/NamedSubject:
-  Enabled: false
-RSpec/ContextWording:
-  Enabled: false
-RSpec/ExpectInHook:
-  Enabled: false
-RSpec/DescribedClass:
-  Enabled: false
-RSpec/IndexedLet:
-  Enabled: false
-RSpec/MultipleMemoizedHelpers:
-  Enabled: false
-RSpec/RepeatedExample:
-  Enabled: false
-RSpec/RepeatedExampleGroupBody:
-  Enabled: false
-RSpec/RepeatedExampleGroupDescription:
-  Enabled: false
-RSpec/RepeatedDescription:
-  Enabled: false
-RSpec/PredicateMatcher:
-  Enabled: false
-RSpec/MessageChain:
-  Enabled: false
-RSpec/IdenticalEqualityAssertion:
-  Enabled: false
-RSpec/SubjectStub:
-  Enabled: false
-RSpec/LeakyConstantDeclaration:
   Enabled: false
 RSpec/BeEq:
   Enabled: false
-RSpec/VerifiedDoubleReference:
+RSpec/ContextWording:
   Enabled: false
-RSpec/PendingWithoutReason:
+RSpec/DescribedClass:
+  Enabled: false
+RSpec/ExampleLength:
   Enabled: false
 RSpec/ExpectChange:
   Enabled: false
+RSpec/ExpectInHook:
+  Enabled: false
+RSpec/IndexedLet:
+  Enabled: false
+RSpec/InstanceVariable:
+  Enabled: false
+RSpec/MessageChain:
+  Enabled: false
+RSpec/MessageSpies:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+RSpec/NamedSubject:
+  Enabled: false
+RSpec/PendingWithoutReason:
+  Enabled: false
+RSpec/PredicateMatcher:
+  Enabled: false
+RSpec/StubbedMock:
+  Enabled: false
+RSpec/SubjectStub:
+  Enabled: false
+RSpec/VerifiedDoubleReference:
+  Enabled: false
+RSpec/VerifiedDoubles:
+  Enabled: false
+
+# Allow up to 6 levels of nesting for the open_socket spec tree.
+RSpec/NestedGroups:
+  Max: 6
+
+# Note: the following correctness cops are intentionally LEFT ENABLED.
+# They catch real bugs (duplicate examples, identical-equality
+# assertions, leaky constants) and the current suite passes them
+# clean. Do not disable without a specific reason.
+#   - RSpec/RepeatedExample
+#   - RSpec/RepeatedExampleGroupBody
+#   - RSpec/RepeatedExampleGroupDescription
+#   - RSpec/RepeatedDescription
+#   - RSpec/IdenticalEqualityAssertion
+#   - RSpec/LeakyConstantDeclaration

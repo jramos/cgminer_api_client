@@ -16,7 +16,11 @@ module CgminerApiClient
             begin
               socket.connect_nonblock(sockaddr)
             rescue Errno::EISCONN
-              # the socket is connected
+              # On Linux, the second connect_nonblock on a now-writable
+              # socket reports EISCONN to mean "the connection completed
+              # while we were waiting." Treat as success. On other
+              # platforms the second call returns 0 cleanly and this
+              # branch never fires.
             rescue StandardError
               socket.close
               raise

@@ -52,10 +52,11 @@ module CgminerApiClient
       query(name, *args)
     end
 
-    def respond_to_missing?(name, include_private = false)
-      return false if name.to_s.start_with?('to_', '_')
-
-      super || true
+    # method_missing forwards everything to query as a cgminer command,
+    # so respond to anything except names that look like Ruby internals
+    # or implicit conversion probes (to_ary, to_str, to_int, to_hash, ...).
+    def respond_to_missing?(name, _include_private = false)
+      !name.to_s.start_with?('to_', '_')
     end
 
     private
