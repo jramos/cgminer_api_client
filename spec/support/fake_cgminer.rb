@@ -46,9 +46,13 @@ class FakeCgminer
   end
 
   def stop
-    @thread&.kill
-    @thread&.join
+    # Close the listening socket FIRST. On macOS, `Thread#kill` does
+    # not reliably interrupt a thread blocked in a C-level `accept`
+    # syscall, so join would hang forever. Closing the socket causes
+    # accept to raise IOError, which the accept loop catches to
+    # break out cleanly.
     @server.close unless @server.closed?
+    @thread&.join
   end
 
   # Bracket a block with start/stop. Cleans up even if the block
@@ -66,16 +70,34 @@ class FakeCgminer
 
   def accept_loop
     loop do
-      client = @server.accept
-      handle_request(client)
-    rescue IOError, Errno::EBADF
-      # Server socket was closed — exit the accept loop.
-      break
-    rescue StandardError
-      # Swallow per-connection errors so one bad request doesn't
-      # take down the whole server thread.
-      next
+      client = accept_next_client
+      break if client.nil? # server socket closed from #stop
+
+      handle_connection_safely(client)
     end
+  end
+
+  # Returns the next accepted client, or nil if the server socket
+  # has been closed (which is the normal shutdown path from #stop).
+  # Only exits the loop on errors that come from the listening
+  # socket itself — NOT errors from client I/O, which are handled
+  # separately so a bad client doesn't take down the server.
+  def accept_next_client
+    @server.accept
+  rescue IOError, Errno::EBADF
+    nil
+  end
+
+  # Handles one client connection in isolation. Any per-connection
+  # error (EOFError from an immediately-closed client, JSON parse
+  # failures, write errors, etc.) is swallowed so the server keeps
+  # running for the next connection. Notably, Miner#available?
+  # opens a socket and immediately closes it to probe reachability;
+  # that produces an EOFError here which must NOT propagate.
+  def handle_connection_safely(client)
+    handle_request(client)
+  rescue StandardError
+    # ignore — next connection is unaffected
   end
 
   def handle_request(client)

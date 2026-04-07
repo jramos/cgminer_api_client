@@ -77,6 +77,9 @@ RSpec/BeEq:
   Enabled: false
 RSpec/ContextWording:
   Enabled: false
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/integration/**/*'
 RSpec/DescribedClass:
   Enabled: false
 RSpec/ExampleLength:

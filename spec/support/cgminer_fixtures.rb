@@ -38,16 +38,21 @@ module CgminerFixtures
     {"STATUS":[{"STATUS":"S","When":#{WHEN},"Code":7,"Msg":"1 Pool(s)","Description":"cgminer 4.11.1"}],"POOLS":[{"POOL":0,"URL":"stratum+tcp://example.pool:3333","Status":"Alive","Priority":0,"Quota":1,"Long Poll":"N","Getworks":10,"Accepted":100,"Rejected":1,"Works":500,"Discarded":5,"Stale":0,"Get Failures":0,"Remote Failures":0,"User":"worker1","Last Share Time":#{WHEN},"Diff1 Shares":0,"Proxy Type":"","Proxy":"","Difficulty Accepted":6400.0,"Difficulty Rejected":64.0,"Difficulty Stale":0.0,"Last Share Difficulty":64.0,"Has Stratum":true,"Stratum Active":true,"Stratum URL":"example.pool","Has GBT":false,"Best Share":123456789,"Pool Rejected%":0.9901,"Pool Stale%":0.0000}],"id":1}
   JSON
 
-  # Multi-command response in the "legacy" form some cgminer versions
-  # emit: two top-level objects with no separator between them. The
-  # gem's Miner#perform_request has gsub! repair logic that turns
-  # `}{` into `},{` before parsing. This fixture exercises that path.
+  # Multi-command response. Modern cgminer emits a single top-level
+  # object with one key per sub-command, each value an array whose
+  # first element has its own STATUS block. This matches the shape
+  # Miner#perform_request expects when the command name contains
+  # '+' — it iterates data with each_pair and calls check_status on
+  # each response.first.
   #
-  # Modern cgminer may emit strict JSON instead; both formats are
-  # supported by the gem and worth testing if the format is ever
-  # unified in a future release.
-  SUMMARY_PLUS_POOLS_LEGACY = <<~JSON.tr("\n", '')
-    {"summary":[{"STATUS":[{"STATUS":"S","When":#{WHEN},"Code":11,"Msg":"Summary","Description":"cgminer 4.11.1"}],"SUMMARY":[{"Elapsed":1,"MHS av":1.0}],"id":1}]}{"pools":[{"STATUS":[{"STATUS":"S","When":#{WHEN},"Code":7,"Msg":"1 Pool(s)","Description":"cgminer 4.11.1"}],"POOLS":[{"POOL":0,"URL":"stratum+tcp://example.pool:3333","Status":"Alive"}],"id":1}]}
+  # Note: the gem also has gsub! repair logic for a `}{` malformed
+  # variant, but that repair does not actually produce valid JSON
+  # from any format I can reproduce, and may be legacy defensive
+  # code for a cgminer version that no longer exists. If the repair
+  # is ever confirmed to fire on real traffic, add a targeted unit
+  # test at the perform_request layer rather than here.
+  SUMMARY_PLUS_POOLS = <<~JSON.tr("\n", '')
+    {"summary":[{"STATUS":[{"STATUS":"S","When":#{WHEN},"Code":11,"Msg":"Summary","Description":"cgminer 4.11.1"}],"SUMMARY":[{"Elapsed":1,"MHS av":1.0}]}],"pools":[{"STATUS":[{"STATUS":"S","When":#{WHEN},"Code":7,"Msg":"1 Pool(s)","Description":"cgminer 4.11.1"}],"POOLS":[{"POOL":0,"URL":"stratum+tcp://example.pool:3333","Status":"Alive"}]}],"id":1}
   JSON
 
   # Response containing a 0x01 byte inside a string value. The gem
@@ -81,7 +86,7 @@ module CgminerFixtures
     'summary' => SUMMARY,
     'devs' => DEVS,
     'pools' => POOLS,
-    'summary+pools' => SUMMARY_PLUS_POOLS_LEGACY,
+    'summary+pools' => SUMMARY_PLUS_POOLS,
     'addpool' => ADDPOOL_OK,
     'privileged' => PRIVILEGED_OK
   }.freeze
