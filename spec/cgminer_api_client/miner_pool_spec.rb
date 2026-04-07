@@ -111,26 +111,80 @@ describe CgminerApiClient::MinerPool do
       instance.query(:foo, :parameters)
     end
 
-    it 'returns an array' do
-      allow(mock_miner).to receive(:query).with(:foo)
-      expect(instance.query(:foo)).to be_a(Array)
+    it 'returns a PoolResult' do
+      allow(mock_miner).to receive(:query).with(:foo).and_return({ foo: :ok })
+      expect(instance.query(:foo)).to be_a(CgminerApiClient::PoolResult)
     end
 
-    it 'returns [] for a miner whose query raises and warns with host:port context' do
-      allow(mock_miner).to receive(:query).with(:foo).and_raise(StandardError, 'boom')
-      expect(instance).to receive(:warn).with("[#{host}:#{port}] StandardError: boom")
-      expect(instance.query(:foo)).to eq([[]])
+    it 'wraps a successful miner response as MinerResult.success' do
+      allow(mock_miner).to receive(:query).with(:foo).and_return(:ok)
+      result = instance.query(:foo)
+      expect(result.size).to eq(1)
+      expect(result.first).to be_ok
+      expect(result.first.value).to eq(:ok)
+      expect(result.first.miner).to eq(mock_miner)
     end
 
-    it 'collects results across miners independently' do
+    it 'wraps a raising miner as MinerResult.failure and does NOT write to stderr' do
+      err = StandardError.new('boom')
+      allow(mock_miner).to receive(:query).with(:foo).and_raise(err)
+      expect(instance).not_to receive(:warn)
+      result = instance.query(:foo)
+      expect(result.size).to eq(1)
+      expect(result.first).to be_failed
+      expect(result.first.error).to eq(err)
+      expect(result.first.miner).to eq(mock_miner)
+    end
+
+    it 'collects successes and failures across miners independently, preserving order' do
       ok_miner = instance_double('CgminerApiClient::Miner', host: '10.0.0.1', port: 4028)
       bad_miner = instance_double('CgminerApiClient::Miner', host: '10.0.0.2', port: 4028)
       instance.instance_variable_set(:@miners, [ok_miner, bad_miner])
       allow(ok_miner).to receive(:query).with(:foo).and_return(:ok)
       allow(bad_miner).to receive(:query).with(:foo).and_raise(StandardError, 'boom')
-      allow(instance).to receive(:warn)
-      expect(instance.query(:foo)).to eq([:ok, []])
+
+      result = instance.query(:foo)
+      expect(result.size).to eq(2)
+      expect(result[0].miner).to eq(ok_miner)
+      expect(result[0].value).to eq(:ok)
+      expect(result[1].miner).to eq(bad_miner)
+      expect(result[1].error.message).to eq('boom')
+      expect(result.values).to eq([:ok])
+      expect(result.errors.map(&:message)).to eq(['boom'])
+      expect(result.any_succeeded?).to be(true)
+      expect(result.any_failed?).to be(true)
     end
+  end
+
+  describe 'unwrapped convenience methods' do
+    let(:ok_miner)  { instance_double('CgminerApiClient::Miner', host: '10.0.0.1', port: 4028) }
+    let(:bad_miner) { instance_double('CgminerApiClient::Miner', host: '10.0.0.2', port: 4028) }
+
+    before do
+      allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+      allow_any_instance_of(CgminerApiClient::MinerPool).to receive(:load_miners!).and_return(true)
+      instance.instance_variable_set(:@miners, [ok_miner, bad_miner])
+    end
+
+    shared_examples 'unwraps single-element arrays per miner' do |cmd, *args|
+      it "returns a PoolResult of unwrapped hashes for ##{cmd}" do
+        allow(ok_miner).to receive(:query).with(cmd, *args).and_return([{ a: 1 }])
+        allow(bad_miner).to receive(:query).with(cmd, *args).and_raise(StandardError, 'boom')
+
+        result = instance.public_send(cmd, *args)
+        expect(result).to be_a(CgminerApiClient::PoolResult)
+        expect(result.size).to eq(2)
+        expect(result.values).to eq([{ a: 1 }])
+        expect(result[0].value).to eq({ a: 1 })
+        expect(result[1]).to be_failed
+      end
+    end
+
+    it_behaves_like 'unwraps single-element arrays per miner', :summary
+    it_behaves_like 'unwraps single-element arrays per miner', :coin
+    it_behaves_like 'unwraps single-element arrays per miner', :config
+    it_behaves_like 'unwraps single-element arrays per miner', :version
+    it_behaves_like 'unwraps single-element arrays per miner', :check, :some_subcommand
   end
 
   describe '#method_missing' do
