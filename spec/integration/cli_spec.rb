@@ -39,7 +39,10 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
         expect(status.exitstatus).to eq(0)
         expect(stderr).to eq('')
         expect(stdout).to include("127.0.0.1:#{port}:")
-        expect(stdout).to include('mhs_av:')
+        # Match the symbol name without a trailing delimiter so the
+        # assertion works against both `pp`'s 3.2/3.3 output format
+        # (`:mhs_av=>...`) and the 3.4+ format (`mhs_av: ...`).
+        expect(stdout).to include('mhs_av')
       end
     end
   end
@@ -95,7 +98,10 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
 
         expect(status.exitstatus).to eq(0)
         expect(stdout).to include("127.0.0.1:#{good_port}:")
-        expect(stdout).to include('mhs_av:')
+        # Match the symbol name without a trailing delimiter so the
+        # assertion works against both `pp`'s 3.2/3.3 output format
+        # (`:mhs_av=>...`) and the 3.4+ format (`mhs_av: ...`).
+        expect(stdout).to include('mhs_av')
         expect(stderr).to include("127.0.0.1:#{closed_port}:")
         expect(stderr).to include('ConnectionError')
       end
