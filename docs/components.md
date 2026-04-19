@@ -104,7 +104,7 @@ Command surface. Four nested modules:
 | `Privileged::Pool` | pool config | `addpool`, `removepool`, `switchpool`, `enablepool`, `disablepool`, `poolpriority`, `poolquota` |
 | `Privileged::System` | host-level | `restart`, `quit`, `save`, `setconfig`, `debug`, `failover_only`, `hotplug`, `zero` |
 
-`Commands::ReadOnly#privileged` calls `query(:privileged)` and catches `ApiError` → `false` (miner refused). All other exceptions (including `ConnectionError`) propagate so a network blip doesn't read as "access denied." The `access_denied?` gate used by every `Privileged::*` method raises `'access_denied'` when `privileged` returns false, so a single rescue point in the caller picks up auth rejections.
+`Commands::ReadOnly#privileged` calls `query(:privileged)` and catches `ApiError` → `false` (miner refused). All other exceptions (including `ConnectionError`) propagate so a network blip doesn't read as "access denied." The `access_denied?` gate used by every `Privileged::*` method raises `CgminerApiClient::ApiError, 'access denied'` when `privileged` returns false, so a single rescue point in the caller picks up auth rejections.
 
 Both `Miner` and `MinerPool` `include Miner::Commands`. The `Commands` methods only call `query(...)`; `Miner#query` and `MinerPool#query` provide the two execution shapes.
 

@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **`Miner::Commands::Privileged#access_denied?`** now raises
+  `CgminerApiClient::ApiError` with message `'access denied'`
+  instead of a bare `RuntimeError` with message `'access_denied'`.
+  Callers using `rescue CgminerApiClient::Error` or
+  `rescue StandardError` are unaffected; only code that specifically
+  pattern-matched on `RuntimeError` from a privileged command on an
+  unprivileged miner needs to update.
+- **`MinerPool#load_miners!`** now raises `CgminerApiClient::Error`
+  (was `RuntimeError`) when `config/miners.yml` is missing. Existing
+  `rescue StandardError` clauses still work.
+
+### Fixed
+- **`MinerPool` no longer silently defaults a miners.yml entry
+  missing `host` to `CgminerApiClient.default_host`.** A typo'd
+  config entry like `{port: 4028}` used to quietly produce a Miner
+  pointing at `127.0.0.1`; now raises
+  `CgminerApiClient::Error "config/miners.yml: entry N is missing 'host'"`
+  on `MinerPool.new`.
+
 ## [0.3.0] - 2026-04-07
 
 ### Removed

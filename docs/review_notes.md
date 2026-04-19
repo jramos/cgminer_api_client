@@ -43,21 +43,9 @@ Same code path (`response.gsub! '[,{', '[ {'`). Fires even more rarely than `}{`
 `MinerPool#method_missing` forwards to `query(name, *args)`, which returns a `PoolResult`. That means calling an unwrapped cgminer command on a `MinerPool` gives you a `PoolResult` whose `value`s are the raw `Hash` envelopes — the five convenience overrides (`summary`/`coin`/`config`/`version`/`check`) are the only paths that unwrap. This is correct and mentioned in `interfaces.md`, but a reader might expect `method_missing` to do something similar for every "looks like it returns one hash" command. It doesn't, and that's by design — the gem can't know the shape of an arbitrary cgminer command's response at call time.
 
 ### 6. No coverage of `config/miners.yml` path resolution edge cases
-`MinerPool.new` hard-codes `'config/miners.yml'` as a relative path. Docs mention it's relative to process CWD. Not discussed: behavior when the file exists but is malformed YAML, when it's an empty file, when it's an array with no entries (MinerPool with zero miners — `query` would return an empty `PoolResult`), or when a single entry is missing the required `host` key (`Miner.new(nil, ...)` falls back to `default_host`, but that's almost certainly not what the user wanted). These are real edge cases and the gem's behavior in each is determined by reading the code, not documented anywhere.
+`MinerPool.new` hard-codes `'config/miners.yml'` as a relative path. Docs mention it's relative to process CWD. Not discussed: behavior when the file exists but is malformed YAML, when it's an empty file, or when it's an array with no entries (MinerPool with zero miners — `query` would return an empty `PoolResult`). The "entry missing `host` key" case used to silently default to `CgminerApiClient.default_host` — that one is now handled and raises `CgminerApiClient::Error`.
 
-### 7. `Miner::Commands::Privileged#access_denied?` raises a bare `'access_denied'` string
-From `miner/commands.rb:189`:
-```ruby
-def access_denied?
-  raise 'access_denied' unless privileged
-  false
-end
-```
-This raises a `RuntimeError` whose message is literally `'access_denied'`. It's not a `CgminerApiClient::ApiError` or any other gem-specific class, so code that does `rescue CgminerApiClient::Error` won't catch it; only `rescue StandardError` or `rescue RuntimeError` will. This is a minor inconsistency with the rest of the error taxonomy but not worth fixing on its own.
-
-The docs don't dwell on this because it's an implementation detail rather than contract, but anyone writing new privileged commands should know: the rescue gate here is a `RuntimeError`, not the gem's custom hierarchy.
-
-### 8. `Miner#check_status` writes Info/Warning to stdout
+### 7. `Miner#check_status` writes Info/Warning to stdout
 `'I'` and `'W'` cgminer STATUS codes result in `puts "Info from API [..]: .."` / `puts "Warning..."`. That's library-code-writing-to-stdout, which slightly contradicts the "library never writes to stderr" posture stated in `architecture.md`. The claim is specifically about **stderr**; stdout for cgminer advisory messages is intended. Mentioned in `interfaces.md`, but the slight tension is worth flagging.
 
 ## Language and tooling limitations
@@ -71,12 +59,10 @@ The docs don't dwell on this because it's an implementation detail rather than c
 
 Low effort, high value:
 1. Add a test that exercises `MinerPool` with zero miners in `config/miners.yml` (confirms the "empty PoolResult" behavior).
-2. Add a test for `MinerPool#query` behavior when `config/miners.yml` is missing a `host` key.
-3. Document `access_denied?`'s rescue-gate behavior somewhere less deep than the source file — CHANGELOG or a code comment.
 
 Higher effort, might not be worth it:
-4. Decide whether the `}{` / `[,{` repair code paths should be kept (with a repro) or deleted (with a changelog note).
-5. Add a thread-safety section to the architecture docs if real-world users report the concurrent-query case.
+2. Decide whether the `}{` / `[,{` repair code paths should be kept (with a repro) or deleted (with a changelog note). A code comment now points to this decision, but the decision itself is still open.
+3. Add a thread-safety section to the architecture docs if real-world users report the concurrent-query case.
 
 ## How I validated
 

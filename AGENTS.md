@@ -227,11 +227,9 @@ These are real past-incident-shaped corners of the codebase. The CHANGELOG has t
 
 5. **The `}{` repair in `Miner#perform_request`** is legacy defensive code that may not fire on modern cgminer. Don't remove without a repro; don't "clean up" by adding tests that pass synthetic input — add a real-cgminer repro or leave it alone. See `spec/support/cgminer_fixtures.rb` for the commentary.
 
-6. **`access_denied?` raises a bare `'access_denied'` string** (a `RuntimeError` with that message), not a `CgminerApiClient::ApiError`. It's caught by `rescue StandardError`/`RuntimeError` but **not** by `rescue CgminerApiClient::Error`. This is inconsistent with the rest of the error hierarchy — worth knowing, not worth fixing on its own.
+6. **`config/miners.yml` is resolved relative to process CWD**, not gem install dir. Library consumers embedding `MinerPool` need to either align CWD or construct `Miner` instances directly. An entry missing `host` raises `CgminerApiClient::Error` immediately on `MinerPool.new`, so typos surface at construction time instead of silently connecting to `127.0.0.1`.
 
-7. **`config/miners.yml` is resolved relative to process CWD**, not gem install dir. Library consumers embedding `MinerPool` need to either align CWD or construct `Miner` instances directly.
-
-8. **Out-of-band git changes are normal.** Don't treat surprising git state (uncommitted changes you didn't make, etc.) as a tool malfunction — the maintainer makes changes outside the assistant session.
+7. **Out-of-band git changes are normal.** Don't treat surprising git state (uncommitted changes you didn't make, etc.) as a tool malfunction — the maintainer makes changes outside the assistant session.
 
 ## Release process
 
