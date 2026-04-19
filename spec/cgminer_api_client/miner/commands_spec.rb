@@ -188,10 +188,10 @@ describe CgminerApiClient::Miner::Commands do
           allow(instance).to receive(:privileged).and_return(false)
         end
 
-        it 'raises an error' do
+        it 'raises ApiError so it is caught by rescue CgminerApiClient::Error' do
           expect do
             instance.send(:access_denied?)
-          end.to raise_error('access_denied')
+          end.to raise_error(CgminerApiClient::ApiError, 'access denied')
         end
       end
 

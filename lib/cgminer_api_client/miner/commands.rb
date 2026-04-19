@@ -186,7 +186,7 @@ module CgminerApiClient
         private
 
         def access_denied?
-          raise 'access_denied' unless privileged
+          raise CgminerApiClient::ApiError, 'access denied' unless privileged
 
           false
         end
