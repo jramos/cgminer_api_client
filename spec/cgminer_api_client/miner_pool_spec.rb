@@ -251,10 +251,38 @@ describe CgminerApiClient::MinerPool do
           expect(File).to receive(:exist?).with('config/miners.yml').and_return(false)
         end
 
-        it 'raises an error' do
+        it 'raises CgminerApiClient::Error' do
           expect do
             instance
-          end.to raise_error(RuntimeError)
+          end.to raise_error(CgminerApiClient::Error, 'Please create config/miners.yml')
+        end
+      end
+
+      context 'with an entry missing host' do
+        before do
+          allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+          allow(YAML).to receive(:safe_load_file)
+            .with('config/miners.yml')
+            .and_return([{ 'host' => '10.0.0.1' }, { 'port' => 4028 }])
+        end
+
+        it 'raises CgminerApiClient::Error naming the offending index' do
+          expect { instance }.to raise_error(
+            CgminerApiClient::Error,
+            "config/miners.yml: entry 1 is missing 'host'"
+          )
+        end
+      end
+
+      context 'with a non-Hash entry' do
+        before do
+          allow(File).to receive(:exist?).with('config/miners.yml').and_return(true)
+          allow(YAML).to receive(:safe_load_file)
+            .with('config/miners.yml').and_return(['bogus'])
+        end
+
+        it 'raises CgminerApiClient::Error' do
+          expect { instance }.to raise_error(CgminerApiClient::Error)
         end
       end
 

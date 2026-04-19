@@ -99,14 +99,19 @@ module CgminerApiClient
     end
 
     def load_miners!
-      raise 'Please create config/miners.yml' unless File.exist?('config/miners.yml')
+      raise CgminerApiClient::Error, 'Please create config/miners.yml' unless File.exist?('config/miners.yml')
 
       miners_config = YAML.safe_load_file('config/miners.yml')
-      @miners = miners_config.collect do |miner|
+      @miners = miners_config.each_with_index.map do |entry, index|
+        unless entry.is_a?(Hash) && entry['host']
+          raise CgminerApiClient::Error,
+                "config/miners.yml: entry #{index} is missing 'host'"
+        end
+
         CgminerApiClient::Miner.new(
-          miner['host'],
-          miner['port'],
-          miner['timeout']
+          entry['host'],
+          entry['port'],
+          entry['timeout']
         )
       end
     end
