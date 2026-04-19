@@ -71,6 +71,10 @@ module CgminerApiClient
       response = s.read.strip.chars.map { |c| c.ord >= 32 ? c : format('\\u%04x', c.ord) }.join
       s.close
 
+      # Legacy defensive repair for malformed multi-object responses. We
+      # haven't reproduced a case where this actually fires on modern
+      # cgminer; see spec/support/cgminer_fixtures.rb for commentary.
+      # Keep in place until we can confirm it isn't needed on real traffic.
       response.gsub! '}{', '}, {'
       response.gsub! '[,{', '[ {'
 
