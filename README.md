@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/jramos/cgminer_api_client/actions/workflows/ci.yml/badge.svg)](https://github.com/jramos/cgminer_api_client/actions/workflows/ci.yml)
 
-A gem that allows sending API commands to a pool of [cgminer](https://github.com/ckolivas/cgminer) instances.
+A gem that allows sending API commands to a pool of [cgminer](https://github.com/ckolivas/cgminer) instances. Ships as both a Ruby library and a CLI (`cgminer_api_client <command>`). Zero runtime dependencies beyond the Ruby standard library.
 
 ## Requirements
 
@@ -131,11 +131,41 @@ distinct conditions, unlike in 0.2.x where they were conflated.
 pool.restart      # PoolResult of per-miner outcomes
 ```
 
+### Errors
+
+All gem-specific errors descend from `CgminerApiClient::Error < StandardError`:
+
+-   `CgminerApiClient::ConnectionError` — transport-level: the miner
+    was unreachable (DNS failure, connection refused, etc.).
+-   `CgminerApiClient::TimeoutError` — a `ConnectionError` subclass
+    for connect timeouts specifically.
+-   `CgminerApiClient::ApiError` — protocol-level: the miner answered
+    and returned a `STATUS=E`/`F` response.
+
+`rescue CgminerApiClient::Error` catches everything gem-specific.
+`rescue CgminerApiClient::ConnectionError` catches both generic
+transport failures and connect timeouts. A `MinerPool` query never
+raises per-miner errors — they land on the corresponding
+`MinerResult.failure` inside the returned `PoolResult`.
+
 ## CLI Usage
 
 API commands can be sent to your miner pool from the command line.
 
     $ cgminer_api_client <command> (<arguments>)
+
+### Exit Codes and Streams
+
+-   exit `0` — at least one miner's command succeeded.
+-   exit `1` — every miner failed, or a top-level exception bubbled up.
+-   exit `64` — unknown command or missing command argument (`EX_USAGE`).
+
+Per-miner responses are printed to stdout with a `host:port:` header.
+Per-miner errors are printed to stderr as
+`host:port: ErrorClass: message`. Set `DEBUG=1` to also print full
+backtraces for any top-level exception:
+
+    $ DEBUG=1 cgminer_api_client summary
 
 ### Commands & Arguments
 
@@ -200,6 +230,13 @@ The following privileged miner and pool commands are currently available:
 -   zero(which = 'All', full_summary = false)
 
 Any cgminer API commands not explictly defined above are implemented using `method_missing`. A complete list of available API commands and options can be found in the [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README).
+
+## Further Reading
+
+-   [`CHANGELOG.md`](CHANGELOG.md) — release history and the 0.2.x → 0.3.0 migration guide.
+-   [`AGENTS.md`](AGENTS.md) — context for AI coding assistants; also a useful conventions-and-extension guide for human contributors.
+-   [`docs/`](docs/) — topic-split deep dives on architecture, components, interfaces, data models, workflows, and dependencies. Start with [`docs/index.md`](docs/index.md).
+-   [cgminer API-README](https://github.com/ckolivas/cgminer/blob/master/API-README) — upstream documentation for the JSON API surface this gem wraps.
 
 ## Contributing
 
