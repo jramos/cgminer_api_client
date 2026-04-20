@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`-v` / `--verbose` flag on the `cgminer_api_client` CLI.** Logs the
+  JSON request and raw response to stderr, one line each, with a
+  `host:port` prefix so multi-miner fan-out output stays grep-able. The
+  formatted result still goes to stdout unchanged. Parsed via
+  `OptionParser#permute!`, so the flag works before or after the
+  command. Passwords in `addpool`, `setconfig`, `ascset`, and `pgaset`
+  are replaced with `[REDACTED]` in the log output (wire bytes are
+  unaffected).
+- **`on_wire:` kwarg on `Miner#initialize` and `MinerPool#initialize`.**
+  Library-level hook used by the CLI's `-v` flag. Accepts a Proc of
+  shape `(direction, host, port, payload)` where direction is
+  `:request`, `:response`, or `:response_repaired`. Default `nil` is a
+  no-op; library code does not write to stderr itself.
+
 ### Changed
 - **`Miner::Commands::Privileged#access_denied?`** now raises
   `CgminerApiClient::ApiError` with message `'access denied'`

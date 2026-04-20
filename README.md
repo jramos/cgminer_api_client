@@ -167,6 +167,18 @@ backtraces for any top-level exception:
 
     $ DEBUG=1 cgminer_api_client summary
 
+Pass `-v` / `--verbose` to log the JSON request and raw response to
+stderr for wire-level debugging. Each line carries a `host:port`
+prefix so fan-out across multiple miners stays grep-able:
+
+    $ cgminer_api_client -v summary
+    >>> 10.0.0.1:4028 {"command":"summary"}
+    <<< 10.0.0.1:4028 {"STATUS":[{"STATUS":"S",...}],"SUMMARY":[...]}
+
+Password-bearing arguments to `addpool`, `setconfig`, `ascset`, and
+`pgaset` are replaced with `[REDACTED]` in the log output (the real
+value is still sent on the wire).
+
 ### Commands & Arguments
 
 #### Read-Only
