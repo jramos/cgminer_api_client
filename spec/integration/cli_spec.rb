@@ -130,4 +130,78 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
       end
     end
   end
+
+  describe '-v / --verbose flag' do
+    it 'logs >>> / <<< lines with host:port prefix when -v precedes the command' do
+      FakeCgminer.with do |port|
+        stdout, stderr, status = run_cli(
+          ['-v', 'summary'],
+          miners: [{ host: '127.0.0.1', port: port }]
+        )
+
+        expect(status.exitstatus).to eq(0)
+        expect(stderr).to match(/^>>> 127\.0\.0\.1:#{port} \{"command":"summary"\}$/)
+        expect(stderr).to match(/^<<< 127\.0\.0\.1:#{port} .*SUMMARY/)
+        # The formatted result still lands on stdout unchanged.
+        expect(stdout).to include("127.0.0.1:#{port}:")
+        expect(stdout).to include('mhs_av')
+      end
+    end
+
+    it 'accepts --verbose as the long form' do
+      FakeCgminer.with do |port|
+        _stdout, stderr, status = run_cli(
+          ['--verbose', 'summary'],
+          miners: [{ host: '127.0.0.1', port: port }]
+        )
+
+        expect(status.exitstatus).to eq(0)
+        expect(stderr).to include('>>>')
+        expect(stderr).to include('<<<')
+      end
+    end
+
+    it 'permutes: the flag still works when it follows the command' do
+      FakeCgminer.with do |port|
+        _stdout, stderr, status = run_cli(
+          ['summary', '-v'],
+          miners: [{ host: '127.0.0.1', port: port }]
+        )
+
+        expect(status.exitstatus).to eq(0)
+        expect(stderr).to include(">>> 127.0.0.1:#{port}")
+      end
+    end
+
+    it 'is silent on stderr without the flag' do
+      FakeCgminer.with do |port|
+        _stdout, stderr, status = run_cli(
+          %w[summary],
+          miners: [{ host: '127.0.0.1', port: port }]
+        )
+
+        expect(status.exitstatus).to eq(0)
+        expect(stderr).not_to include('>>>')
+        expect(stderr).not_to include('<<<')
+      end
+    end
+
+    it 'prefixes each line with the originating miner so the fan-out is grep-able' do
+      FakeCgminer.with do |a_port|
+        FakeCgminer.with do |b_port|
+          _stdout, stderr, status = run_cli(
+            ['-v', 'summary'],
+            miners: [
+              { host: '127.0.0.1', port: a_port },
+              { host: '127.0.0.1', port: b_port }
+            ]
+          )
+
+          expect(status.exitstatus).to eq(0)
+          expect(stderr).to include(">>> 127.0.0.1:#{a_port}")
+          expect(stderr).to include(">>> 127.0.0.1:#{b_port}")
+        end
+      end
+    end
+  end
 end
