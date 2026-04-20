@@ -114,4 +114,37 @@ describe 'Miner integration with a fake cgminer server' do
         .to raise_error(CgminerApiClient::ConnectionError, /127\.0\.0\.1:#{closed_port}/)
     end
   end
+
+  describe 'wire-level traffic: redaction is log-only, never on the wire' do
+    # This spec is the safety net for a plausible regression: if some future
+    # refactor accidentally sends the loggable (redacted) request on the
+    # socket instead of the real one, every admin verb that ships a secret
+    # (addpool password, setconfig/ascset/pgaset values) would break in
+    # production while the unit specs for on_wire redaction stay green.
+    # Assert against FakeCgminer's on_request hook, which captures the raw
+    # bytes the server received.
+    it 'sends the unredacted password to cgminer even when on_wire redacts it' do
+      received = []
+      responses = {
+        'addpool' => CgminerFixtures::ADDPOOL_OK,
+        'privileged' => CgminerFixtures::PRIVILEGED_OK
+      }
+
+      FakeCgminer.with(responses: responses, on_request: ->(bytes) { received << bytes }) do |port|
+        logged = []
+        miner = CgminerApiClient::Miner.new('127.0.0.1', port, 2,
+                                            on_wire: ->(*args) { logged << args })
+        miner.query(:addpool, 'stratum+tcp://p:3333', 'user', 'hunter2')
+
+        addpool_request = received.find { |b| b.include?('addpool') }
+        expect(addpool_request).to include('hunter2')
+        expect(addpool_request).not_to include('[REDACTED]')
+
+        logged_request = logged.find { |dir, _h, _p, payload| dir == :request && payload.include?('addpool') }
+        logged_payload = logged_request[3]
+        expect(logged_payload).to include('[REDACTED]')
+        expect(logged_payload).not_to include('hunter2')
+      end
+    end
+  end
 end

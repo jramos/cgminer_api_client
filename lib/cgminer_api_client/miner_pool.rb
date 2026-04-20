@@ -6,7 +6,8 @@ module CgminerApiClient
 
     attr_accessor :miners
 
-    def initialize
+    def initialize(on_wire: nil)
+      @on_wire = on_wire
       load_miners!
     end
 
@@ -111,7 +112,8 @@ module CgminerApiClient
         CgminerApiClient::Miner.new(
           entry['host'],
           entry['port'],
-          entry['timeout']
+          entry['timeout'],
+          on_wire: @on_wire
         )
       end
     end

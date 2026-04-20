@@ -302,14 +302,14 @@ describe CgminerApiClient::MinerPool do
         it 'creates a Miner from each entry, passing host/port/timeout positionally' do
           allow(YAML).to receive(:safe_load_file)
             .with('config/miners.yml').and_return([miner_config])
-          expect(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout)
+          expect(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout, on_wire: nil)
           instance.send(:load_miners!)
         end
 
         it 'assigns the new Miner instances to @miners' do
           allow(YAML).to receive(:safe_load_file)
             .with('config/miners.yml').and_return([miner_config])
-          allow(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout).and_return(mock_miner)
+          allow(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout, on_wire: nil).and_return(mock_miner)
           instance.send(:load_miners!)
           expect(instance.miners).to eq [mock_miner]
         end
