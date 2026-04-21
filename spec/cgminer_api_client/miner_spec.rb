@@ -624,6 +624,55 @@ describe CgminerApiClient::Miner do
           expect { instance.query(:foo) }.not_to raise_error
         end
       end
+
+      context 'response-repair path (legacy }{ malformed response)' do
+        # The defensive gsub at miner.rb converts `}{` into `}, {` before
+        # JSON.parse. Construct a response whose post-repair shape parses
+        # as a Hash so query's non-plus branch can extract data[:foo]
+        # without exploding. We verify that :response_repaired fires with
+        # the rewritten bytes and that :response still carries the
+        # original bytes (operators must see what cgminer actually sent).
+        let(:malformed) { '{"foo":[{"a":1}{"b":2}]}' }
+
+        it 'emits :response_repaired with the post-repair payload' do
+          stub_wire(instance, malformed)
+          # check_status expects a hash with STATUS; the malformed
+          # fixture doesn't have that shape, so stub it out to keep this
+          # test focused on callback emission.
+          allow(instance).to receive(:check_status)
+
+          instance.query(:foo)
+
+          directions = calls.map(&:first)
+          expect(directions).to include(:response_repaired)
+
+          repaired = calls.find { |c| c[0] == :response_repaired }[3]
+          expect(repaired).to include('}, {')
+          expect(repaired).not_to include('}{')
+
+          response = calls.find { |c| c[0] == :response }[3]
+          expect(response).to include('}{')
+          expect(response).not_to include('}, {')
+        end
+      end
+
+      context 'response with control bytes' do
+        # perform_request escapes bytes < 0x20 as \uXXXX before JSON.parse.
+        # The :response callback must see the escaped form — operators
+        # shouldn't need a hex editor to read the log.
+        let(:raw_with_control) do
+          %({"STATUS":[{"STATUS":"S","Code":0,"Msg":"\x01ok","Description":"","When":0}],"foo":[{}],"id":1})
+        end
+
+        it 'emits :response with the control-byte-escaped payload, not raw bytes' do
+          stub_wire(instance, raw_with_control)
+          instance.query(:foo)
+
+          response = calls.find { |c| c[0] == :response }[3]
+          expect(response).to include('\\u0001')
+          expect(response).not_to include("\x01")
+        end
+      end
     end
 
     describe '#sanitized' do
