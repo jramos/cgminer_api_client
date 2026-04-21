@@ -10,12 +10,18 @@ require 'optparse'
 # permute! (rather than order!) lets a flag appear after the command —
 # `cgminer_api_client summary -v` works the same as `-v summary`.
 verbose = false
-OptionParser.new do |opts|
-  opts.banner = 'USAGE: cgminer_api_client [-v|--verbose] command (arguments)'
-  opts.on('-v', '--verbose', 'Log JSON request and raw response to stderr') do
-    verbose = true
-  end
-end.permute!(ARGV)
+begin
+  OptionParser.new do |opts|
+    opts.banner = 'USAGE: cgminer_api_client [-v|--verbose] command (arguments)'
+    opts.on('-v', '--verbose', 'Log JSON request and raw response to stderr') do
+      verbose = true
+    end
+  end.permute!(ARGV)
+rescue OptionParser::ParseError => e
+  warn "cgminer_api_client: #{e.message}"
+  warn 'USAGE: cgminer_api_client [-v|--verbose] command (arguments)'
+  exit 64 # EX_USAGE
+end
 
 command = ARGV.shift&.to_sym
 commands = CgminerApiClient::Miner::Commands.instance_methods
@@ -45,6 +51,10 @@ if verbose
     wire_mutex.synchronize do
       warn "#{wire_prefix[direction]} #{host}:#{port} #{payload}"
     end
+  rescue Errno::EPIPE, IOError
+    # stderr was closed mid-run (piped through a command that exited, etc.).
+    # Best-effort logging must not take down the query fan-out.
+    nil
   end
 end
 

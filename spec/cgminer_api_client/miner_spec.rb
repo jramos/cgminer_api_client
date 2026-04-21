@@ -609,6 +609,21 @@ describe CgminerApiClient::Miner do
           expect(calls).to be_empty
         end
       end
+
+      context 'when the on_wire callback raises' do
+        # on_wire is best-effort telemetry. A buggy callback (or a
+        # transient IO error like EPIPE when stderr is closed) must not
+        # break the real query path.
+        let(:instance) do
+          CgminerApiClient::Miner.new(host, port, timeout,
+                                      on_wire: ->(*) { raise 'boom' })
+        end
+
+        it 'swallows the exception and still returns the query result' do
+          stub_wire(instance, ok_response)
+          expect { instance.query(:foo) }.not_to raise_error
+        end
+      end
     end
 
     describe '#sanitized' do

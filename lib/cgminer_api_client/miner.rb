@@ -91,6 +91,17 @@ module CgminerApiClient
       redacted
     end
 
+    # on_wire is best-effort telemetry — a callback that raises must
+    # not break the real query path or leak the connection. Operators
+    # who suspect their callback is broken can remove -v to isolate.
+    def safe_on_wire(direction, payload)
+      return unless @on_wire
+
+      @on_wire.call(direction, @host, @port, payload)
+    rescue StandardError
+      nil
+    end
+
     def perform_request(request, loggable_request: request)
       begin
         s = open_socket(@host, @port, @timeout)
@@ -98,11 +109,11 @@ module CgminerApiClient
         raise ConnectionError, "Connection to #{@host}:#{@port} failed: #{e.class}: #{e.message}"
       end
 
-      @on_wire&.call(:request, @host, @port, loggable_request.to_json)
+      safe_on_wire(:request, loggable_request.to_json)
       s.write(request.to_json)
       response = s.read.strip.chars.map { |c| c.ord >= 32 ? c : format('\\u%04x', c.ord) }.join
       s.close
-      @on_wire&.call(:response, @host, @port, response)
+      safe_on_wire(:response, response)
 
       # Legacy defensive repair for malformed multi-object responses. We
       # haven't reproduced a case where this actually fires on modern
@@ -112,7 +123,7 @@ module CgminerApiClient
       # callback so a broken-looking JSON log isn't mysterious.
       repaired = response.gsub('}{', '}, {').gsub('[,{', '[ {')
       if repaired != response
-        @on_wire&.call(:response_repaired, @host, @port, repaired)
+        safe_on_wire(:response_repaired, repaired)
         response = repaired
       end
 

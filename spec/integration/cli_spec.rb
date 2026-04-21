@@ -204,4 +204,18 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
       end
     end
   end
+
+  describe 'unknown flag' do
+    it 'prints a usage message and exits 64 instead of a raw OptionParser backtrace' do
+      stdout, stderr, status = run_cli(
+        %w[-x summary],
+        miners: [{ host: '127.0.0.1', port: 4028 }]
+      )
+
+      expect(status.exitstatus).to eq(64)
+      expect(stdout).to eq('')
+      expect(stderr).to include('invalid option')
+      expect(stderr).to include('USAGE: cgminer_api_client')
+    end
+  end
 end
