@@ -5,20 +5,62 @@ $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib/")
 
 require 'cgminer_api_client'
 require 'pp'
+require 'optparse'
+
+# permute! (rather than order!) lets a flag appear after the command —
+# `cgminer_api_client summary -v` works the same as `-v summary`.
+verbose = false
+begin
+  OptionParser.new do |opts|
+    opts.banner = 'USAGE: cgminer_api_client [-v|--verbose] command (arguments)'
+    opts.on('-v', '--verbose', 'Log JSON request and raw response to stderr') do
+      verbose = true
+    end
+  end.permute!(ARGV)
+rescue OptionParser::ParseError => e
+  warn "cgminer_api_client: #{e.message}"
+  warn 'USAGE: cgminer_api_client [-v|--verbose] command (arguments)'
+  exit 64 # EX_USAGE
+end
 
 command = ARGV.shift&.to_sym
 commands = CgminerApiClient::Miner::Commands.instance_methods
 
 unless command && commands.include?(command)
-  warn 'USAGE: cgminer_api_client command (arguments)'
+  warn 'USAGE: cgminer_api_client [-v|--verbose] command (arguments)'
   warn "commands: #{commands.sort.join(', ')}"
   warn ''
   warn 'Set DEBUG=1 to see full backtraces on errors.'
   exit 64 # EX_USAGE
 end
 
+# `MinerPool` fans out across miners in separate threads; Ruby's
+# `warn` / `$stderr.write` is not atomic across threads for
+# arbitrary-length payloads, so multi-miner fan-out can interleave
+# mid-JSON without a mutex. The mutex also keeps a request/response
+# pair contiguous. The host:port prefix lets operators grep a single
+# miner out of the mixed stream.
+on_wire = nil
+if verbose
+  wire_mutex = Mutex.new
+  wire_prefix = {
+    request: '>>>',
+    response: '<<<',
+    response_repaired: '<<< (repaired)'
+  }.freeze
+  on_wire = lambda do |direction, host, port, payload|
+    wire_mutex.synchronize do
+      warn "#{wire_prefix[direction]} #{host}:#{port} #{payload}"
+    end
+  rescue Errno::EPIPE, IOError
+    # stderr was closed mid-run (piped through a command that exited, etc.).
+    # Best-effort logging must not take down the query fan-out.
+    nil
+  end
+end
+
 begin
-  pool = CgminerApiClient::MinerPool.new
+  pool = CgminerApiClient::MinerPool.new(on_wire: on_wire)
   result = ARGV.empty? ? pool.query(command) : pool.query(command, *ARGV)
 
   result.each do |r|

@@ -10,27 +10,29 @@ module CgminerApiClient
 
     attr_accessor :host, :port, :timeout
 
-    def initialize(host = nil, port = nil, timeout = nil)
+    # Positional parameters at these indices carry user-controlled values
+    # (pool passwords, setconfig values, ascset/pgaset option values)
+    # that should not appear verbatim in wire-logs. The wire request is
+    # never modified; only the copy passed to the on_wire callback is
+    # redacted. If a new privileged command is added that accepts a
+    # secret positional arg, register its index here.
+    REDACTED_PARAM_INDEX = {
+      addpool: 2,
+      setconfig: 1,
+      ascset: 2,
+      pgaset: 2
+    }.freeze
+
+    def initialize(host = nil, port = nil, timeout = nil, on_wire: nil)
       @host    = host    || CgminerApiClient.default_host
       @port    = port    || CgminerApiClient.default_port
       @timeout = timeout || CgminerApiClient.default_timeout
+      @on_wire = on_wire
     end
 
     def query(method, *params)
-      request = { command: method }
-
-      unless params.empty?
-        # cgminer uses comma to separate parameters, so any literal commas in
-        # parameter values must be backslash-escaped, and any literal
-        # backslashes must themselves be doubled. The block form of gsub is
-        # used so the replacement string isn't interpreted (in gsub's
-        # replacement-string syntax, '\\' means a single literal backslash,
-        # which makes the obvious gsub('\\', '\\\\') a silent no-op).
-        params = params.map { |p| p.to_s.gsub('\\') { '\\\\' }.gsub(',') { '\\,' } }
-        request[:parameter] = params.join(',')
-      end
-
-      response = perform_request(request)
+      request, loggable_request = build_requests(method, params)
+      response = perform_request(request, loggable_request: loggable_request)
       data = sanitized(response)
       method.to_s.match?('\+') ? data : data[method.to_sym]
     end
@@ -60,23 +62,72 @@ module CgminerApiClient
 
     private
 
-    def perform_request(request)
+    def build_requests(method, params)
+      return [{ command: method }, { command: method }] if params.empty?
+
+      escaped          = params.map { |p| escape_param(p) }
+      loggable_escaped = redact_params(method, params).map { |p| escape_param(p) }
+
+      [
+        { command: method, parameter: escaped.join(',') },
+        { command: method, parameter: loggable_escaped.join(',') }
+      ]
+    end
+
+    # cgminer uses comma to separate parameters, so any literal commas in
+    # parameter values must be backslash-escaped, and any literal
+    # backslashes must themselves be doubled. The block form of gsub is
+    # used so the replacement string isn't interpreted (in gsub's
+    # replacement-string syntax, '\\' means a single literal backslash,
+    # which makes the obvious gsub('\\', '\\\\') a silent no-op).
+    def escape_param(param)
+      param.to_s.gsub('\\') { '\\\\' }.gsub(',') { '\\,' }
+    end
+
+    def redact_params(method, params)
+      idx = REDACTED_PARAM_INDEX[method.to_sym]
+      return params unless idx && params[idx]
+
+      redacted = params.dup
+      redacted[idx] = '[REDACTED]'
+      redacted
+    end
+
+    # on_wire is best-effort telemetry — a callback that raises must
+    # not break the real query path or leak the connection. Operators
+    # who suspect their callback is broken can remove -v to isolate.
+    def safe_on_wire(direction, payload)
+      return unless @on_wire
+
+      @on_wire.call(direction, @host, @port, payload)
+    rescue StandardError
+      nil
+    end
+
+    def perform_request(request, loggable_request: request)
       begin
         s = open_socket(@host, @port, @timeout)
       rescue StandardError => e
         raise ConnectionError, "Connection to #{@host}:#{@port} failed: #{e.class}: #{e.message}"
       end
 
+      safe_on_wire(:request, loggable_request.to_json)
       s.write(request.to_json)
       response = s.read.strip.chars.map { |c| c.ord >= 32 ? c : format('\\u%04x', c.ord) }.join
       s.close
+      safe_on_wire(:response, response)
 
       # Legacy defensive repair for malformed multi-object responses. We
       # haven't reproduced a case where this actually fires on modern
       # cgminer; see spec/support/cgminer_fixtures.rb for commentary.
       # Keep in place until we can confirm it isn't needed on real traffic.
-      response.gsub! '}{', '}, {'
-      response.gsub! '[,{', '[ {'
+      # If the repair ever fires, emit an additional :response_repaired
+      # callback so a broken-looking JSON log isn't mysterious.
+      repaired = response.gsub('}{', '}, {').gsub('[,{', '[ {')
+      if repaired != response
+        safe_on_wire(:response_repaired, repaired)
+        response = repaired
+      end
 
       data = JSON.parse(response)
 

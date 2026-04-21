@@ -167,15 +167,18 @@ describe CgminerApiClient::Miner do
     context 'when perform_request succeeds' do
       context 'no parameters' do
         it 'performs a command request' do
-          expect(instance).to receive(:perform_request).with({ command: :foo }).and_return({ 'foo' => [] })
+          expect(instance).to receive(:perform_request)
+            .with({ command: :foo }, loggable_request: { command: :foo })
+            .and_return({ 'foo' => [] })
           instance.query(:foo)
         end
       end
 
       context 'parameters' do
         it 'joins plain parameters with commas' do
+          expected = { command: :foo, parameter: 'bar,123' }
           expect(instance).to receive(:perform_request)
-            .with({ command: :foo, parameter: 'bar,123' })
+            .with(expected, loggable_request: expected)
             .and_return({ 'foo' => [] })
           instance.query(:foo, :bar, 123)
         end
@@ -183,23 +186,26 @@ describe CgminerApiClient::Miner do
         it 'escapes literal backslashes by doubling them' do
           # Input: a single literal backslash. Expected output: two literal
           # backslashes. In single-quoted Ruby source `'\\\\'` is two `\`.
+          expected = { command: :foo, parameter: 'a\\\\b' }
           expect(instance).to receive(:perform_request)
-            .with({ command: :foo, parameter: 'a\\\\b' })
+            .with(expected, loggable_request: expected)
             .and_return({ 'foo' => [] })
           instance.query(:foo, "a\\b")
         end
 
         it 'escapes literal commas with a leading backslash' do
+          expected = { command: :foo, parameter: 'a\\,b' }
           expect(instance).to receive(:perform_request)
-            .with({ command: :foo, parameter: 'a\\,b' })
+            .with(expected, loggable_request: expected)
             .and_return({ 'foo' => [] })
           instance.query(:foo, 'a,b')
         end
 
         it 'escapes both backslashes and commas in the same parameter' do
           # Input: a\b,c → output: a\\b\,c
+          expected = { command: :foo, parameter: 'a\\\\b\\,c' }
           expect(instance).to receive(:perform_request)
-            .with({ command: :foo, parameter: 'a\\\\b\\,c' })
+            .with(expected, loggable_request: expected)
             .and_return({ 'foo' => [] })
           instance.query(:foo, "a\\b,c")
         end
@@ -486,6 +492,188 @@ describe CgminerApiClient::Miner do
           expect do
             instance.send(:check_status, mock_response)
           end.to raise_error(CgminerApiClient::ApiError, '23: Bad command')
+        end
+      end
+    end
+
+    describe 'on_wire callback' do
+      # Exercises the wire-log hook and the positional-arg redaction it
+      # relies on. The TCP socket is stubbed via stub_wire (open_socket
+      # returns a dummy); perform_request itself runs, so the callback
+      # emissions are exercised at their real call sites. The full
+      # socket round-trip has its own integration coverage.
+      let(:calls) { [] }
+      # The STATUS-S payload is the minimum shape check_status accepts
+      # without raising.
+      let(:ok_response) do
+        '{"STATUS":[{"STATUS":"S","Code":0,"Msg":"ok","Description":"","When":0}],' \
+          '"foo":[{}],"id":1}'
+      end
+      let(:on_wire) { ->(d, h, p, payload) { calls << [d, h, p, payload] } }
+      let(:instance) { CgminerApiClient::Miner.new(host, port, timeout, on_wire: on_wire) }
+
+      def stub_wire(miner, response)
+        socket = instance_double(TCPSocket)
+        allow(miner).to receive(:open_socket).and_return(socket)
+        allow(socket).to receive(:write)
+        allow(socket).to receive(:read).and_return(response)
+        allow(socket).to receive(:close)
+      end
+
+      context 'without redactable params' do
+        it 'emits :request and :response callbacks with the real payload' do
+          stub_wire(instance, ok_response)
+          instance.query(:foo)
+
+          expect(calls.length).to eq(2)
+          expect(calls[0]).to eq([:request,  host, port, '{"command":"foo"}'])
+          expect(calls[1]).to eq([:response, host, port, ok_response])
+        end
+      end
+
+      context 'addpool' do
+        it 'redacts the password (index 2) in the :request payload' do
+          stub_wire(instance, ok_response)
+          instance.query(:addpool, 'stratum+tcp://p:3333', 'user', 'hunter2')
+
+          request_payload = calls.find { |c| c[0] == :request }[3]
+          expect(request_payload).to include('[REDACTED]')
+          expect(request_payload).not_to include('hunter2')
+        end
+
+        it 'redacts when invoked via the Privileged::Pool#addpool convenience wrapper' do
+          # Pool#addpool calls access_denied? which calls privileged —
+          # that round-trip is orthogonal to the redaction we're
+          # testing, so stub it out.
+          allow(instance).to receive(:privileged).and_return(true)
+          stub_wire(instance, ok_response)
+          instance.addpool('stratum+tcp://p:3333', 'user', 'hunter2')
+
+          request_payload = calls.find { |c| c[0] == :request }[3]
+          expect(request_payload).to include('[REDACTED]')
+          expect(request_payload).not_to include('hunter2')
+        end
+      end
+
+      context 'setconfig' do
+        it 'redacts the value (index 1)' do
+          stub_wire(instance, ok_response)
+          instance.query(:setconfig, 'some-name', 'super-secret')
+
+          request_payload = calls.find { |c| c[0] == :request }[3]
+          expect(request_payload).to include('[REDACTED]')
+          expect(request_payload).not_to include('super-secret')
+        end
+      end
+
+      context 'ascset' do
+        it 'redacts the value (index 2)' do
+          stub_wire(instance, ok_response)
+          instance.query(:ascset, 0, 'opt', 'sensitive')
+
+          request_payload = calls.find { |c| c[0] == :request }[3]
+          expect(request_payload).to include('[REDACTED]')
+          expect(request_payload).not_to include('sensitive')
+        end
+      end
+
+      context 'pgaset' do
+        it 'redacts the value (index 2)' do
+          stub_wire(instance, ok_response)
+          instance.query(:pgaset, 0, 'opt', 'sensitive')
+
+          request_payload = calls.find { |c| c[0] == :request }[3]
+          expect(request_payload).to include('[REDACTED]')
+          expect(request_payload).not_to include('sensitive')
+        end
+      end
+
+      context 'escape semantics under redaction' do
+        it 'still comma-escapes a non-redacted param that contains a comma' do
+          stub_wire(instance, ok_response)
+          instance.query(:addpool, 'stratum+tcp://p:3333', 'u,ser', 'pass')
+
+          request_payload = calls.find { |c| c[0] == :request }[3]
+          # user "u,ser" must be escaped as "u\,ser" in the parameter
+          # string so cgminer parses it as a single parameter. In the
+          # JSON-serialized payload that backslash is JSON-escaped, so
+          # the raw bytes contain two backslashes before the comma.
+          expect(request_payload).to include('u\\\\,ser')
+          expect(request_payload).to include('[REDACTED]')
+        end
+      end
+
+      context 'when on_wire is nil (default)' do
+        let(:instance) { CgminerApiClient::Miner.new(host, port, timeout) }
+
+        it 'does not invoke any callback and returns normally' do
+          stub_wire(instance, ok_response)
+          expect { instance.query(:foo) }.not_to raise_error
+          expect(calls).to be_empty
+        end
+      end
+
+      context 'when the on_wire callback raises' do
+        # on_wire is best-effort telemetry. A buggy callback (or a
+        # transient IO error like EPIPE when stderr is closed) must not
+        # break the real query path.
+        let(:instance) do
+          CgminerApiClient::Miner.new(host, port, timeout,
+                                      on_wire: ->(*) { raise 'boom' })
+        end
+
+        it 'swallows the exception and still returns the query result' do
+          stub_wire(instance, ok_response)
+          expect { instance.query(:foo) }.not_to raise_error
+        end
+      end
+
+      context 'response-repair path (legacy }{ malformed response)' do
+        # The defensive gsub at miner.rb converts `}{` into `}, {` before
+        # JSON.parse. Construct a response whose post-repair shape parses
+        # as a Hash so query's non-plus branch can extract data[:foo]
+        # without exploding. We verify that :response_repaired fires with
+        # the rewritten bytes and that :response still carries the
+        # original bytes (operators must see what cgminer actually sent).
+        let(:malformed) { '{"foo":[{"a":1}{"b":2}]}' }
+
+        it 'emits :response_repaired with the post-repair payload' do
+          stub_wire(instance, malformed)
+          # check_status expects a hash with STATUS; the malformed
+          # fixture doesn't have that shape, so stub it out to keep this
+          # test focused on callback emission.
+          allow(instance).to receive(:check_status)
+
+          instance.query(:foo)
+
+          directions = calls.map(&:first)
+          expect(directions).to include(:response_repaired)
+
+          repaired = calls.find { |c| c[0] == :response_repaired }[3]
+          expect(repaired).to include('}, {')
+          expect(repaired).not_to include('}{')
+
+          response = calls.find { |c| c[0] == :response }[3]
+          expect(response).to include('}{')
+          expect(response).not_to include('}, {')
+        end
+      end
+
+      context 'response with control bytes' do
+        # perform_request escapes bytes < 0x20 as \uXXXX before JSON.parse.
+        # The :response callback must see the escaped form — operators
+        # shouldn't need a hex editor to read the log.
+        let(:raw_with_control) do
+          %({"STATUS":[{"STATUS":"S","Code":0,"Msg":"\x01ok","Description":"","When":0}],"foo":[{}],"id":1})
+        end
+
+        it 'emits :response with the control-byte-escaped payload, not raw bytes' do
+          stub_wire(instance, raw_with_control)
+          instance.query(:foo)
+
+          response = calls.find { |c| c[0] == :response }[3]
+          expect(response).to include('\\u0001')
+          expect(response).not_to include("\x01")
         end
       end
     end

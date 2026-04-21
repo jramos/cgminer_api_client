@@ -302,16 +302,29 @@ describe CgminerApiClient::MinerPool do
         it 'creates a Miner from each entry, passing host/port/timeout positionally' do
           allow(YAML).to receive(:safe_load_file)
             .with('config/miners.yml').and_return([miner_config])
-          expect(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout)
+          expect(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout, on_wire: nil)
           instance.send(:load_miners!)
         end
 
         it 'assigns the new Miner instances to @miners' do
           allow(YAML).to receive(:safe_load_file)
             .with('config/miners.yml').and_return([miner_config])
-          allow(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout).and_return(mock_miner)
+          allow(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout, on_wire: nil).and_return(mock_miner)
           instance.send(:load_miners!)
           expect(instance.miners).to eq [mock_miner]
+        end
+
+        it 'threads a non-nil on_wire callback through as the same Proc' do
+          # The CLI builds one mutex-wrapped lambda and expects every
+          # Miner in the pool to share it so the mutex serializes
+          # writes across miners. If the pool ever wraps or dup'd the
+          # callback per miner, the mutex would lose its pool-wide
+          # scope and multi-miner logs could tear mid-line.
+          callback = ->(*) {}
+          allow(YAML).to receive(:safe_load_file)
+            .with('config/miners.yml').and_return([miner_config])
+          expect(CgminerApiClient::Miner).to receive(:new).with(host, port, timeout, on_wire: callback)
+          CgminerApiClient::MinerPool.new(on_wire: callback)
         end
       end
     end
