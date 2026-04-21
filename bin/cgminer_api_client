@@ -34,11 +34,12 @@ unless command && commands.include?(command)
   exit 64 # EX_USAGE
 end
 
-# `MinerPool` fans out across miners in separate threads; wrap the
-# stderr writes in a mutex so a request/response pair stays contiguous
-# and lines longer than PIPE_BUF (4 KiB on Linux, 512 B on macOS) can't
-# interleave mid-JSON. The host:port prefix lets operators grep a
-# single miner out of the mixed stream.
+# `MinerPool` fans out across miners in separate threads; Ruby's
+# `warn` / `$stderr.write` is not atomic across threads for
+# arbitrary-length payloads, so multi-miner fan-out can interleave
+# mid-JSON without a mutex. The mutex also keeps a request/response
+# pair contiguous. The host:port prefix lets operators grep a single
+# miner out of the mixed stream.
 on_wire = nil
 if verbose
   wire_mutex = Mutex.new

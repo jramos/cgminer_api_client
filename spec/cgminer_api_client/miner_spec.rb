@@ -498,9 +498,10 @@ describe CgminerApiClient::Miner do
 
     describe 'on_wire callback' do
       # Exercises the wire-log hook and the positional-arg redaction it
-      # relies on. perform_request is stubbed because the focus here is
-      # "did Miner invoke on_wire with the right payload"; the TCP
-      # round-trip has its own integration coverage.
+      # relies on. The TCP socket is stubbed via stub_wire (open_socket
+      # returns a dummy); perform_request itself runs, so the callback
+      # emissions are exercised at their real call sites. The full
+      # socket round-trip has its own integration coverage.
       let(:calls) { [] }
       # The STATUS-S payload is the minimum shape check_status accepts
       # without raising.
@@ -540,9 +541,11 @@ describe CgminerApiClient::Miner do
           expect(request_payload).not_to include('hunter2')
         end
 
-        it 'redacts when invoked via method_missing sugar' do
-          allow(instance).to receive(:privileged).and_return(true) # skip the
-          # access_denied? round-trip; we want the query call path only.
+        it 'redacts when invoked via the Privileged::Pool#addpool convenience wrapper' do
+          # Pool#addpool calls access_denied? which calls privileged —
+          # that round-trip is orthogonal to the redaction we're
+          # testing, so stub it out.
+          allow(instance).to receive(:privileged).and_return(true)
           stub_wire(instance, ok_response)
           instance.addpool('stratum+tcp://p:3333', 'user', 'hunter2')
 

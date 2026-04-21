@@ -11,9 +11,11 @@ module CgminerApiClient
     attr_accessor :host, :port, :timeout
 
     # Positional parameters at these indices carry user-controlled values
-    # (pool passwords, setconfig values, asc/pga options) that should not
-    # appear verbatim in wire-logs. The wire request is never modified;
-    # only the copy passed to the on_wire callback is redacted.
+    # (pool passwords, setconfig values, ascset/pgaset option values)
+    # that should not appear verbatim in wire-logs. The wire request is
+    # never modified; only the copy passed to the on_wire callback is
+    # redacted. If a new privileged command is added that accepts a
+    # secret positional arg, register its index here.
     REDACTED_PARAM_INDEX = {
       addpool: 2,
       setconfig: 1,
