@@ -61,7 +61,7 @@ Indirect deps (from lockfile): `ast`, `diff-lcs`, `docile`, `json`, `language_se
 - **Matrix:** 3.2, 3.3, 3.4, 4.0 (required), and `head` (allowed to fail as an early-warning signal).
 - **Caching:** `ruby/setup-ruby@v1` with `bundler-cache: true` for gem caching.
 
-Travis CI (`.travis.yml`) and WhiteSource Bolt (`.whitesource`) were removed in 0.3.0. If SCA is wanted later, add Dependabot via `.github/dependabot.yml` — the 0.3.0 changelog flags this as the intended path.
+Travis CI (`.travis.yml`) and WhiteSource Bolt (`.whitesource`) were removed in 0.3.0; SCA is now handled by Dependabot (`.github/dependabot.yml`, see "Dependency update strategy" below).
 
 ## Ruby version support
 
@@ -80,6 +80,8 @@ Travis CI (`.travis.yml`) and WhiteSource Bolt (`.whitesource`) were removed in 
 
 ## Dependency update strategy
 
-The gem has no Dependabot or Renovate configured. Manual dep bumps happen as part of release work. Minimum version constraints in the Gemfile are intentionally set a floor-or-above (`rake >= 13.2`, `rspec >= 3.13`, etc.) so Bundler resolves recent versions without over-constraining.
+Dependency bumps arrive automatically via Dependabot (see `.github/dependabot.yml`). Weekly runs open PRs for Bundler and GitHub Actions updates, capped at 3 open PRs per ecosystem. PRs target the `develop` branch and use `versioning-strategy: lockfile-only` — Gemfile.lock moves forward automatically, but Gemfile / gemspec `~>` bounds are never auto-widened. A human widens bounds intentionally when they're ready to adopt a new major/minor line.
+
+Minimum version constraints in the Gemfile are intentionally set as a floor-or-above (`rake >= 13.2`, `rspec >= 3.13`, etc.) so Bundler resolves recent versions without over-constraining.
 
 The gem's own consumers should treat `cgminer_api_client` as a zero-transitive-footprint dep — installing it adds exactly one gem to their lockfile.
