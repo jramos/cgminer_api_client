@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`bundle-audit` in CI** (`.github/workflows/ci.yml`). New `audit`
+  job runs `bundle exec bundle-audit check --update` on every push
+  and PR, gating merges on known CVEs in `Gemfile.lock`. Advisory
+  DB is refreshed on each run from `rubysec/ruby-advisory-db`. Also
+  available locally as `bundle exec rake audit`.
 - **Dependabot config** (`.github/dependabot.yml`). Weekly bump PRs
   for Bundler and GitHub Actions, with `open-pull-requests-limit: 3`
   per ecosystem. `versioning-strategy: lockfile-only` on bundler, so
