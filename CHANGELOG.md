@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Dependabot config** (`.github/dependabot.yml`). Weekly bump PRs
+  for Bundler and GitHub Actions, with `open-pull-requests-limit: 3`
+  per ecosystem. `versioning-strategy: lockfile-only` on bundler, so
+  Gemfile / gemspec constraints are never auto-widened — humans
+  widen `~>` bounds intentionally. Targets `develop` so bumps flow
+  through the normal release cycle alongside feature work.
 - **`-v` / `--verbose` flag on the `cgminer_api_client` CLI.** Logs the
   JSON request and raw response to stderr, one line each, with a
   `host:port` prefix so multi-miner fan-out output stays grep-able. The
