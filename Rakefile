@@ -12,3 +12,8 @@ task default: %i[spec rubocop]
 
 desc 'Alias for spec'
 task test: :spec
+
+desc 'Check Gemfile.lock against the ruby-advisory-db for known CVEs'
+task :audit do
+  sh 'bundle exec bundle-audit check --update'
+end

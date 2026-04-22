@@ -33,3 +33,18 @@ jobs:
 
       - name: Run tests and lint
         run: bundle exec rake
+
+  audit:
+    name: bundle-audit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - name: Run bundle-audit
+        run: bundle exec bundle-audit check --update
