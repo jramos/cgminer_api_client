@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`docs/logging.md`** — short stub stating that `cgminer_api_client`
+  is intentionally silent: no `Logger` module, no structured log
+  events. The library raises on failure and returns result objects
+  on success; callers (`cgminer_monitor`, `cgminer_manager`, the
+  operator CLIs) own the log call sites. Points at
+  `cgminer_monitor/docs/log_schema.md` for the cross-repo schema
+  contract and names the events (`poll.miner_failed`,
+  `poll.unexpected_error`) that surface api_client exception classes.
 - **`bundle-audit` in CI** (`.github/workflows/ci.yml`). New `audit`
   job runs `bundle exec bundle-audit check --update` on every push
   and PR, gating merges on known CVEs in `Gemfile.lock`. Advisory
