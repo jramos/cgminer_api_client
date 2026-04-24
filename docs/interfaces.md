@@ -33,12 +33,17 @@ miner = CgminerApiClient::Miner.new('10.0.0.5')
 miner = CgminerApiClient::Miner.new('10.0.0.5', 4028)
 miner = CgminerApiClient::Miner.new('10.0.0.5', 4028, 3)
 
+# Optional on_wire callback for telemetry (see Logging section below)
+miner = CgminerApiClient::Miner.new('10.0.0.5', on_wire: ->(dir, host, port, payload) {
+  warn "#{dir} #{host}:#{port} #{payload}"
+})
+
 miner.host       # "10.0.0.5"
 miner.port       # 4028
 miner.timeout    # 3
 ```
 
-Any of the three constructor args can be omitted/nil; the corresponding `CgminerApiClient.default_*` value is used.
+Any of the three positional args can be omitted/nil; the corresponding `CgminerApiClient.default_*` value is used. `on_wire:` is optional; when omitted, no wire telemetry is emitted.
 
 **Commands (all return the parsed, sanitized response on success; raise `ConnectionError` on transport failure, `ApiError` on cgminer rejection):**
 
@@ -112,9 +117,12 @@ miner.respond_to?(:_dump)               # false (_* is carved out)
 
 ```ruby
 pool = CgminerApiClient::MinerPool.new       # reads ./config/miners.yml
+pool = CgminerApiClient::MinerPool.new(on_wire: my_callback)  # telemetry hook
 pool.miners                                  # Array<Miner> in config order
 pool.reload_miners!                          # re-read config/miners.yml
 ```
+
+`MinerPool.new` accepts a single `on_wire:` keyword arg; the same callback is forwarded into each `Miner` it constructs, so every per-miner request/response fires through one hook. See the Logging section below.
 
 **Commands (same surface as `Miner`; all return a `PoolResult` of `MinerResult`s):**
 
@@ -206,6 +214,14 @@ Invocation happens from a directory containing `config/miners.yml`. The CLI read
 
 Library code never writes to stderr. The CLI owns that channel. Existing shell pipelines capturing stdout get clean output even when some miners fail.
 
+### Flags
+
+| Flag | Purpose |
+|---|---|
+| `-v` / `--verbose` | Print each outbound request (JSON) and inbound response (raw string, pre-parse) to stderr prefixed with direction (`>>>`, `<<<`, or `<<< (repaired)` for the legacy `}{`-repair path) and `host:port`. Operator-facing diagnostic output, not a parse-able contract. Writes are mutex-serialized so interleaved per-miner lines don't tear. |
+
+Place the flag before the command: `cgminer_api_client -v summary`.
+
 ### Environment variables
 
 - `DEBUG=1` — on a top-level (unhandled) exception, also print the full backtrace via `Exception#full_message(highlight: false)` to stderr.
@@ -234,6 +250,10 @@ Set DEBUG=1 to see full backtraces on errors.
 $ DEBUG=1 cgminer_api_client summary
 # ... same output plus full backtrace on any unhandled exception
 ```
+
+### Logging and telemetry
+
+The CLI is the only surface that writes diagnostic lines to stderr; the library is silent by design. See [`docs/logging.md`](logging.md) for the full posture, the event names sibling gems (`cgminer_monitor`, `cgminer_manager`) use when they log api_client outcomes, and how the `on_wire:` library hook compares to the CLI's `-v` flag (same mechanism — the CLI installs a default `on_wire` that writes to stderr).
 
 ## 3. `config/miners.yml` schema
 
