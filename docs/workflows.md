@@ -24,10 +24,15 @@ sequenceDiagram
         SWT--xMiner: SocketError / SystemCallError
         Miner--xCaller: ConnectionError (re-wrapped)
     end
+    Miner->>Miner: safe_on_wire(:request, request.to_json) — fires on_wire: if set
     Miner->>cgminer: write(request.to_json)
     cgminer-->>Miner: JSON response + EOF
+    Miner->>Miner: safe_on_wire(:response, raw_response) — fires on_wire: if set
     Miner->>Miner: re-escape control bytes < 0x20
     Miner->>Miner: gsub repairs for '}{' & '[,{'
+    opt '}{' repair ran
+        Miner->>Miner: safe_on_wire(:response_repaired, repaired)
+    end
     Miner->>Miner: JSON.parse(response)
     Miner->>Miner: check_status(data) — raise ApiError on E/F
     Miner->>Miner: sanitized(data) — keys lowercased + symbolized
@@ -39,6 +44,7 @@ sequenceDiagram
 - No connection reuse. Every call opens and closes a fresh socket.
 - Read-to-EOF pattern. Server closing the socket is what signals "response complete."
 - `Miner#query` only raises `ConnectionError` or `ApiError` (or a bug like `ArgumentError` if misused); cgminer `STATUS=I`/`STATUS=W` just print a line and continue.
+- `safe_on_wire` is a no-op when `on_wire:` wasn't passed to `Miner.new`; when it was, any exception the callback raises is swallowed so a buggy logger can't break a query. See `docs/logging.md` for the full posture and the CLI's `-v`/`--verbose` flag, which is implemented by installing a default `on_wire` callback.
 
 ## 2. Parallel pool request flow (`MinerPool#query`)
 

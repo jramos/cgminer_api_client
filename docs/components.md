@@ -81,7 +81,9 @@ Mixed into `Miner`. The switch from `IO.select(nil, [socket], nil, timeout)` to 
 ### `CgminerApiClient::Miner`
 **File:** `lib/cgminer_api_client/miner.rb`
 
-Per-host client. Carries `host`, `port`, `timeout`. Public surface:
+Per-host client. Carries `host`, `port`, `timeout`. Constructor: `Miner.new(host = nil, port = nil, timeout = nil, on_wire: nil)` — positional args fall back to `CgminerApiClient.default_*`; `on_wire:` is an optional telemetry callback (see below).
+
+Public surface:
 
 - `query(method, *params)` — marshal request, send, parse, dispatch `check_status`, return sanitized data. Raises `ConnectionError` on transport failure, `ApiError` on cgminer-reported error.
 - `available?` — true reachability probe. Opens a fresh socket every call (no cache). Returns `false` on `SocketError`/`SystemCallError`/`TimeoutError`; lets other exceptions propagate. Does **not** perform an API handshake.
@@ -89,7 +91,7 @@ Per-host client. Carries `host`, `port`, `timeout`. Public surface:
 - `method_missing` forwards unknown names to `query`.
 - `respond_to_missing?` says yes for any name that isn't `to_*`/`_*`.
 
-Private methods: `perform_request` (socket write/read/JSON parse, plus control-byte re-escape and `}{` repair), `check_status` (STATUS code dispatch), `sanitized` (recursive key normalization).
+Private methods: `perform_request` (socket write/read/JSON parse, plus control-byte re-escape and `}{` repair), `check_status` (STATUS code dispatch), `sanitized` (recursive key normalization), `safe_on_wire` (invokes the `on_wire:` callback if present; swallows any exception the block raises so a buggy logger cannot break a query). `safe_on_wire` fires three directions: `:request` (outbound JSON), `:response` (raw inbound string, pre-parse), `:response_repaired` (only when the `}{` repair path actually runs — rare against modern cgminer).
 
 ### `CgminerApiClient::Miner::Commands` (module)
 **File:** `lib/cgminer_api_client/miner/commands.rb`
@@ -111,7 +113,7 @@ Both `Miner` and `MinerPool` `include Miner::Commands`. The `Commands` methods o
 ### `CgminerApiClient::MinerPool`
 **File:** `lib/cgminer_api_client/miner_pool.rb`
 
-Parallel fan-out wrapper. Loads `config/miners.yml` on construction (via `load_miners!`, using `YAML.safe_load_file`) and builds one `Miner` per entry.
+Parallel fan-out wrapper. Constructor: `MinerPool.new(on_wire: nil)` — optional `on_wire:` callback is forwarded verbatim into every `Miner` the pool constructs, so one hook covers the whole fan-out. Loads `config/miners.yml` on construction (via `load_miners!`, using `YAML.safe_load_file`) and builds one `Miner` per entry.
 
 Public surface:
 
@@ -160,7 +162,7 @@ end
 ### `bin/cgminer_api_client`
 **File:** `bin/cgminer_api_client` (42 lines, shebang + executable)
 
-Thin driver. Validates command name against `Miner::Commands.instance_methods`, builds a `MinerPool`, runs `pool.query`, prints per-miner output, exits. See [architecture.md](architecture.md#what-the-cli-adds-on-top) and [workflows.md](workflows.md#cli-request-flow) for details.
+Thin driver. Validates command name against `Miner::Commands.instance_methods`, builds a `MinerPool`, runs `pool.query`, prints per-miner output, exits. Accepts a `-v`/`--verbose` flag that installs a default `on_wire:` callback into the `MinerPool` it builds — the callback writes each direction (`>>>` request, `<<<` response, `<<< (repaired)` for the `}{` path) to stderr under a `Mutex` so interleaved per-miner lines don't tear, and rescues `Errno::EPIPE` / `IOError` so stderr closure mid-run doesn't break the query fan-out. See [architecture.md](architecture.md#what-the-cli-adds-on-top), [workflows.md](workflows.md#cli-request-flow), and [logging.md](logging.md) for details.
 
 ## Test-only components (not packaged in the gem)
 
