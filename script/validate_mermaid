@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Lint every ```mermaid block under docs/ by feeding it to
+# @mermaid-js/mermaid-cli via npx. Exits non-zero on any parse error.
+#
+# Requires: node >= 18 and npx on PATH. First run downloads Puppeteer
+# + Chromium into ~/.npm/_npx (~300 MB, cached after).
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+echo '{"args":["--no-sandbox"]}' > "$tmp/puppeteer.json"
+
+for md in docs/*.md; do
+  base=$(basename "$md" .md)
+  awk -v t="$tmp" -v b="$base" '
+    BEGIN {n = 0}
+    /^```mermaid$/ {capture = 1; n++; f = sprintf("%s/%s__%d.mmd", t, b, n); next}
+    /^```$/ && capture {capture = 0; next}
+    capture {print > f}
+  ' "$md"
+done
+
+total=0
+fail=0
+for mmd in "$tmp"/*.mmd; do
+  [ -e "$mmd" ] || continue
+  total=$((total + 1))
+  if ! npx -y @mermaid-js/mermaid-cli -p "$tmp/puppeteer.json" \
+       -i "$mmd" -o "${mmd%.mmd}.svg" >/dev/null 2>&1; then
+    echo "FAIL: $(basename "$mmd")"
+    npx -y @mermaid-js/mermaid-cli -p "$tmp/puppeteer.json" \
+      -i "$mmd" -o /dev/null 2>&1 | grep -E "Parse|Lexical" | head -2 | sed 's/^/  /'
+    fail=$((fail + 1))
+  fi
+done
+
+echo "$((total - fail)) passed, $fail failed (of $total blocks)"
+exit $fail
