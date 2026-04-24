@@ -25,7 +25,9 @@ A pure-Ruby client for the [cgminer](https://github.com/ckolivas/cgminer) JSON-o
 
 **Stack:** Ruby 3.2+ only. Zero runtime dependencies beyond Ruby stdlib (`json`, `socket`, `yaml`, `pp`). Dev deps are `rspec`, `rubocop` (+ `-rake` and `-rspec`), `rake`, `simplecov`.
 
-**Footprint:** ~650 SLOC in `lib/`, ~1500 SLOC in `spec/`. Small, deliberately simple.
+**Footprint:** ~510 SLOC in `lib/`, ~3000 SLOC in `spec/`. Small, deliberately simple.
+
+**Logging posture:** silent-by-design — the library has no `Logger` module and emits no structured events. Callers (monitor, manager, CLI) own log call sites. For telemetry during debugging there's a CLI `-v`/`--verbose` flag (prints requests + responses to stderr, operator-facing, not a parse-able contract) and a library-level `on_wire:` callback kwarg on both `Miner.new` and `MinerPool.new` (a `proc.(direction, host, port, payload)` that fires on each request / response / response-repaired event). See [`docs/logging.md`](docs/logging.md) for the full story and for how sibling gems log api_client outcomes.
 
 ## Repo layout
 
@@ -84,6 +86,7 @@ Lib ─┼──> MinerPool ──(parallel threads)──> Miner ──> socket
 3. **`MinerPool#query` always returns a `PoolResult`** — an Enumerable of per-miner `MinerResult` instances in pool order. Successes and failures are both captured structurally; `MinerPool#query` never raises on a single-miner failure.
 4. **`Miner#query` raises on failure:** `ConnectionError` for transport-level problems, `ApiError` for cgminer `STATUS=E`/`F` responses. `TimeoutError < ConnectionError` for connect timeouts specifically.
 5. **Library code never writes to stderr.** The CLI owns that channel. `Miner#check_status` does `puts` on cgminer `STATUS=I`/`W` to stdout, which is by design (cgminer advisory messages).
+6. **`on_wire:` is best-effort telemetry, not a hard contract.** The callback is invoked from `safe_on_wire` which swallows any exception raised by the block — a buggy logger must not break the miner query. Three directions: `:request` (outbound JSON), `:response` (raw inbound string, pre-parse), `:response_repaired` (the rare `}{` legacy-repair path). The CLI's `-v` flag is implemented by installing a default `on_wire` that writes formatted lines to stderr.
 
 ## Conventions that matter when editing code
 
@@ -165,6 +168,7 @@ bundle exec rubocop -A                   # lint + auto-correct (review diffs!)
 # terminal 2
 cp config/miners.yml.example config/miners.yml
 bundle exec bin/cgminer_api_client summary
+bundle exec bin/cgminer_api_client -v summary   # verbose: echo request + response to stderr
 ```
 
 ## Adding a new cgminer command wrapper
@@ -262,6 +266,7 @@ The `.gem` artifact shouldn't be committed to the repo, but one is present at th
 | What's in a `MinerResult` / `PoolResult`? What errors can be raised? | [`docs/data_models.md`](docs/data_models.md) |
 | How does a request flow through the code? Parallel fan-out? CLI? | [`docs/workflows.md`](docs/workflows.md) |
 | Runtime deps? Why Ruby 3.2+? | [`docs/dependencies.md`](docs/dependencies.md) |
+| Logging posture: silent-by-design, CLI `-v`/`--verbose`, library `on_wire:` callback, how callers log outcomes | [`docs/logging.md`](docs/logging.md) |
 | Known doc/code drift, caveats, things I'm not sure about | [`docs/review_notes.md`](docs/review_notes.md) |
 | Full knowledge-base index | [`docs/index.md`](docs/index.md) |
 | User-facing docs | [`README.md`](README.md) |
