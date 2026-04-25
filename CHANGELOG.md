@@ -8,23 +8,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`CgminerApiClient::AccessDeniedError`**, a subclass of `ApiError`
+  for the most commonly dispatched-on case (cgminer Code 45 + the
+  `access_denied?` local guard). Inherits from `ApiError` so existing
+  `rescue ApiError` clauses still catch it; callers wanting finer
+  dispatch use `rescue AccessDeniedError`. Constructor pins
+  `code: :access_denied` so the symbolic tag is consistent. The
+  wire-side `Miner#check_status` delegates to a new factory
+  `ApiError.for_status(c, msg)` that picks the right subclass
+  based on the integer Code.
 - **Structured error codes on `CgminerApiClient::ApiError`.** Two new
   reader methods alongside the existing `#message`:
   `#cgminer_code` (the integer Code from cgminer's STATUS hash —
-  e.g., `45` for access denied — or `nil` for errors raised before
-  any wire interaction) and `#code` (a symbolic tag derived from
-  the integer via `ApiError::CGMINER_CODES`, falling back to
-  `:unknown` for codes not in the map). Callers can now
-  `case e.code; when :access_denied; ...` instead of parsing
-  English error strings. The map is intentionally conservative —
-  `14 → :invalid_command`, `45 → :access_denied`, the two codes
-  the test suite has observed against real cgminer 4.11.1 fixtures.
+  e.g., `45` for access denied — or `nil` if the wire integer was
+  discarded, as happens when the `access_denied?` local guard's
+  call to `privileged` hits the wire and the rescue inside
+  `privileged` drops the integer before re-raising) and `#code`
+  (a symbolic tag derived from the integer via
+  `ApiError::CGMINER_CODES`, falling back to `:unknown` for codes
+  not in the map). Callers can now `case e.code; when :access_denied`
+  instead of parsing English error strings. **Prefer `e.code` for
+  dispatch over `e.cgminer_code`** — `cgminer_code` can be nil even
+  when the symbolic tag is set. The map is intentionally
+  conservative — `14 → :invalid_command`, `45 → :access_denied`,
+  the codes observed against real cgminer wire fixtures.
   Backward-compatible: `raise ApiError, "msg"` still works and
-  `e.message` is unchanged. `Miner#check_status` now passes
-  `cgminer_code:` through verbatim from the wire response;
-  `access_denied?` (the local pre-wire guard) passes
-  `code: :access_denied` explicitly so the symbol matches a
-  real wire-side Code 45 regardless of which path raised.
+  `e.message` is unchanged.
+
+### Changed
+- `ApiError` constructor now validates `cgminer_code:` is `Integer`
+  or `nil` and `code:` is `Symbol`, `String`, or `nil`. Bad input
+  raises `ArgumentError` with a clear message instead of silently
+  producing `code: :unknown` (string `cgminer_code`) or
+  `NoMethodError` deep in the constructor (`code: 42`). Wire-side
+  callers go through `ApiError.for_status` which coerces a
+  non-numeric Code to `nil` so dispatch falls through to `:unknown`.
 - **`docs/logging.md`** — short stub stating that `cgminer_api_client`
   is intentionally silent: no `Logger` module, no structured log
   events. The library raises on failure and returns result objects
