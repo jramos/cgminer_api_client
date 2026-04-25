@@ -7,11 +7,7 @@ end
 
 require 'cgminer_api_client'
 
-# Load every support file (fixtures, FakeCgminer, etc). Fixtures
-# must come before FakeCgminer since the latter references the
-# former as a default — alphabetical order handles this since
-# Dir[] returns sorted results on Ruby 3.0+.
-Dir[File.expand_path('support/**/*.rb', __dir__)].each { |f| require f }
+require 'cgminer_test_support'
 
 RSpec.configure do |config|
   config.filter_run :focus
