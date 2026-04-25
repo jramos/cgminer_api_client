@@ -154,6 +154,47 @@ describe CgminerApiClient::ApiError do
     end
   end
 
+  describe '.for_status (factory used by Miner#check_status)' do
+    it 'returns AccessDeniedError when the integer maps to :access_denied' do
+      e = described_class.for_status(45, 'Access denied')
+      expect(e).to be_a(CgminerApiClient::AccessDeniedError)
+      expect(e.cgminer_code).to eq(45)
+      expect(e.code).to eq(:access_denied)
+      expect(e.message).to eq('45: Access denied')
+    end
+
+    it 'returns plain ApiError for mapped non-access-denied codes' do
+      e = described_class.for_status(14, 'Invalid command')
+      expect(e).to be_an_instance_of(described_class)
+      expect(e).not_to be_a(CgminerApiClient::AccessDeniedError)
+      expect(e.cgminer_code).to eq(14)
+      expect(e.code).to eq(:invalid_command)
+    end
+
+    it 'returns plain ApiError with :unknown for unmapped codes' do
+      e = described_class.for_status(999, 'Strange')
+      expect(e).to be_an_instance_of(described_class)
+      expect(e.cgminer_code).to eq(999)
+      expect(e.code).to eq(:unknown)
+    end
+
+    it 'coerces a String Code to Integer (best-effort wire boundary)' do
+      # cgminer normally emits Code as integer, but defending against
+      # firmware that ever returns "45" as JSON string keeps dispatch
+      # working.
+      e = described_class.for_status('45', 'Access denied')
+      expect(e).to be_a(CgminerApiClient::AccessDeniedError)
+      expect(e.cgminer_code).to eq(45)
+    end
+
+    it 'falls through to :unknown when the Code is non-numeric' do
+      e = described_class.for_status('not-a-number', 'Weird')
+      expect(e).to be_an_instance_of(described_class)
+      expect(e.cgminer_code).to be_nil
+      expect(e.code).to eq(:unknown)
+    end
+  end
+
   describe 'compatibility with raise/rescue' do
     it 'works with raise(class, message) — the legacy two-arg form' do
       expect { raise described_class, 'boom' }
