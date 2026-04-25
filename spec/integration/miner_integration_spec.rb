@@ -93,12 +93,47 @@ describe 'Miner integration with a fake cgminer server' do
       end
     end
 
+    it 'attaches the cgminer integer code and :invalid_command symbol on STATUS=E for an unknown command' do
+      # End-to-end coverage: the wire path threads cgminer's Code 14
+      # through Miner#check_status into ApiError#cgminer_code, and
+      # CGMINER_CODES maps it to the :invalid_command symbol.
+      # Pinned against real FakeCgminer fixture so a future Code-vs-MSG
+      # firmware drift would trip a test, not silently flip dispatch.
+      # Block-form raise_error matcher (not rescue-in-it) so a refactor
+      # that swallowed the raise would fail this example loudly.
+      CgminerTestSupport::FakeCgminer.with(responses: {}) do |port|
+        expect { miner_at(port).query(:totally_fake_command) }
+          .to raise_error(CgminerApiClient::ApiError) do |e|
+            expect(e.message).to eq('14: Invalid command')
+            expect(e.cgminer_code).to eq(14)
+            expect(e.code).to eq(:invalid_command)
+          end
+      end
+    end
+
     it 'returns false from #privileged when the server responds with access denied' do
       responses = CgminerTestSupport::Fixtures::DEFAULT.merge(
         'privileged' => CgminerTestSupport::Fixtures::PRIVILEGED_DENIED
       )
       CgminerTestSupport::FakeCgminer.with(responses: responses) do |port|
         expect(miner_at(port).privileged).to be(false)
+      end
+    end
+
+    it 'attaches cgminer_code: 45 and code: :access_denied when query directly hits a privileged-denied response' do
+      # End-to-end coverage of the wire-side access-denied path. Unlike
+      # #privileged (which rescues + returns false), a direct query
+      # against an admin-only command on an unprivileged miner surfaces
+      # the ApiError to the caller with the cgminer integer intact.
+      responses = CgminerTestSupport::Fixtures::DEFAULT.merge(
+        'privileged' => CgminerTestSupport::Fixtures::PRIVILEGED_DENIED
+      )
+      CgminerTestSupport::FakeCgminer.with(responses: responses) do |port|
+        expect { miner_at(port).query(:privileged) }
+          .to raise_error(CgminerApiClient::ApiError) do |e|
+            expect(e.cgminer_code).to eq(45)
+            expect(e.code).to eq(:access_denied)
+          end
       end
     end
 

@@ -37,7 +37,7 @@ A pure-Ruby client for the [cgminer](https://github.com/ckolivas/cgminer) JSON-o
 ├── bin/cgminer_api_client        # CLI (packaged in gem)
 ├── lib/cgminer_api_client.rb     # Entry point + module-level config (packaged)
 ├── lib/cgminer_api_client/
-│   ├── errors.rb                 # Error < StandardError, ConnectionError, TimeoutError, ApiError
+│   ├── errors.rb                 # Error < StandardError, ConnectionError, TimeoutError, ApiError (+ ApiError#cgminer_code, #code)
 │   ├── miner.rb                  # Single-host client
 │   ├── miner/commands.rb         # ReadOnly + Privileged.{Asc,Pga,Pool,System}
 │   ├── miner_pool.rb             # Parallel fan-out across a pool
@@ -114,6 +114,7 @@ Lib ─┼──> MinerPool ──(parallel threads)──> Miner ──> socket
 ### Error handling
 
 - New errors should subclass one of the existing four (`Error`, `ConnectionError`, `TimeoutError`, `ApiError`) — don't add a sibling unless you have a real reason. The hierarchy is deliberate: `ConnectionError` = "couldn't reach the miner", `ApiError` = "miner answered and rejected". Keep those semantics intact.
+- **`ApiError` carries structured fields, not just a message.** `#cgminer_code` is the integer Code from cgminer's STATUS hash (or nil if the error wasn't sourced from a wire response — e.g., the `access_denied?` local guard). `#code` is a symbolic Ruby tag derived from that integer via `ApiError::CGMINER_CODES`, falling back to `:unknown`. Callers dispatch on `e.code`, never on `e.message =~ /access denied/i`. The map is intentionally conservative — only codes the test suite or production has actually observed against real cgminer 4.11.1 fixtures (`14 → :invalid_command`, `45 → :access_denied`). When you find a code worth dispatching on, add a row.
 - Rescue narrowly. `rescue SocketError, SystemCallError, CgminerApiClient::TimeoutError` in `Miner#available?` is the pattern — bugs like `ArgumentError` should propagate, not be silently swallowed.
 - `MinerPool#query` worker threads use `rescue StandardError => e` deliberately — they capture everything into a `MinerResult.failure`. One bad miner must not take down the whole pool query.
 

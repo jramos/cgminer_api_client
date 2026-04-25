@@ -193,6 +193,20 @@ describe CgminerApiClient::Miner::Commands do
             instance.send(:access_denied?)
           end.to raise_error(CgminerApiClient::ApiError, 'access denied')
         end
+
+        it 'attaches code: :access_denied so callers can dispatch without parsing the message' do
+          # privileged is stubbed to return false here, so access_denied?
+          # re-raises with the symbolic code only — cgminer_code stays
+          # nil because there's no wire integer to inherit (the real
+          # wire path inside privileged would have raised with code 45,
+          # but privileged's rescue dropped it). Dispatch on e.code
+          # works identically for both paths.
+          expect { instance.send(:access_denied?) }
+            .to raise_error(CgminerApiClient::ApiError) do |e|
+              expect(e.code).to eq(:access_denied)
+              expect(e.cgminer_code).to be_nil
+            end
+        end
       end
 
       context 'when privileged' do

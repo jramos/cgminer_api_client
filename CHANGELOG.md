@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Structured error codes on `CgminerApiClient::ApiError`.** Two new
+  reader methods alongside the existing `#message`:
+  `#cgminer_code` (the integer Code from cgminer's STATUS hash —
+  e.g., `45` for access denied — or `nil` for errors raised before
+  any wire interaction) and `#code` (a symbolic tag derived from
+  the integer via `ApiError::CGMINER_CODES`, falling back to
+  `:unknown` for codes not in the map). Callers can now
+  `case e.code; when :access_denied; ...` instead of parsing
+  English error strings. The map is intentionally conservative —
+  `14 → :invalid_command`, `45 → :access_denied`, the two codes
+  the test suite has observed against real cgminer 4.11.1 fixtures.
+  Backward-compatible: `raise ApiError, "msg"` still works and
+  `e.message` is unchanged. `Miner#check_status` now passes
+  `cgminer_code:` through verbatim from the wire response;
+  `access_denied?` (the local pre-wire guard) passes
+  `code: :access_denied` explicitly so the symbol matches a
+  real wire-side Code 45 regardless of which path raised.
 - **`docs/logging.md`** — short stub stating that `cgminer_api_client`
   is intentionally silent: no `Logger` module, no structured log
   events. The library raises on failure and returns result objects
