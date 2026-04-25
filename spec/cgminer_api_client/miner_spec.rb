@@ -504,6 +504,16 @@ describe CgminerApiClient::Miner do
           mock_response['STATUS'] = [{ 'STATUS' => 'F', 'Code' => 23, 'Msg' => 'Bad command' }]
         end
 
+        # Forward-rot guard: the :unknown-fallback assertion below relies
+        # on 23 being absent from the map. A future PR mapping 23 to a
+        # symbol would silently exercise the mapped path while still
+        # claiming to test :unknown — this precondition trips loudly so
+        # the test is updated alongside the map change (pick a different
+        # unmapped integer here when 23 gets mapped).
+        it 'precondition: 23 is unmapped in CGMINER_CODES' do
+          expect(CgminerApiClient::ApiError::CGMINER_CODES).not_to have_key(23)
+        end
+
         it 'raises ApiError' do
           expect do
             instance.send(:check_status, mock_response)
