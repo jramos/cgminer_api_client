@@ -194,6 +194,11 @@ describe CgminerApiClient::Miner::Commands do
           end.to raise_error(CgminerApiClient::ApiError, 'access denied')
         end
 
+        it 'raises the AccessDeniedError subclass specifically' do
+          expect { instance.send(:access_denied?) }
+            .to raise_error(CgminerApiClient::AccessDeniedError, 'access denied')
+        end
+
         it 'attaches code: :access_denied so callers can dispatch without parsing the message' do
           # privileged is stubbed to return false here, so access_denied?
           # re-raises with the symbolic code only — cgminer_code stays

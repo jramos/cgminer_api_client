@@ -492,6 +492,11 @@ describe CgminerApiClient::Miner do
               expect(e.code).to eq(:access_denied)
             end
         end
+
+        it 'raises the AccessDeniedError subclass so callers can rescue it specifically' do
+          expect { instance.send(:check_status, mock_response) }
+            .to raise_error(CgminerApiClient::AccessDeniedError)
+        end
       end
 
       context 'with fatal status' do
