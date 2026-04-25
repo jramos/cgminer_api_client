@@ -126,6 +126,48 @@ describe CgminerApiClient::ApiError do
       end
     end
 
+    context 'with non-Symbol-or-String code (library-boundary input validation)' do
+      # Without this guard, code: 42 raises NoMethodError on .to_sym
+      # deep in the constructor — opaque to the caller. Fail loudly
+      # with the right error class instead.
+      it 'raises ArgumentError on an Integer' do
+        expect { described_class.new('msg', code: 42) }
+          .to raise_error(ArgumentError, /code must be Symbol, String, or nil/)
+      end
+
+      it 'raises ArgumentError on a Hash' do
+        expect { described_class.new('msg', code: { foo: 1 }) }
+          .to raise_error(ArgumentError, /code must be Symbol, String, or nil/)
+      end
+
+      it 'raises ArgumentError on an Array' do
+        expect { described_class.new('msg', code: [:foo]) }
+          .to raise_error(ArgumentError, /code must be Symbol, String, or nil/)
+      end
+
+      it 'raises ArgumentError on false (rather than silently treating it as nil)' do
+        # false || x evaluates to x in Ruby, so without the guard
+        # code: false would silently bypass to map lookup. Loud is right.
+        expect { described_class.new('msg', code: false) }
+          .to raise_error(ArgumentError, /code must be Symbol, String, or nil/)
+      end
+
+      it 'still accepts a Symbol (regression guard)' do
+        expect { described_class.new('msg', code: :access_denied) }
+          .not_to raise_error
+      end
+
+      it 'still accepts a String (regression guard for to_sym coercion)' do
+        expect { described_class.new('msg', code: 'access_denied') }
+          .not_to raise_error
+      end
+
+      it 'still accepts nil (regression guard for the default path)' do
+        expect { described_class.new('msg', code: nil) }
+          .not_to raise_error
+      end
+    end
+
     context 'with non-Integer cgminer_code (library-boundary input validation)' do
       # The constructor is the library's strict boundary. Without this
       # guard, cgminer_code: "45" silently produces code: :unknown
