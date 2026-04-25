@@ -186,10 +186,14 @@ module CgminerApiClient
         private
 
         def access_denied?
-          # The local guard fires before any wire interaction, so there's
-          # no cgminer integer to attach — pass code: explicitly so
-          # callers see the same :access_denied symbol they'd see for a
-          # real wire-side STATUS Code 45 response.
+          # privileged calls query(:privileged), so the wire IS hit; if
+          # the miner answers with STATUS=E Code 45, check_status raises
+          # and privileged rescues + returns false, dropping the cgminer
+          # integer in the rescue. Re-attach the symbolic code explicitly
+          # so callers can't tell which call path raised — dispatch on
+          # e.code works identically for "real wire denied" and
+          # "guard-locally denied". e.cgminer_code stays nil here because
+          # it was discarded by privileged's rescue.
           raise CgminerApiClient::ApiError.new('access denied', code: :access_denied) unless privileged
 
           false

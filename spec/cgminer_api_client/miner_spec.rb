@@ -483,10 +483,14 @@ describe CgminerApiClient::Miner do
         end
 
         it 'attaches the cgminer integer code and the :access_denied symbol' do
-          instance.send(:check_status, mock_response)
-        rescue CgminerApiClient::ApiError => e
-          expect(e.cgminer_code).to eq(45)
-          expect(e.code).to eq(:access_denied)
+          # Block-form raise_error so a future refactor that silently
+          # swallows the raise fails this test (rescue-in-it would pass
+          # green with zero assertions executed).
+          expect { instance.send(:check_status, mock_response) }
+            .to raise_error(CgminerApiClient::ApiError) do |e|
+              expect(e.cgminer_code).to eq(45)
+              expect(e.code).to eq(:access_denied)
+            end
         end
       end
 
@@ -502,13 +506,15 @@ describe CgminerApiClient::Miner do
         end
 
         it 'attaches the cgminer integer verbatim and falls back to :unknown for unmapped codes' do
-          # 23 is not in CGMINER_CODES — only codes the test suite has
-          # observed against real cgminer 4.11.1 fixtures (14, 45) are
-          # mapped, so this exercises the :unknown fallback path.
-          instance.send(:check_status, mock_response)
-        rescue CgminerApiClient::ApiError => e
-          expect(e.cgminer_code).to eq(23)
-          expect(e.code).to eq(:unknown)
+          # 23 is intentionally outside CGMINER_CODES (which only maps
+          # codes observed in real cgminer fixtures: 14, 45); this
+          # exercises the :unknown fallback path. If a future PR maps
+          # 23, pick a different unmapped integer here.
+          expect { instance.send(:check_status, mock_response) }
+            .to raise_error(CgminerApiClient::ApiError) do |e|
+              expect(e.cgminer_code).to eq(23)
+              expect(e.code).to eq(:unknown)
+            end
         end
       end
     end

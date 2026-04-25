@@ -52,6 +52,16 @@ module CgminerApiClient
     attr_reader :cgminer_code, :code
 
     def initialize(message = nil, cgminer_code: nil, code: nil)
+      # Fail loud at the library boundary on bad input. Without this guard,
+      # cgminer_code: "45" or 45.0 silently produces code: :unknown
+      # because CGMINER_CODES uses integer keys — every dispatch site
+      # would break with no signal. Wire-side callers that want best-effort
+      # coercion should pass Integer(c, exception: false) themselves.
+      unless cgminer_code.nil? || cgminer_code.is_a?(Integer)
+        raise ArgumentError,
+              "cgminer_code must be Integer or nil, got #{cgminer_code.class}: #{cgminer_code.inspect}"
+      end
+
       super(message)
       @cgminer_code = cgminer_code
       @code = (code || CGMINER_CODES[cgminer_code] || :unknown).to_sym
