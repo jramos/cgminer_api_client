@@ -52,6 +52,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`MinerPool#load_miners!`** now raises `CgminerApiClient::Error`
   (was `RuntimeError`) when `config/miners.yml` is missing. Existing
   `rescue StandardError` clauses still work.
+- Test-support code (FakeCgminer, CgminerFixtures) extracted to the
+  shared `cgminer_test_support` gem. Spec references now use
+  `CgminerTestSupport::FakeCgminer` and
+  `CgminerTestSupport::Fixtures::SUMMARY` etc. `script/fake_cgminer`
+  is now a thin shim that delegates to `bundle exec fake_cgminer`;
+  operator muscle memory unchanged.
 
 ### Fixed
 - **`MinerPool` no longer silently defaults a miners.yml entry

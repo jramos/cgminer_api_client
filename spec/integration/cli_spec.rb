@@ -5,7 +5,7 @@ require 'open3'
 require 'tmpdir'
 
 # End-to-end tests for bin/cgminer_api_client. Spawns the real
-# binary via Open3 against a live FakeCgminer on an ephemeral
+# binary via Open3 against a live CgminerTestSupport::FakeCgminer on an ephemeral
 # port, with a temporary config/miners.yml written to a tmpdir so
 # the CLI's MinerPool.new finds it. Asserts on exit code,
 # stdout/stderr split, and DEBUG=1 backtrace behavior.
@@ -30,7 +30,7 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
 
   describe 'happy path: single miner, successful query' do
     it 'prints the summary on stdout with a host:port header and exits 0' do
-      FakeCgminer.with do |port|
+      CgminerTestSupport::FakeCgminer.with do |port|
         stdout, stderr, status = run_cli(
           %w[summary],
           miners: [{ host: '127.0.0.1', port: port }]
@@ -87,7 +87,7 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
       closed_port = dummy.addr[1]
       dummy.close
 
-      FakeCgminer.with do |good_port|
+      CgminerTestSupport::FakeCgminer.with do |good_port|
         stdout, stderr, status = run_cli(
           %w[summary],
           miners: [
@@ -133,7 +133,7 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
 
   describe '-v / --verbose flag' do
     it 'logs >>> / <<< lines with host:port prefix when -v precedes the command' do
-      FakeCgminer.with do |port|
+      CgminerTestSupport::FakeCgminer.with do |port|
         stdout, stderr, status = run_cli(
           ['-v', 'summary'],
           miners: [{ host: '127.0.0.1', port: port }]
@@ -149,7 +149,7 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
     end
 
     it 'accepts --verbose as the long form' do
-      FakeCgminer.with do |port|
+      CgminerTestSupport::FakeCgminer.with do |port|
         _stdout, stderr, status = run_cli(
           ['--verbose', 'summary'],
           miners: [{ host: '127.0.0.1', port: port }]
@@ -162,7 +162,7 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
     end
 
     it 'permutes: the flag still works when it follows the command' do
-      FakeCgminer.with do |port|
+      CgminerTestSupport::FakeCgminer.with do |port|
         _stdout, stderr, status = run_cli(
           ['summary', '-v'],
           miners: [{ host: '127.0.0.1', port: port }]
@@ -174,7 +174,7 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
     end
 
     it 'is silent on stderr without the flag' do
-      FakeCgminer.with do |port|
+      CgminerTestSupport::FakeCgminer.with do |port|
         _stdout, stderr, status = run_cli(
           %w[summary],
           miners: [{ host: '127.0.0.1', port: port }]
@@ -187,8 +187,8 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
     end
 
     it 'prefixes each line with the originating miner so the fan-out is grep-able' do
-      FakeCgminer.with do |a_port|
-        FakeCgminer.with do |b_port|
+      CgminerTestSupport::FakeCgminer.with do |a_port|
+        CgminerTestSupport::FakeCgminer.with do |b_port|
           _stdout, stderr, status = run_cli(
             ['-v', 'summary'],
             miners: [
