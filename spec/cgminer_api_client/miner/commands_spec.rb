@@ -193,6 +193,16 @@ describe CgminerApiClient::Miner::Commands do
             instance.send(:access_denied?)
           end.to raise_error(CgminerApiClient::ApiError, 'access denied')
         end
+
+        it 'attaches code: :access_denied so callers can dispatch without parsing the message' do
+          # The local guard fires before any wire interaction, so
+          # cgminer_code stays nil — but the symbolic code must match
+          # what a real wire-side Code 45 would produce.
+          instance.send(:access_denied?)
+        rescue CgminerApiClient::ApiError => e
+          expect(e.code).to eq(:access_denied)
+          expect(e.cgminer_code).to be_nil
+        end
       end
 
       context 'when privileged' do

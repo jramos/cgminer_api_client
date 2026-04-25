@@ -481,6 +481,13 @@ describe CgminerApiClient::Miner do
             instance.send(:check_status, mock_response)
           end.to raise_error(CgminerApiClient::ApiError, '45: Access denied')
         end
+
+        it 'attaches the cgminer integer code and the :access_denied symbol' do
+          instance.send(:check_status, mock_response)
+        rescue CgminerApiClient::ApiError => e
+          expect(e.cgminer_code).to eq(45)
+          expect(e.code).to eq(:access_denied)
+        end
       end
 
       context 'with fatal status' do
@@ -492,6 +499,16 @@ describe CgminerApiClient::Miner do
           expect do
             instance.send(:check_status, mock_response)
           end.to raise_error(CgminerApiClient::ApiError, '23: Bad command')
+        end
+
+        it 'attaches the cgminer integer verbatim and falls back to :unknown for unmapped codes' do
+          # 23 is not in CGMINER_CODES — only codes the test suite has
+          # observed against real cgminer 4.11.1 fixtures (14, 45) are
+          # mapped, so this exercises the :unknown fallback path.
+          instance.send(:check_status, mock_response)
+        rescue CgminerApiClient::ApiError => e
+          expect(e.cgminer_code).to eq(23)
+          expect(e.code).to eq(:unknown)
         end
       end
     end

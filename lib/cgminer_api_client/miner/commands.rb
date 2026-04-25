@@ -186,7 +186,11 @@ module CgminerApiClient
         private
 
         def access_denied?
-          raise CgminerApiClient::ApiError, 'access denied' unless privileged
+          # The local guard fires before any wire interaction, so there's
+          # no cgminer integer to attach — pass code: explicitly so
+          # callers see the same :access_denied symbol they'd see for a
+          # real wire-side STATUS Code 45 response.
+          raise CgminerApiClient::ApiError.new('access denied', code: :access_denied) unless privileged
 
           false
         end

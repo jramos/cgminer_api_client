@@ -151,7 +151,9 @@ module CgminerApiClient
       # cgminer STATUS codes: S=Success (silent), I=Info, W=Warning,
       # E=Error, F=Fatal. Errors and Fatals raise ApiError so callers
       # can distinguish them from ConnectionError (transport-level
-      # failures).
+      # failures). cgminer_code: passes the integer through verbatim
+      # so ApiError can derive a symbolic #code via its CGMINER_CODES
+      # map (callers dispatch on the symbol, not on the English Msg).
       case sc
       when 'S'
         # no-op: success needs no notification
@@ -160,7 +162,7 @@ module CgminerApiClient
       when 'W'
         puts "Warning from API [#{c}]: #{msg}"
       else
-        raise ApiError, "#{c}: #{msg}"
+        raise ApiError.new("#{c}: #{msg}", cgminer_code: c)
       end
     end
 

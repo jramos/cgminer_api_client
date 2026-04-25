@@ -93,6 +93,20 @@ describe 'Miner integration with a fake cgminer server' do
       end
     end
 
+    it 'attaches the cgminer integer code and :invalid_command symbol on STATUS=E for an unknown command' do
+      # End-to-end coverage: the wire path threads cgminer's Code 14
+      # through Miner#check_status into ApiError#cgminer_code, and
+      # CGMINER_CODES maps it to the :invalid_command symbol.
+      # Pinned against real FakeCgminer fixture so a future Code-vs-MSG
+      # firmware drift would trip a test, not silently flip dispatch.
+      CgminerTestSupport::FakeCgminer.with(responses: {}) do |port|
+        miner_at(port).query(:totally_fake_command)
+      rescue CgminerApiClient::ApiError => e
+        expect(e.cgminer_code).to eq(14)
+        expect(e.code).to eq(:invalid_command)
+      end
+    end
+
     it 'returns false from #privileged when the server responds with access denied' do
       responses = CgminerTestSupport::Fixtures::DEFAULT.merge(
         'privileged' => CgminerTestSupport::Fixtures::PRIVILEGED_DENIED
