@@ -58,14 +58,19 @@ module CgminerApiClient
     end
 
     def initialize(message = nil, cgminer_code: nil, code: nil)
-      # Fail loud at the library boundary on bad input. Without this guard,
-      # cgminer_code: "45" or 45.0 silently produces code: :unknown
-      # because CGMINER_CODES uses integer keys — every dispatch site
-      # would break with no signal. Wire-side callers that want best-effort
-      # coercion should pass Integer(c, exception: false) themselves.
+      # Fail loud at the library boundary on bad input. Without these
+      # guards, cgminer_code: "45" or 45.0 silently produces code:
+      # :unknown (CGMINER_CODES uses integer keys), and code: 42 raises
+      # NoMethodError on .to_sym deep in the constructor — both
+      # opaque failure modes. Wire-side callers that want best-effort
+      # Integer coercion go through ApiError.for_status.
       unless cgminer_code.nil? || cgminer_code.is_a?(Integer)
         raise ArgumentError,
               "cgminer_code must be Integer or nil, got #{cgminer_code.class}: #{cgminer_code.inspect}"
+      end
+      unless code.nil? || code.is_a?(Symbol) || code.is_a?(String)
+        raise ArgumentError,
+              "code must be Symbol, String, or nil, got #{code.class}: #{code.inspect}"
       end
 
       super(message)
