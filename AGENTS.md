@@ -37,7 +37,7 @@ A pure-Ruby client for the [cgminer](https://github.com/ckolivas/cgminer) JSON-o
 ├── bin/cgminer_api_client        # CLI (packaged in gem)
 ├── lib/cgminer_api_client.rb     # Entry point + module-level config (packaged)
 ├── lib/cgminer_api_client/
-│   ├── errors.rb                 # Error < StandardError, ConnectionError, TimeoutError, ApiError (+ ApiError#cgminer_code, #code)
+│   ├── errors.rb                 # Error < StandardError, ConnectionError, TimeoutError, ApiError (+ #cgminer_code, #code), AccessDeniedError
 │   ├── miner.rb                  # Single-host client
 │   ├── miner/commands.rb         # ReadOnly + Privileged.{Asc,Pga,Pool,System}
 │   ├── miner_pool.rb             # Parallel fan-out across a pool
@@ -113,8 +113,9 @@ Lib ─┼──> MinerPool ──(parallel threads)──> Miner ──> socket
 
 ### Error handling
 
-- New errors should subclass one of the existing four (`Error`, `ConnectionError`, `TimeoutError`, `ApiError`) — don't add a sibling unless you have a real reason. The hierarchy is deliberate: `ConnectionError` = "couldn't reach the miner", `ApiError` = "miner answered and rejected". Keep those semantics intact.
-- **`ApiError` carries structured fields, not just a message.** `#cgminer_code` is the integer Code from cgminer's STATUS hash (or nil if the error wasn't sourced from a wire response — e.g., the `access_denied?` local guard). `#code` is a symbolic Ruby tag derived from that integer via `ApiError::CGMINER_CODES`, falling back to `:unknown`. Callers dispatch on `e.code`, never on `e.message =~ /access denied/i`. The map is intentionally conservative — only codes the test suite or production has actually observed against real cgminer 4.11.1 fixtures (`14 → :invalid_command`, `45 → :access_denied`). When you find a code worth dispatching on, add a row.
+- The hierarchy is deliberate: `ConnectionError` = "couldn't reach the miner", `ApiError` = "miner answered and rejected". Keep those semantics intact. `AccessDeniedError < ApiError` covers the most commonly dispatched-on case (cgminer Code 45 + the `access_denied?` local guard); add another `ApiError` subclass only when a code earns enough dispatch-site interest to outweigh the asymmetry of having more subclasses for some codes than others.
+- **`ApiError` carries structured fields, not just a message.** `#cgminer_code` is the integer Code from cgminer's STATUS hash (or nil if the wire integer was discarded — e.g., the `access_denied?` local guard's call to `privileged` hits the wire, but the rescue inside `privileged` drops the integer before re-raising). `#code` is a symbolic Ruby tag derived from that integer via `ApiError::CGMINER_CODES`, falling back to `:unknown`. **Prefer `e.code` for dispatch over `e.cgminer_code`** — `cgminer_code` can be nil even when the symbolic tag is set. Callers dispatch on `e.code`, never on `e.message =~ /access denied/i`. The map is intentionally conservative — only wire-observed codes (`14 → :invalid_command`, `45 → :access_denied`); add a row when you find a code worth dispatching on.
+- `ApiError.for_status(c, msg)` is the wire-side factory used by `Miner#check_status`. It picks the right subclass (`AccessDeniedError` for Code 45, `ApiError` otherwise) and coerces a non-numeric Code to nil so `:unknown` falls through cleanly. Don't call it from non-wire paths — those raise the right class directly.
 - Rescue narrowly. `rescue SocketError, SystemCallError, CgminerApiClient::TimeoutError` in `Miner#available?` is the pattern — bugs like `ArgumentError` should propagate, not be silently swallowed.
 - `MinerPool#query` worker threads use `rescue StandardError => e` deliberately — they capture everything into a `MinerResult.failure`. One bad miner must not take down the whole pool query.
 
