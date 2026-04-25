@@ -149,14 +149,12 @@ module CgminerApiClient
       msg    = status['Msg']
 
       # cgminer STATUS codes: S=Success (silent), I=Info, W=Warning,
-      # E=Error, F=Fatal. Errors and Fatals raise ApiError so callers
-      # can distinguish them from ConnectionError (transport-level
-      # failures). The wire boundary stays best-effort: if a future
-      # firmware ever emits Code as a JSON string instead of an integer,
-      # Integer(...) coerces it; if it's non-numeric, falls through to
-      # nil and ApiError#code becomes :unknown rather than raising
-      # ArgumentError mid-poll. The library boundary stays strict —
-      # see ApiError#initialize.
+      # E=Error, F=Fatal. Errors and Fatals raise via ApiError.for_status
+      # which picks AccessDeniedError for Code 45 (so callers can
+      # `rescue AccessDeniedError`) and falls back to ApiError otherwise.
+      # The wire boundary stays best-effort — non-numeric Codes coerce
+      # to nil and the symbolic tag becomes :unknown rather than
+      # raising mid-poll.
       case sc
       when 'S'
         # no-op: success needs no notification
@@ -165,7 +163,7 @@ module CgminerApiClient
       when 'W'
         puts "Warning from API [#{c}]: #{msg}"
       else
-        raise ApiError.new("#{c}: #{msg}", cgminer_code: Integer(c, exception: false))
+        raise ApiError.for_status(c, msg)
       end
     end
 

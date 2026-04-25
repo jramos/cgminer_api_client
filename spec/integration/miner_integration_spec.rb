@@ -130,7 +130,7 @@ describe 'Miner integration with a fake cgminer server' do
       )
       CgminerTestSupport::FakeCgminer.with(responses: responses) do |port|
         expect { miner_at(port).query(:privileged) }
-          .to raise_error(CgminerApiClient::ApiError) do |e|
+          .to raise_error(CgminerApiClient::AccessDeniedError) do |e|
             expect(e.cgminer_code).to eq(45)
             expect(e.code).to eq(:access_denied)
           end
