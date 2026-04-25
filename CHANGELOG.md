@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-25
+
 ### Added
 - **`CgminerApiClient::AccessDeniedError`**, a subclass of `ApiError`
   for the most commonly dispatched-on case (cgminer Code 45 + the
