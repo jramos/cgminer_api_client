@@ -126,6 +126,48 @@ describe CgminerApiClient::ApiError do
       end
     end
 
+    context 'with non-Symbol-or-String code (library-boundary input validation)' do
+      # Without this guard, code: 42 raises NoMethodError on .to_sym
+      # deep in the constructor — opaque to the caller. Fail loudly
+      # with the right error class instead.
+      it 'raises ArgumentError on an Integer' do
+        expect { described_class.new('msg', code: 42) }
+          .to raise_error(ArgumentError, /code must be Symbol, String, or nil/)
+      end
+
+      it 'raises ArgumentError on a Hash' do
+        expect { described_class.new('msg', code: { foo: 1 }) }
+          .to raise_error(ArgumentError, /code must be Symbol, String, or nil/)
+      end
+
+      it 'raises ArgumentError on an Array' do
+        expect { described_class.new('msg', code: [:foo]) }
+          .to raise_error(ArgumentError, /code must be Symbol, String, or nil/)
+      end
+
+      it 'raises ArgumentError on false (rather than silently treating it as nil)' do
+        # false || x evaluates to x in Ruby, so without the guard
+        # code: false would silently bypass to map lookup. Loud is right.
+        expect { described_class.new('msg', code: false) }
+          .to raise_error(ArgumentError, /code must be Symbol, String, or nil/)
+      end
+
+      it 'still accepts a Symbol (regression guard)' do
+        expect { described_class.new('msg', code: :access_denied) }
+          .not_to raise_error
+      end
+
+      it 'still accepts a String (regression guard for to_sym coercion)' do
+        expect { described_class.new('msg', code: 'access_denied') }
+          .not_to raise_error
+      end
+
+      it 'still accepts nil (regression guard for the default path)' do
+        expect { described_class.new('msg', code: nil) }
+          .not_to raise_error
+      end
+    end
+
     context 'with non-Integer cgminer_code (library-boundary input validation)' do
       # The constructor is the library's strict boundary. Without this
       # guard, cgminer_code: "45" silently produces code: :unknown
@@ -151,6 +193,47 @@ describe CgminerApiClient::ApiError do
         expect { described_class.new('msg', cgminer_code: nil) }
           .not_to raise_error
       end
+    end
+  end
+
+  describe '.for_status (factory used by Miner#check_status)' do
+    it 'returns AccessDeniedError when the integer maps to :access_denied' do
+      e = described_class.for_status(45, 'Access denied')
+      expect(e).to be_a(CgminerApiClient::AccessDeniedError)
+      expect(e.cgminer_code).to eq(45)
+      expect(e.code).to eq(:access_denied)
+      expect(e.message).to eq('45: Access denied')
+    end
+
+    it 'returns plain ApiError for mapped non-access-denied codes' do
+      e = described_class.for_status(14, 'Invalid command')
+      expect(e).to be_an_instance_of(described_class)
+      expect(e).not_to be_a(CgminerApiClient::AccessDeniedError)
+      expect(e.cgminer_code).to eq(14)
+      expect(e.code).to eq(:invalid_command)
+    end
+
+    it 'returns plain ApiError with :unknown for unmapped codes' do
+      e = described_class.for_status(999, 'Strange')
+      expect(e).to be_an_instance_of(described_class)
+      expect(e.cgminer_code).to eq(999)
+      expect(e.code).to eq(:unknown)
+    end
+
+    it 'coerces a String Code to Integer (best-effort wire boundary)' do
+      # cgminer normally emits Code as integer, but defending against
+      # firmware that ever returns "45" as JSON string keeps dispatch
+      # working.
+      e = described_class.for_status('45', 'Access denied')
+      expect(e).to be_a(CgminerApiClient::AccessDeniedError)
+      expect(e.cgminer_code).to eq(45)
+    end
+
+    it 'falls through to :unknown when the Code is non-numeric' do
+      e = described_class.for_status('not-a-number', 'Weird')
+      expect(e).to be_an_instance_of(described_class)
+      expect(e.cgminer_code).to be_nil
+      expect(e.code).to eq(:unknown)
     end
   end
 
