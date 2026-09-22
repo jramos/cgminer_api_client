@@ -404,7 +404,7 @@ describe CgminerApiClient::Miner do
 
         context 'single command' do
           it 'parses the response as JSON and check the status' do
-            expect(JSON).to receive(:parse).with(mock_socket.read)
+            expect(JSON).to receive(:parse).with(mock_socket.read, allow_duplicate_key: true)
             expect(instance).to receive(:check_status).and_return(true)
             instance.send(:perform_request, {})
           end
@@ -412,8 +412,9 @@ describe CgminerApiClient::Miner do
 
         context 'multiple commands' do
           it 'parses the response as JSON and check the status of each response element' do
-            expect(JSON).to receive(:parse).with(mock_socket.read).and_return({ foo: [{ 'STATUS' => 'ALL_GOOD' }],
-                                                                                bar: [{ 'STATUS' => 'NOT_SO_GOOD' }] })
+            expect(JSON).to receive(:parse)
+              .with(mock_socket.read, allow_duplicate_key: true)
+              .and_return({ foo: [{ 'STATUS' => 'ALL_GOOD' }], bar: [{ 'STATUS' => 'NOT_SO_GOOD' }] })
             expect(instance).to receive(:check_status).with({ "STATUS" => 'ALL_GOOD' })
             expect(instance).to receive(:check_status).with({ "STATUS" => 'NOT_SO_GOOD' })
             instance.send(:perform_request, { command: 'foo+bar' })
@@ -426,9 +427,24 @@ describe CgminerApiClient::Miner do
           end
 
           it 'escapes non-printable bytes as \\uXXXX before parsing' do
-            expect(JSON).to receive(:parse).with('{"x":"a\\u0001b\\u001fc"}').and_return({})
+            expect(JSON).to receive(:parse)
+              .with('{"x":"a\\u0001b\\u001fc"}', allow_duplicate_key: true).and_return({})
             expect(instance).to receive(:check_status).and_return(true)
             instance.send(:perform_request, {})
+          end
+        end
+
+        context 'with a duplicated key in the response' do
+          # json 3.0 rejects duplicate keys by default. Some cgminer forks
+          # repeat keys within an object, so the client keeps json 2.x's
+          # last-one-wins behavior rather than raising mid-poll.
+          let(:mock_socket) do
+            instance_double(Socket, write: true, close: true,
+                                    read: '{"STATUS":[{"STATUS":"S"}],"Temp":1,"Temp":2}')
+          end
+
+          it 'parses it, keeping the last value' do
+            expect(instance.send(:perform_request, {})['Temp']).to eq(2)
           end
         end
       end
