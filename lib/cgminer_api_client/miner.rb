@@ -129,7 +129,10 @@ module CgminerApiClient
         response = repaired
       end
 
-      data = JSON.parse(response)
+      # json 3.0 rejects duplicate keys by default; keep json 2.x's
+      # last-one-wins behavior since some cgminer forks repeat keys.
+      # Older json versions ignore the option.
+      data = JSON.parse(response, allow_duplicate_key: true)
 
       if request[:command].to_s.match?('\+')
         data.each_pair do |_command, response|

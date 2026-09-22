@@ -126,7 +126,7 @@ describe 'bin/cgminer_api_client end-to-end', :integration do
         expect(stderr).to include('cgminer_api_client:')
         # full_message output includes file:line references from the
         # backtrace — look for a library file path as a marker.
-        expect(stderr).to match(%r{lib/cgminer_api_client})
+        expect(stderr).to include('lib/cgminer_api_client')
       end
     end
   end

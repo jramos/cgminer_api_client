@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `Miner` keeps parsing responses that repeat a key under json 3.0,
+  which rejects duplicate keys by default. The client now passes
+  `allow_duplicate_key: true`, preserving json 2.x's last-one-wins
+  behavior, so a miner whose firmware repeats a key no longer raises
+  `JSON::ParserError` mid-poll.
+
 ## [0.4.0] - 2026-04-25
 
 ### Added
