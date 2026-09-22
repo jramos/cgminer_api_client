@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-22
+
 ### Fixed
 - `Miner` keeps parsing responses that repeat a key under json 3.0,
   which rejects duplicate keys by default. The client now passes
